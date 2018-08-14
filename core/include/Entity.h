@@ -1,7 +1,6 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <cstddef>
 #include <optional>
 #include <set>
 #include <vector>
