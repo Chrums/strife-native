@@ -1,6 +1,7 @@
 #include "Entity.h"
 
 #include <algorithm>
+#include <numeric>
 
 #include "Scene.h"
 
@@ -27,17 +28,17 @@ void Entity::SetParent(Entity& entity) {
     parentId_ = entity.id;
 }
 
-std::vector<std::optional<std::reference_wrapper<Entity>>> Entity::GetChildren(void) {
-    std::vector<std::optional<std::reference_wrapper<Entity>>> children(childrenIds_.size());
-    std::transform(
+std::vector<std::reference_wrapper<Entity>> Entity::GetChildren(void) {
+    return std::reduce(
         childrenIds_.begin(),
         childrenIds_.end(),
-        children.begin(),
-        [=](boost::uuids::uuid childId) {
-            return scene_->GetEntityById(childId);
+        std::vector<std::reference_wrapper<Entity>>(),
+        [=](std::vector<std::reference_wrapper<Entity>> state, boost::uuids::uuid childId) {
+            std::optional<std::reference_wrapper<Entity>> child = scene_->GetEntityById(childId);
+            if (child) state.push_back(child.value());
+            return state;
         }
     );
-    return children;
 }
 
 void Entity::AddChild(Entity& entity) {

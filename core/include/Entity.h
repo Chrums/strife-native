@@ -10,19 +10,30 @@
 class Scene;
 
 class Entity : public Unique {
+    
 public:
+
     Entity(const Entity& entity);
     Entity(Scene* scene);
     Entity(const boost::uuids::uuid id, Scene* scene);
+    
     std::optional<std::reference_wrapper<Entity>> GetParent(void);
     void SetParent(Entity& entity);
-    std::vector<std::optional<std::reference_wrapper<Entity>>> GetChildren(void);
+    std::vector<std::reference_wrapper<Entity>> GetChildren(void);
     void AddChild(Entity& entity);
     void RemoveChild(Entity& entity);
+    
+    template <typename T>
+    T& AddComponent(void) {
+        return scene_->AddComponent<T>(*this);
+    }
+    
 private:
+
     Scene* scene_;
     std::optional<boost::uuids::uuid> parentId_;
     std::set<boost::uuids::uuid> childrenIds_;
+    
 };
 
 #endif

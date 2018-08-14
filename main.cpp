@@ -16,10 +16,22 @@ int main() {
     Entity& e10 = s.AddEntity(e1);
     Entity& e11 = s.AddEntity(e1);
     
-    s.AddComponent<Transform>(e0);
-    s.AddComponent<Transform>(e0);
+    s.AddComponentByEntity<Transform>(e0).orientation = 90;
+    s.AddComponentByEntity<Transform>(e0).orientation = 180;
+    s.AddComponentByEntity<Transform>(e0).orientation = 270;
     
-    //std::vector<std::reference_wrapper<Transform>> e0ts = s.GetComponents<Transform>(e0);
+    int counter = 0;
+    
+    std::vector<std::reference_wrapper<Transform>> e0ts0 = s.GetComponentsByEntity<Transform>(e0);
+    for (Transform& transform : e0ts0) {
+        transform.position = counter++;
+    }
+    
+    std::vector<std::reference_wrapper<Transform>> e0ts1 = s.GetComponentsByEntity<Transform>(e0);
+    for (Transform& transform : e0ts1) {
+        std::cout << transform.position << std::endl;
+        std::cout << transform.orientation << std::endl;
+    }
     
     return 0;
   

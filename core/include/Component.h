@@ -9,7 +9,7 @@ class Component : public Unique {
 public:
     Component(Entity* entity);
     Component(const boost::uuids::uuid identifier, Entity* entity);
-private:
+protected:
     Entity* entity_;
 };
 

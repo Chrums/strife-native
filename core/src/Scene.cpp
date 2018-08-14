@@ -29,11 +29,9 @@ Entity& Scene::AddEntity(boost::uuids::uuid id, Entity& parent) {
 void Scene::RemoveEntity(Entity& entity) {
     
     // Recursively remove all children
-    std::vector<std::optional<std::reference_wrapper<Entity>>> children = entity.GetChildren();
-    std::for_each(children.begin(), children.end(), [=](std::optional<std::reference_wrapper<Entity>> child) {
-        if (child) {
-            this->RemoveEntity(child->get());
-        }
+    std::vector<std::reference_wrapper<Entity>> children = entity.GetChildren();
+    std::for_each(children.begin(), children.end(), [=](std::reference_wrapper<Entity> child) {
+        this->RemoveEntity(child);
     });
     
     // Remove entity as child of parent
