@@ -8,8 +8,9 @@
 #include <typeinfo>
 #include <vector>
 
-#include "Entity.h"
 #include "Component.h"
+#include "Entity.h"
+#include "Storage.h"
 
 class Scene {
     
@@ -24,43 +25,37 @@ public:
     void MoveEntity(Entity& entity, Entity& target);
     std::optional<std::reference_wrapper<Entity>> GetEntityById(const boost::uuids::uuid id);
     
+    Component& AddComponentByTypeAndEntity(std::type_index type, Entity& entity);
+    void RemoveComponentByTypeAndEntity(std::type_index type, Entity& entity);
+    Component& GetComponentByTypeAndEntity(std::type_index type, Entity& entity);
+    
+    template <typename T>
+    void RegisterComponent() {
+        components_[std::type_index(typeid(T))] = new Storage<T>();
+    }
+    
     template <typename T>
     T& AddComponentByEntity(Entity& entity) {
-        T* component = new T(&entity);
-        components_[std::type_index(typeid(T))][entity.id].push_back(component);
-        return *component;
+        Storage<T>* components = static_cast<Storage<T>*>(components_[std::type_index(typeid(T))]);
+        return components->Add(entity);
     }
     
     template <typename T>
-    std::optional<std::reference_wrapper<T>> GetComponentByEntity(Entity& entity) {
-        std::map<boost::uuids::uuid, std::vector<Component*>> entities = components_[std::type_index(typeid(T))];
-        auto search = entities.find(entity.id);
-        return search != entities.end() && !search->second.empty()
-            ? std::optional<std::reference_wrapper<T>>(*static_cast<T*>(*search->second.begin()))
-            : std::nullopt;
+    void RemoveComponentByEntity(Entity& entity) {
+        Storage<T>* components = static_cast<Storage<T>*>(components_[std::type_index(typeid(T))]);
+        components->Remove(entity);
     }
     
     template <typename T>
-    std::vector<std::reference_wrapper<T>> GetComponentsByEntity(Entity& entity) {
-        std::map<boost::uuids::uuid, std::vector<Component*>> entities = components_[std::type_index(typeid(T))];
-        auto search = entities.find(entity.id);
-        return search != entities.end()
-            ? std::reduce(
-                search->second.begin(),
-                search->second.end(),
-                std::vector<std::reference_wrapper<T>>(),
-                [=](std::vector<std::reference_wrapper<T>> state, Component* component) {
-                    state.push_back(*static_cast<T*>(component));
-                    return state;
-                }
-            )
-            : std::vector<std::reference_wrapper<T>>();
+    T& GetComponentByEntity(Entity& entity) {
+        Storage<T>* components = static_cast<Storage<T>*>(components_[std::type_index(typeid(T))]);
+        return components->operator[](entity);
     }
     
 private:
 
     std::map<boost::uuids::uuid, Entity> entities_;
-    std::map<std::type_index, std::map<boost::uuids::uuid, std::vector<Component*>>> components_;
+    std::map<std::type_index, IStorage*> components_;
     
 };
 

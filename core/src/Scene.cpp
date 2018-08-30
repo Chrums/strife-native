@@ -60,3 +60,15 @@ std::optional<std::reference_wrapper<Entity>> Scene::GetEntityById(const boost::
         ? std::optional<std::reference_wrapper<Entity>>(search->second)
         : std::nullopt;
 }
+
+Component& Scene::AddComponentByTypeAndEntity(std::type_index type, Entity& entity) {
+    return components_[type]->Add(entity);
+}
+
+void Scene::RemoveComponentByTypeAndEntity(std::type_index type, Entity& entity) {
+    return components_[type]->Remove(entity);
+}
+
+Component& Scene::GetComponentByTypeAndEntity(std::type_index type, Entity& entity) {
+    return components_[type]->operator[](entity);
+}

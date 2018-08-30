@@ -1,0 +1,9 @@
+/home/ec2-user/environment/test/CMakeFiles/rebuild_cache.dir
+/home/ec2-user/environment/test/CMakeFiles/edit_cache.dir
+/home/ec2-user/environment/test/CMakeFiles/main.dir
+/home/ec2-user/environment/test/core/CMakeFiles/rebuild_cache.dir
+/home/ec2-user/environment/test/core/CMakeFiles/edit_cache.dir
+/home/ec2-user/environment/test/core/CMakeFiles/core.dir
+/home/ec2-user/environment/test/project/CMakeFiles/rebuild_cache.dir
+/home/ec2-user/environment/test/project/CMakeFiles/edit_cache.dir
+/home/ec2-user/environment/test/project/CMakeFiles/project.dir

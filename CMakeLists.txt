@@ -18,5 +18,5 @@ target_link_libraries(main LINK_PUBLIC
 
 set_target_properties(main PROPERTIES
     SUFFIX ".js"
-    LINK_FLAGS "-s WASM=0 -s USE_PTHREADS=1 -s DEMANGLE_SUPPORT=1"
+    LINK_FLAGS "-s WASM=0 -s USE_PTHREADS=1 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0"
 )

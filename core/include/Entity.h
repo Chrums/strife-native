@@ -3,8 +3,13 @@
 
 #include <optional>
 #include <set>
+#include <typeinfo>
+#include <typeindex>
 #include <vector>
 
+#include <boost/uuid/uuid.hpp>
+
+#include "Component.h"
 #include "Unique.h"
 
 class Scene;
@@ -23,9 +28,23 @@ public:
     void AddChild(Entity& entity);
     void RemoveChild(Entity& entity);
     
+    Component& AddComponentByType(std::type_index type);
+    void RemoveComponentByType(std::type_index type);
+    Component& GetComponentByType(std::type_index type);
+    
     template <typename T>
     T& AddComponent(void) {
-        return scene_->AddComponent<T>(*this);
+        return static_cast<T&>(AddComponentByType(std::type_index(typeid(T))));
+    }
+    
+    template <typename T>
+    T& RemoveComponent(void) {
+        return static_cast<T&>(RemoveComponentByType(std::type_index(typeid(T))));
+    }
+    
+    template <typename T>
+    T& GetComponent(void) {
+        return static_cast<T&>(GetComponentByType(std::type_index(typeid(T))));
     }
     
 private:

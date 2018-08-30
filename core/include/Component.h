@@ -7,10 +7,11 @@ class Entity;
 
 class Component : public Unique {
 public:
-    Component(Entity* entity);
-    Component(const boost::uuids::uuid identifier, Entity* entity);
+    Component(Entity& entity);
+    Component(const boost::uuids::uuid identifier, Entity& entity);
+    Component& operator=(const Component& component);
 protected:
-    Entity* entity_;
+    Entity& entity_;
 };
 
 #endif

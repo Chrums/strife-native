@@ -2,9 +2,13 @@
 
 #include "Entity.h"
 
-Component::Component(Entity* entity) :
+Component::Component(Entity& entity) :
     entity_(entity) {}
     
-Component::Component(const boost::uuids::uuid identifier, Entity* entity) :
+Component::Component(const boost::uuids::uuid identifier, Entity& entity) :
     Unique(identifier),
     entity_(entity) {}
+    
+Component& Component::operator=(const Component& component) {
+    return *this;
+}

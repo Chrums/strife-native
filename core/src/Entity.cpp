@@ -48,3 +48,15 @@ void Entity::AddChild(Entity& entity) {
 void Entity::RemoveChild(Entity& entity) {
     childrenIds_.erase(entity.id);
 }
+
+Component& Entity::AddComponentByType(std::type_index type) {
+    return scene_->AddComponentByTypeAndEntity(type, *this);
+}
+
+void Entity::RemoveComponentByType(std::type_index type) {
+    scene_->RemoveComponentByTypeAndEntity(type, *this);
+}
+
+Component& Entity::GetComponentByType(std::type_index type) {
+    return scene_->GetComponentByTypeAndEntity(type, *this);
+}
