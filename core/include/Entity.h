@@ -3,8 +3,8 @@
 
 #include <optional>
 #include <set>
-#include <typeinfo>
 #include <typeindex>
+#include <typeinfo>
 #include <vector>
 
 #include <boost/uuid/uuid.hpp>
@@ -22,29 +22,29 @@ public:
     Entity(Scene* scene);
     Entity(const boost::uuids::uuid id, Scene* scene);
     
-    std::optional<std::reference_wrapper<Entity>> GetParent(void);
-    void SetParent(Entity& entity);
-    std::vector<std::reference_wrapper<Entity>> GetChildren(void);
-    void AddChild(Entity& entity);
-    void RemoveChild(Entity& entity);
+    Entity* GetParent(void);
+    void SetParent(Entity* entity);
+    std::vector<Entity*> GetChildren(void);
+    void AddChild(Entity* entity);
+    void RemoveChild(Entity* entity);
     
-    Component& AddComponentByType(std::type_index type);
+    Component* AddComponentByType(std::type_index type);
     void RemoveComponentByType(std::type_index type);
-    Component& GetComponentByType(std::type_index type);
+    Component* GetComponentByType(std::type_index type);
     
     template <typename T>
-    T& AddComponent(void) {
-        return static_cast<T&>(AddComponentByType(std::type_index(typeid(T))));
+    T* AddComponent(void) {
+        return static_cast<T*>(AddComponentByType(std::type_index(typeid(T))));
     }
     
     template <typename T>
-    T& RemoveComponent(void) {
-        return static_cast<T&>(RemoveComponentByType(std::type_index(typeid(T))));
+    void RemoveComponent(void) {
+        static_cast<T>(RemoveComponentByType(std::type_index(typeid(T))));
     }
     
     template <typename T>
-    T& GetComponent(void) {
-        return static_cast<T&>(GetComponentByType(std::type_index(typeid(T))));
+    T* GetComponent(void) {
+        return static_cast<T*>(GetComponentByType(std::type_index(typeid(T))));
     }
     
 private:

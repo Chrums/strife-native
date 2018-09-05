@@ -2,73 +2,73 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
 
-Scene::Scene(void) {}
-
-Entity& Scene::AddEntity(void) {
-    Entity entity(this);
-    entities_.insert({ entity.id, entity });
-    return entities_.find(entity.id)->second;
+Entity* Scene::AddEntity(void) {
+    Entity temp(this);
+    entities_.insert({ temp.id, temp });
+    return &entities_.find(temp.id)->second;
 }
 
-Entity& Scene::AddEntity(Entity& parent) {
-    Entity entity(this);
-    entity.SetParent(parent);
-    parent.AddChild(entity);
-    entities_.insert({ entity.id, entity });
-    return entities_.find(entity.id)->second;
+Entity* Scene::AddEntity(Entity* parent) {
+    Entity temp(this);
+    entities_.insert({ temp.id, temp });
+    Entity* entity = &entities_.find(temp.id)->second;
+    parent->AddChild(entity);
+    entity->SetParent(parent);
+    return entity;
 }
 
-Entity& Scene::AddEntity(boost::uuids::uuid id, Entity& parent) {
-    Entity entity(id, this);
-    entity.SetParent(parent);
-    parent.AddChild(entity);
-    entities_.insert({ entity.id, entity });
-    return entities_.find(entity.id)->second;
+Entity* Scene::AddEntity(boost::uuids::uuid id, Entity* parent) {
+    Entity temp(id, this);
+    entities_.insert({ temp.id, temp });
+    Entity* entity = &entities_.find(temp.id)->second;
+    parent->AddChild(entity);
+    entity->SetParent(parent);
+    return entity;
 }
 
-void Scene::RemoveEntity(Entity& entity) {
+void Scene::RemoveEntity(Entity* entity) {
     
     // Recursively remove all children
-    std::vector<std::reference_wrapper<Entity>> children = entity.GetChildren();
-    std::for_each(children.begin(), children.end(), [=](std::reference_wrapper<Entity> child) {
+    std::vector<Entity*> children = entity->GetChildren();
+    std::for_each(children.begin(), children.end(), [=](Entity* child) {
         this->RemoveEntity(child);
     });
     
     // Remove entity as child of parent
-    std::optional<std::reference_wrapper<Entity>> parent = entity.GetParent();
-    if (parent != std::nullopt) {
-        parent->get().RemoveChild(entity);
+    Entity* parent = entity->GetParent();
+    if (parent != nullptr) {
+        parent->RemoveChild(entity);
     }
     
     // Remove entity from scene
-    entities_.erase(entity.id);
+    entities_.erase(entity->id);
     
 }
 
-void Scene::MoveEntity(Entity& entity, Entity& target) {
-    std::optional<std::reference_wrapper<Entity>> parent = entity.GetParent();
-    if (parent != std::nullopt) {
-        parent->get().RemoveChild(entity);
+void Scene::MoveEntity(Entity* entity, Entity* target) {
+    Entity* parent = entity->GetParent();
+    if (parent != nullptr) {
+        parent->RemoveChild(entity);
     }
-    entity.SetParent(target);
-    target.AddChild(entity);
+    entity->SetParent(target);
+    target->AddChild(entity);
 }
 
-std::optional<std::reference_wrapper<Entity>> Scene::GetEntityById(const boost::uuids::uuid id) {
+Entity* Scene::GetEntityById(const boost::uuids::uuid id) {
     auto search = entities_.find(id);
     return search != entities_.end()
-        ? std::optional<std::reference_wrapper<Entity>>(search->second)
-        : std::nullopt;
+        ? &search->second
+        : nullptr;
 }
 
-Component& Scene::AddComponentByTypeAndEntity(std::type_index type, Entity& entity) {
+Component* Scene::AddComponentByTypeAndEntity(std::type_index type, Entity* entity) {
     return components_[type]->Add(entity);
 }
 
-void Scene::RemoveComponentByTypeAndEntity(std::type_index type, Entity& entity) {
-    return components_[type]->Remove(entity);
+void Scene::RemoveComponentByTypeAndEntity(std::type_index type, Entity* entity) {
+    components_[type]->Remove(entity);
 }
 
-Component& Scene::GetComponentByTypeAndEntity(std::type_index type, Entity& entity) {
-    return components_[type]->operator[](entity);
+Component* Scene::GetComponentByTypeAndEntity(std::type_index type, Entity* entity) {
+    return components_[type]->At(entity);
 }

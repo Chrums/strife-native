@@ -18,45 +18,45 @@ Entity::Entity(const boost::uuids::uuid id, Scene* scene) :
     Unique(id),
     scene_(scene) {}
     
-std::optional<std::reference_wrapper<Entity>> Entity::GetParent(void) {
+Entity* Entity::GetParent(void) {
     return parentId_
         ? scene_->GetEntityById(parentId_.value())
-        : std::nullopt;
+        : nullptr;
 }
 
-void Entity::SetParent(Entity& entity) {
-    parentId_ = entity.id;
+void Entity::SetParent(Entity* entity) {
+    parentId_ = entity->id;
 }
 
-std::vector<std::reference_wrapper<Entity>> Entity::GetChildren(void) {
+std::vector<Entity*> Entity::GetChildren(void) {
     return std::reduce(
         childrenIds_.begin(),
         childrenIds_.end(),
-        std::vector<std::reference_wrapper<Entity>>(),
-        [=](std::vector<std::reference_wrapper<Entity>> state, boost::uuids::uuid childId) {
-            std::optional<std::reference_wrapper<Entity>> child = scene_->GetEntityById(childId);
-            if (child) state.push_back(child.value());
+        std::vector<Entity*>(),
+        [=](std::vector<Entity*> state, boost::uuids::uuid childId) {
+            Entity* child = scene_->GetEntityById(childId);
+            if (child != nullptr) state.push_back(child);
             return state;
         }
     );
 }
 
-void Entity::AddChild(Entity& entity) {
-    childrenIds_.insert(entity.id);
+void Entity::AddChild(Entity* entity) {
+    childrenIds_.insert(entity->id);
 }
 
-void Entity::RemoveChild(Entity& entity) {
-    childrenIds_.erase(entity.id);
+void Entity::RemoveChild(Entity* entity) {
+    childrenIds_.erase(entity->id);
 }
 
-Component& Entity::AddComponentByType(std::type_index type) {
-    return scene_->AddComponentByTypeAndEntity(type, *this);
+Component* Entity::AddComponentByType(std::type_index type) {
+    return scene_->AddComponentByTypeAndEntity(type, this);
 }
 
 void Entity::RemoveComponentByType(std::type_index type) {
-    scene_->RemoveComponentByTypeAndEntity(type, *this);
+    scene_->RemoveComponentByTypeAndEntity(type, this);
 }
 
-Component& Entity::GetComponentByType(std::type_index type) {
-    return scene_->GetComponentByTypeAndEntity(type, *this);
+Component* Entity::GetComponentByType(std::type_index type) {
+    return scene_->GetComponentByTypeAndEntity(type, this);
 }

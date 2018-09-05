@@ -6,7 +6,7 @@
 class Transform : public Component {
 public:
     Transform(const Transform& transform);
-    Transform(Entity& entity);
+    Transform(Entity* entity);
     int position;
     int orientation;
     int scale;
