@@ -9,6 +9,7 @@ set_property(TARGET project PROPERTY CXX_STANDARD 17)
 target_include_directories(project PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/assets/components/include
     ${CMAKE_CURRENT_SOURCE_DIR}/assets/systems/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/eigen3
     ${Boost_INCLUDE_DIRS}
 )
 

@@ -12,21 +12,21 @@ Entity::Entity(const Entity& entity) :
     childrenIds_(entity.childrenIds_) {};
     
 Entity::Entity(Scene* scene) :
-    scene_(scene) {}
+    scene_(scene) {};
     
 Entity::Entity(const boost::uuids::uuid id, Scene* scene) :
     Unique(id),
-    scene_(scene) {}
+    scene_(scene) {};
     
 Entity* Entity::GetParent(void) {
     return parentId_
         ? scene_->GetEntityById(parentId_.value())
         : nullptr;
-}
+};
 
 void Entity::SetParent(Entity* entity) {
     parentId_ = entity->id;
-}
+};
 
 std::vector<Entity*> Entity::GetChildren(void) {
     return std::reduce(
@@ -39,24 +39,24 @@ std::vector<Entity*> Entity::GetChildren(void) {
             return state;
         }
     );
-}
+};
 
 void Entity::AddChild(Entity* entity) {
     childrenIds_.insert(entity->id);
-}
+};
 
 void Entity::RemoveChild(Entity* entity) {
     childrenIds_.erase(entity->id);
-}
+};
 
 Component* Entity::AddComponentByType(std::type_index type) {
     return scene_->AddComponentByTypeAndEntity(type, this);
-}
+};
 
 void Entity::RemoveComponentByType(std::type_index type) {
     scene_->RemoveComponentByTypeAndEntity(type, this);
-}
+};
 
 Component* Entity::GetComponentByType(std::type_index type) {
     return scene_->GetComponentByTypeAndEntity(type, this);
-}
+};

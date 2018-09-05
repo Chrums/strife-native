@@ -10,11 +10,15 @@
 
 #include "Component.h"
 #include "Entity.h"
-#include "Storage.h"
+#include "System.h"
 
 class Scene {
     
 public:
+    
+    void Initialize(void);
+    void Update(void);
+    void Render(void);
     
     Entity* AddEntity(void);
     Entity* AddEntity(Entity* parent);
@@ -28,34 +32,34 @@ public:
     Component* GetComponentByTypeAndEntity(std::type_index type, Entity* entity);
     
     template <typename T>
-    void RegisterComponent() {
-        components_[std::type_index(typeid(T))] = new Storage<T>();
-    }
+    void Register() {
+        systems_[std::type_index(typeid(T))] = new System<T>();
+    };
     
-    // template <typename S, typename T, typename... Args>
-    // void RegisterComponent(Args... args) {
-    //     components_[std::type_index(typeid(T))] = new S<T>(args...);
-    // }
+    template <typename S, typename T, typename... Args>
+    void Register(Args... args) {
+        systems_[std::type_index(typeid(T))] = new S(args...);
+    }
     
     template <typename T>
     T* AddComponentByEntity(Entity* entity) {
-        return static_cast<Storage<T>*>(components_[std::type_index(typeid(T))])->Add(entity);
-    }
+        return static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->Add(entity);
+    };
     
     template <typename T>
     void RemoveComponentByEntity(Entity* entity) {
-        static_cast<Storage<T>*>(components_[std::type_index(typeid(T))])->Remove(entity);
-    }
+        static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->Remove(entity);
+    };
     
     template <typename T>
     T* GetComponentByEntity(Entity* entity) {
-        return static_cast<Storage<T>*>(components_[std::type_index(typeid(T))])->At(entity);
-    }
+        return static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->At(entity);
+    };
     
 private:
 
     std::map<boost::uuids::uuid, Entity> entities_;
-    std::map<std::type_index, IStorage*> components_;
+    std::map<std::type_index, ISystem*> systems_;
     
 };
 
