@@ -7,7 +7,7 @@
 class Unique {
 public:
     const boost::uuids::uuid id;
-    Unique(void);
+    Unique();
     Unique(const boost::uuids::uuid id);
 private:
     static boost::uuids::random_generator Generator;

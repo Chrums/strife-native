@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-void Engine::Run(void) {
-    scene.Update();
-    scene.Render();
+void Engine::run() {
+    scene_.update();
+    scene_.render();
 };

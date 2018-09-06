@@ -17,11 +17,11 @@ public:
     ISystem(Scene* scene) :
         scene_(scene) {};
     
-    virtual void Register() = 0;
+    virtual void initialize() = 0;
 
-    virtual Component* Add(Entity* entity) = 0;
-    virtual void Remove(Entity* entity) = 0;
-    virtual Component* At(Entity* entity) = 0;
+    virtual Component* add(Entity* entity) = 0;
+    virtual void remove(Entity* entity) = 0;
+    virtual Component* at(Entity* entity) = 0;
     
 protected:
 
@@ -37,28 +37,28 @@ public:
     System(Scene* scene) :
         ISystem(scene) {};
     
-    void Register(void) {
-        //scene_.update += std::bind(&System::Update, this);
-        //scene_.render += std::bind(&System::Render, this);
+    void initialize() {
+        //scene_.updates += Bind(&System::Update, this);
+        //scene_.renders += Bind(&System::Render, this);
     };
     
-    void Update(void) {
+    void update() {
         
     };
     
-    void Render(void) {
+    void render() {
         
     };
     
-    T* Add(Entity* entity) {
+    T* add(Entity* entity) {
         return &items_.emplace(entity->id, entity).first->second;
     };
     
-    void Remove(Entity* entity) {
+    void remove(Entity* entity) {
         items_.erase(entity->id);
     };
     
-    T* At(Entity* entity) {
+    T* at(Entity* entity) {
         return &items_.at(entity->id);
     };
     

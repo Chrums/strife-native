@@ -22,23 +22,23 @@ public:
     Entity(Scene* scene);
     Entity(const boost::uuids::uuid id, Scene* scene);
     
-    Component* AddComponentByType(std::type_index type);
-    void RemoveComponentByType(std::type_index type);
-    Component* GetComponentByType(std::type_index type);
+    Component* addComponent(std::type_index type);
+    void removeComponent(std::type_index type);
+    Component* getComponent(std::type_index type);
     
     template <typename T>
-    T* AddComponent(void) {
-        return static_cast<T*>(AddComponentByType(std::type_index(typeid(T))));
+    T* addComponent(void) {
+        return static_cast<T*>(addComponent(std::type_index(typeid(T))));
     }
     
     template <typename T>
-    void RemoveComponent(void) {
-        static_cast<T>(RemoveComponentByType(std::type_index(typeid(T))));
+    void removeComponent(void) {
+        static_cast<T>(removeComponent(std::type_index(typeid(T))));
     }
     
     template <typename T>
-    T* GetComponent(void) {
-        return static_cast<T*>(GetComponentByType(std::type_index(typeid(T))));
+    T* getComponent(void) {
+        return static_cast<T*>(getComponent(std::type_index(typeid(T))));
     }
     
 private:

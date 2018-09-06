@@ -16,11 +16,11 @@ class Game : public Engine {
 
 public:
     
-    void Register(Scene* scene) {
-        scene->Register<Transform>("transform");
+    void initialize(Scene* scene) {
+        scene->initialize<Transform>("transform");
     }
     
-    void Update(void) {
+    void update(void) {
         std::cout << "game update" << std::endl;
     }
     
@@ -35,7 +35,7 @@ int main() {
     
     Game game;
     Scene* scene = new Scene();
-    game.Register(scene);
+    game.initialize(scene);
     
     Entity entity(scene);
     std::cout << entity.id << std::endl;
@@ -46,7 +46,7 @@ int main() {
     //cout << file.rdbuf() << endl;
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(file, pt);
-    scene->Deserialize(pt);
+    scene->deserialize(pt);
     } catch (exception& e) {
         cout << e.what() << endl;
     }
@@ -54,7 +54,7 @@ int main() {
     
     // Delegate<void(void)> updates;
     // updates += update;
-    // updates += Bind(&Game::Update, game);
+    // updates += Bind(&Game::update, game);
     // updates();
     // updates -= update;
     // updates();

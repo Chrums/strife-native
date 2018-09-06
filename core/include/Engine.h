@@ -7,12 +7,12 @@ class Engine {
     
 public:
     
-    virtual void Register(Scene* scene) = 0;
-    void Run(void);
+    virtual void initialize(Scene* scene) = 0;
+    void run();
     
 private:
 
-    Scene scene;
+    Scene scene_;
     
 };
 

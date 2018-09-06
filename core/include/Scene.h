@@ -1,11 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <iostream>
 #include <map>
-#include <numeric>
 #include <typeindex>
-#include <typeinfo>
 #include <vector>
 
 #include <boost/property_tree/ptree.hpp>
@@ -19,27 +16,27 @@ class Scene {
     
 public:
     
-    Delegate<void(void)> update;
-    Delegate<void(void)> render;
+    Delegate<void(void)> updates;
+    Delegate<void(void)> renders;
     
-    void Initialize(void);
-    void Update(void);
-    void Render(void);
+    void initialize();
+    void update();
+    void render();
     
-    // boost::property_tree::ptree Serialize(void);
-    void Deserialize(boost::property_tree::ptree data);
+    // boost::property_tree::ptree serialize();
+    void deserialize(boost::property_tree::ptree data);
     
-    Entity* AddEntity(void);
-    Entity* AddEntity(boost::uuids::uuid);
-    void RemoveEntity(Entity* entity);
-    Entity* GetEntityById(const boost::uuids::uuid id);
+    Entity* addEntity();
+    Entity* addEntity(const boost::uuids::uuid id);
+    void removeEntity(Entity* entity);
+    Entity* getEntity(const boost::uuids::uuid id);
     
-    Component* AddComponentByTypeAndEntity(std::type_index type, Entity* entity);
-    void RemoveComponentByTypeAndEntity(std::type_index type, Entity* entity);
-    Component* GetComponentByTypeAndEntity(std::type_index type, Entity* entity);
+    Component* addComponent(std::type_index type, Entity* entity);
+    void removeComponent(std::type_index type, Entity* entity);
+    Component* getComponent(std::type_index type, Entity* entity);
     
     template <typename T>
-    void Register(std::string identifier) {
+    void initialize(std::string identifier) {
         std::type_index type = std::type_index(typeid(T));
         systems_[type] = new System<T>(this);
         identifierToType_.insert({ identifier, type });
@@ -47,22 +44,25 @@ public:
     };
     
     template <typename S, typename T>
-    void Register() {
-        systems_[std::type_index(typeid(T))] = new S(this);
+    void initialize(std::string identifier) {
+        std::type_index type = std::type_index(typeid(T));
+        systems_[type] = new S(this);
+        identifierToType_.insert({ identifier, type });
+        typeToIdentifier_.insert({ type, identifier });
     }
     
     template <typename T>
-    T* AddComponentByEntity(Entity* entity) {
+    T* addComponent(Entity* entity) {
         return static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->Add(entity);
     };
     
     template <typename T>
-    void RemoveComponentByEntity(Entity* entity) {
+    void removeComponent(Entity* entity) {
         static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->Remove(entity);
     };
     
     template <typename T>
-    T* GetComponentByEntity(Entity* entity) {
+    T* getComponent(Entity* entity) {
         return static_cast<System<T>*>(systems_[std::type_index(typeid(T))])->At(entity);
     };
     

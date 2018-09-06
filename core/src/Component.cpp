@@ -2,21 +2,13 @@
 
 #include "Entity.h"
     
-//using boost::property_tree::ptree;
+using boost::uuids::uuid;
     
-void Component::Register(void) {};
-
-// ptree Component::Serialize(void) {
-    
-// }
-
-// void Component::Deserialize(ptree data) {
-    
-// }
+void Component::initialize() {};
 
 Component::Component(Entity* entity) :
     entity_(entity) {};
     
-Component::Component(const boost::uuids::uuid identifier, Entity* entity) :
-    Unique(identifier),
+Component::Component(const uuid id, Entity* entity) :
+    Unique(id),
     entity_(entity) {};

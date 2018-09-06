@@ -1,6 +1,6 @@
 #include "Unique.h"
 
-Unique::Unique(void) :
+Unique::Unique() :
     id(Unique::Generator()) {};
     
 Unique::Unique(const boost::uuids::uuid id) :
