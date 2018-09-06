@@ -2,11 +2,17 @@
 
 #include "Entity.h"
     
-void Component::Initialize(void) {};
+//using boost::property_tree::ptree;
+    
+void Component::Register(void) {};
 
-void Component::Update(void) {};
+// ptree Component::Serialize(void) {
+    
+// }
 
-void Component::Render(void) {};
+// void Component::Deserialize(ptree data) {
+    
+// }
 
 Component::Component(Entity* entity) :
     entity_(entity) {};

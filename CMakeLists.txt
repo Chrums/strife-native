@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(strife)
 
+set(CMAKE_CXX_FLAGS "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/project/assets")
+
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED)
 

@@ -9,9 +9,10 @@ class Component : public Unique {
     
 public:
     
-    void Initialize(void);
-    void Update(void);
-    void Render(void);
+    virtual void Register(void);
+    
+    //virtual boost::property_tree::ptree Serialize(void);
+    //virtual void Deserialize(boost::property_tree::ptree data);
     
 protected:
 

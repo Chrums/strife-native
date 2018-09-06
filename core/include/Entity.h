@@ -22,12 +22,6 @@ public:
     Entity(Scene* scene);
     Entity(const boost::uuids::uuid id, Scene* scene);
     
-    Entity* GetParent(void);
-    void SetParent(Entity* entity);
-    std::vector<Entity*> GetChildren(void);
-    void AddChild(Entity* entity);
-    void RemoveChild(Entity* entity);
-    
     Component* AddComponentByType(std::type_index type);
     void RemoveComponentByType(std::type_index type);
     Component* GetComponentByType(std::type_index type);
@@ -50,8 +44,6 @@ public:
 private:
 
     Scene* scene_;
-    std::optional<boost::uuids::uuid> parentId_;
-    std::set<boost::uuids::uuid> childrenIds_;
     
 };
 

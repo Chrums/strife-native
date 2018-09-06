@@ -1,21 +1,49 @@
 #include "Scene.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+using namespace std;
+using boost::property_tree::ptree;
+using boost::uuids::uuid;
+
 void Scene::Initialize(void) {
     for (auto& it : systems_) {
-        it.second->Initialize();
+        //it.second->Initialize();
     }
 }
 
 void Scene::Update(void) {
-    for (auto& it : systems_) {
-        it.second->Update();
-    }
+    update();
 }
 
 void Scene::Render(void) {
-    for (auto& it : systems_) {
-        it.second->Render();
+    render();
+}
+
+// ptree Scene::Serialize(void) {
+//     return ptree();
+// }
+
+void Scene::Deserialize(ptree data) {
+    
+    auto entities = data.get_child("entities");
+    for (ptree::value_type &entity : entities) {
+        string id = entity.second.data();
+        AddEntity(boost::lexical_cast<uuid>(id));
     }
+    
+    auto systems = data.get_child("systems");
+    for (ptree::value_type &system : systems) {
+        std::type_index type = identifierToType_.at(system.first);
+        for (ptree::value_type &entityComponents : system.second) {
+            for (ptree::value_type &component : entityComponents.second) {
+                Component* c = AddComponentByTypeAndEntity(type, GetEntityById(boost::lexical_cast<uuid>(entityComponents.first)));
+                //c->Deserialize(component.second.data());
+            }
+        }
+    }
+    
 }
 
 Entity* Scene::AddEntity(void) {
@@ -24,52 +52,19 @@ Entity* Scene::AddEntity(void) {
     return &entities_.find(temp.id)->second;
 };
 
-Entity* Scene::AddEntity(Entity* parent) {
-    Entity temp(this);
-    entities_.insert({ temp.id, temp });
-    Entity* entity = &entities_.find(temp.id)->second;
-    parent->AddChild(entity);
-    entity->SetParent(parent);
-    return entity;
-};
-
-Entity* Scene::AddEntity(boost::uuids::uuid id, Entity* parent) {
+Entity* Scene::AddEntity(boost::uuids::uuid id) {
     Entity temp(id, this);
     entities_.insert({ temp.id, temp });
-    Entity* entity = &entities_.find(temp.id)->second;
-    parent->AddChild(entity);
-    entity->SetParent(parent);
-    return entity;
+    return &entities_.find(temp.id)->second;
 };
 
 void Scene::RemoveEntity(Entity* entity) {
-    
-    // Recursively remove all children
-    std::vector<Entity*> children = entity->GetChildren();
-    std::for_each(children.begin(), children.end(), [=](Entity* child) {
-        this->RemoveEntity(child);
-    });
-    
-    // Remove entity as child of parent
-    Entity* parent = entity->GetParent();
-    if (parent != nullptr) {
-        parent->RemoveChild(entity);
-    }
     
     // Remove entity from scene
     entities_.erase(entity->id);
     
     // TODO: Remove all components...
     
-};
-
-void Scene::MoveEntity(Entity* entity, Entity* target) {
-    Entity* parent = entity->GetParent();
-    if (parent != nullptr) {
-        parent->RemoveChild(entity);
-    }
-    entity->SetParent(target);
-    target->AddChild(entity);
 };
 
 Entity* Scene::GetEntityById(const boost::uuids::uuid id) {

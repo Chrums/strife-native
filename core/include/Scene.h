@@ -8,7 +8,10 @@
 #include <typeinfo>
 #include <vector>
 
+#include <boost/property_tree/ptree.hpp>
+
 #include "Component.h"
+#include "Delegate.h"
 #include "Entity.h"
 #include "System.h"
 
@@ -16,15 +19,19 @@ class Scene {
     
 public:
     
+    Delegate<void(void)> update;
+    Delegate<void(void)> render;
+    
     void Initialize(void);
     void Update(void);
     void Render(void);
     
+    // boost::property_tree::ptree Serialize(void);
+    void Deserialize(boost::property_tree::ptree data);
+    
     Entity* AddEntity(void);
-    Entity* AddEntity(Entity* parent);
-    Entity* AddEntity(boost::uuids::uuid id, Entity* parent);
+    Entity* AddEntity(boost::uuids::uuid);
     void RemoveEntity(Entity* entity);
-    void MoveEntity(Entity* entity, Entity* target);
     Entity* GetEntityById(const boost::uuids::uuid id);
     
     Component* AddComponentByTypeAndEntity(std::type_index type, Entity* entity);
@@ -32,13 +39,16 @@ public:
     Component* GetComponentByTypeAndEntity(std::type_index type, Entity* entity);
     
     template <typename T>
-    void Register() {
-        systems_[std::type_index(typeid(T))] = new System<T>();
+    void Register(std::string identifier) {
+        std::type_index type = std::type_index(typeid(T));
+        systems_[type] = new System<T>(this);
+        identifierToType_.insert({ identifier, type });
+        typeToIdentifier_.insert({ type, identifier });
     };
     
-    template <typename S, typename T, typename... Args>
-    void Register(Args... args) {
-        systems_[std::type_index(typeid(T))] = new S(args...);
+    template <typename S, typename T>
+    void Register() {
+        systems_[std::type_index(typeid(T))] = new S(this);
     }
     
     template <typename T>
@@ -60,6 +70,9 @@ private:
 
     std::map<boost::uuids::uuid, Entity> entities_;
     std::map<std::type_index, ISystem*> systems_;
+    
+    std::map<std::string, std::type_index> identifierToType_;
+    std::map<std::type_index, std::string> typeToIdentifier_;
     
 };
 
