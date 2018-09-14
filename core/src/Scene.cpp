@@ -4,42 +4,66 @@
 #include <boost/uuid/uuid_io.hpp>
 
 using namespace std;
-using boost::property_tree::ptree;
+using nlohmann::json;
 using boost::uuids::uuid;
+
+Scene::~Scene() {
+    for (auto& pairSystemTypeToSystem : systems_) {
+        ISystem* system = pairSystemTypeToSystem.second;
+        delete system;
+    }
+}
 
 void Scene::initialize(void) {
     
 }
 
-void Scene::update(void) {
+void Scene::update() {
     updates();
 }
 
-void Scene::render(void) {
+void Scene::render() {
     renders();
 }
 
-// ptree Scene::serialize(void) {
-//     return ptree();
-// }
-
-void Scene::deserialize(ptree data) {
+json Scene::serialize() {
+    json data;
     
-    auto entities = data.get_child("entities");
-    for (ptree::value_type &entity : entities) {
-        string id = entity.second.data();
-        addEntity(boost::lexical_cast<uuid>(id));
+    json entityArray;
+    for (auto& pairEntityIdToEntity : entities_) {
+        uuid entityId = pairEntityIdToEntity.first;
+        Entity* entity = &pairEntityIdToEntity.second;
+        entityArray.push_back(boost::lexical_cast<string>(entityId));
+    }
+    data["entities"] = entityArray;
+    
+    json systemMap;
+    for (auto& pairSystemTypeToSystem : systems_) {
+        type_index systemType = pairSystemTypeToSystem.first;
+        ISystem* system = pairSystemTypeToSystem.second;
+        string systemIdentifier = typeToIdentifier_.at(systemType);
+        systemMap[systemIdentifier] = system->serialize(entities_);
+    }
+    data["systems"] = systemMap;
+    
+    return data;
+}
+
+void Scene::deserialize(json data) {
+    
+    json entityArray = data["entities"];
+    for (auto& entityIdData : entityArray) {
+        string entityId = entityIdData.get<string>();
+        addEntity(boost::lexical_cast<uuid>(entityId));
     }
     
-    auto systems = data.get_child("systems");
-    for (ptree::value_type &system : systems) {
-        type_index type = identifierToType_.at(system.first);
-        for (ptree::value_type &entityComponents : system.second) {
-            for (ptree::value_type &component : entityComponents.second) {
-                Component* c = addComponent(type, getEntity(boost::lexical_cast<uuid>(entityComponents.first)));
-                //c->Deserialize(component.second.data());
-            }
-        }
+    json systemMap = data["systems"];
+    for (json::iterator iteratorSystemIdentifierToSystemData = systemMap.begin(); iteratorSystemIdentifierToSystemData != systemMap.end(); iteratorSystemIdentifierToSystemData++) {
+        string systemIdentifier = iteratorSystemIdentifierToSystemData.key();
+        json systemData = iteratorSystemIdentifierToSystemData.value();
+        type_index systemType = identifierToType_.at(systemIdentifier);
+        ISystem* system = systems_.at(systemType);
+        system->deserialize(entities_, systemData);
     }
     
 }

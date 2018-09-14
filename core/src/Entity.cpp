@@ -10,23 +10,23 @@ using boost::uuids::uuid;
 
 Entity::Entity(const Entity& entity) :
     Unique(entity.id),
-    scene_(entity.scene_) {};
+    scene(entity.scene) {};
     
 Entity::Entity(Scene* scene) :
-    scene_(scene) {};
+    scene(scene) {};
     
 Entity::Entity(const uuid id, Scene* scene) :
     Unique(id),
-    scene_(scene) {};
+    scene(scene) {};
 
 Component* Entity::addComponent(type_index type) {
-    return scene_->addComponent(type, this);
+    return scene->addComponent(type, this);
 };
 
 void Entity::removeComponent(type_index type) {
-    scene_->removeComponent(type, this);
+    scene->removeComponent(type, this);
 };
 
 Component* Entity::getComponent(type_index type) {
-    return scene_->getComponent(type, this);
+    return scene->getComponent(type, this);
 };

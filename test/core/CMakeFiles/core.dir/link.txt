@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcore.a  CMakeFiles/core.dir/src/Component.cpp.o CMakeFiles/core.dir/src/Entity.cpp.o CMakeFiles/core.dir/src/Scene.cpp.o CMakeFiles/core.dir/src/Unique.cpp.o
-/usr/bin/ranlib libcore.a

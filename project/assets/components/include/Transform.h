@@ -4,6 +4,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
+#include <nlohmann/json.hpp>
+
 #include "Component.h"
 
 class Transform : public Component {
@@ -16,6 +18,9 @@ public:
     
     Transform(const Transform& transform);
     Transform(Entity* entity);
+    
+    nlohmann::json serialize();
+    void deserialize(nlohmann::json data);
     
 };
 

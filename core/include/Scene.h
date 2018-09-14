@@ -5,7 +5,7 @@
 #include <typeindex>
 #include <vector>
 
-#include <boost/property_tree/ptree.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Component.h"
 #include "Delegate.h"
@@ -19,12 +19,14 @@ public:
     Delegate<void(void)> updates;
     Delegate<void(void)> renders;
     
+    ~Scene();
+    
+    nlohmann::json serialize();
+    void deserialize(nlohmann::json data);
+    
     void initialize();
     void update();
     void render();
-    
-    // boost::property_tree::ptree serialize();
-    void deserialize(boost::property_tree::ptree data);
     
     Entity* addEntity();
     Entity* addEntity(const boost::uuids::uuid id);

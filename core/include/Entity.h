@@ -1,11 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <optional>
-#include <set>
 #include <typeindex>
-#include <typeinfo>
-#include <vector>
 
 #include <boost/uuid/uuid.hpp>
 
@@ -17,6 +13,8 @@ class Scene;
 class Entity : public Unique {
     
 public:
+
+    Scene* scene;
 
     Entity(const Entity& entity);
     Entity(Scene* scene);
@@ -40,10 +38,6 @@ public:
     T* getComponent(void) {
         return static_cast<T*>(getComponent(std::type_index(typeid(T))));
     }
-    
-private:
-
-    Scene* scene_;
     
 };
 

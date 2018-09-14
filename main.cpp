@@ -1,16 +1,22 @@
 #include <iostream>
 #include <boost/uuid/uuid_io.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <exception>
+#include <fstream>
+#include <streambuf>
 
+#include <nlohmann/json.hpp>
+
+#include "Body.h"
 #include "Engine.h"
 #include "Scene.h"
 #include "Transform.h"
 #include "Delegate.h"
 #include "Entity.h"
+#include "System.h"
+#include "Physics.h"
 
 using namespace std;
+using nlohmann::json;
 
 class Game : public Engine {
 
@@ -18,6 +24,7 @@ public:
     
     void initialize(Scene* scene) {
         scene->initialize<Transform>("transform");
+        scene->initialize<Physics, Body>("body");
     }
     
     void update(void) {
@@ -32,25 +39,33 @@ void update(void) {
 
 int main() {
     
+    // Scene scene;
+    // System<Transform> system(&scene);
+    // Entity e0(&scene);
+    // Entity e1(&scene);
+    // system.add(&e0);
+    // system.add(&e1);
     
     Game game;
     Scene* scene = new Scene();
     game.initialize(scene);
     
-    Entity entity(scene);
-    std::cout << entity.id << std::endl;
-    
     try {
-    std::ifstream file;
-    file.open("/home/ec2-user/environment/project/assets/scenes/default.json", std::ifstream::in);
-    //cout << file.rdbuf() << endl;
-    boost::property_tree::ptree pt;
-    boost::property_tree::read_json(file, pt);
-    scene->deserialize(pt);
+        std::ifstream file;
+        file.open("/home/ec2-user/environment/project/assets/scenes/default.json");
+        json j;
+        file >> j;
+        scene->deserialize(j);
+        cout << scene->serialize() << endl;
+        // std::stringstream ss;
+        // boost::property_tree::write_json(ss, scene->serialize());
+        // boost::property_tree::ptree pt2;
+        // boost::property_tree::read_json(ss, pt2);
+        // boost::property_tree::write_json(ss, scene->serialize());
+        // cout << ss.str() << endl;
     } catch (exception& e) {
         cout << e.what() << endl;
     }
-
     
     // Delegate<void(void)> updates;
     // updates += update;
