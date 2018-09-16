@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic -s WASM=0 -s USE_PTHREADS=1 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0 CMakeFiles/main.dir/main.cpp.o  -o main.js -lpthread core/libcore.a project/libproject.a -lpthread core/libcore.a 

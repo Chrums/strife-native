@@ -1,2 +1,0 @@
-/usr/bin/ar qc libproject.a  CMakeFiles/project.dir/assets/components/src/Transform.cpp.o
-/usr/bin/ranlib libproject.a
