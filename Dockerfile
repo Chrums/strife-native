@@ -1,8 +1,9 @@
 # Container for building and testing cmake-examples with default cmake v3.5.1
 FROM ubuntu
-MAINTAINER Michael Schroder
+MAINTAINER Jake Chrumka, Michael Schroder
 
-RUN apt-get update && apt-get install -y build-essential \
+RUN apt-get update && apt-get install -y \
+    build-essential \
     sudo \
     cmake \
     libboost-all-dev \
@@ -13,12 +14,12 @@ RUN apt-get update && apt-get install -y build-essential \
     ninja-build \
     wget \
     git \
+    nodejs \
+    python-pip \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && pip install conan
 
-VOLUME ["/home/ec2-user/environment"]
-
-RUN chmod +x /home/ec2-user/environment/build.sh
+WORKDIR /home/environment
 
 CMD ["/bin/bash"]
-ENTRYPOINT ["/home/ec2-user/environment/setup.sh"]
