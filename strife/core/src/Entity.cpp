@@ -20,14 +20,10 @@ Entity::Entity(const uuid id, Scene* scene) :
     scene(scene) {};
     
 json Entity::serialize() {
-    json data;
-    data["unique"] = Unique::serialize();
-    return data;
+    return json();
 };
 
-void Entity::deserialize(json data) {
-    Unique::deserialize(data["unique"]);
-};
+void Entity::deserialize(json data) {};
 
 Component* Entity::addComponent(type_index type) {
     return scene->addComponent(type, this);

@@ -3,10 +3,11 @@
 
 #include <nlohmann/json.hpp>
 
-class Scene;
+#include "Unique.h"
+
 class Entity;
 
-class Component {
+class Component : public Unique {
     
 public:
     
@@ -20,6 +21,7 @@ public:
 protected:
     
     Component(Entity* entity);
+    Component(const boost::uuids::uuid id, Entity* entity);
     
 };
 
