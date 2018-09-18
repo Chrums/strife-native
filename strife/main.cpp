@@ -6,14 +6,12 @@
 
 #include <nlohmann/json.hpp>
 
-#include "components/Body.h"
 #include "Engine.h"
 #include "Scene.h"
 #include "components/Transform.h"
 #include "Delegate.h"
 #include "Entity.h"
 #include "System.h"
-#include "systems/Physics.h"
 
 using namespace std;
 using nlohmann::json;
@@ -24,7 +22,7 @@ public:
     
     void initialize(Scene* scene) {
         scene->initialize<Transform>("transform");
-        scene->initialize<Physics, Body>("body");
+        //scene->initialize<Physics, Body>("body");
     }
     
     void update(void) {

@@ -18,6 +18,7 @@ public:
     
     Transform(const Transform& transform);
     Transform(Entity* entity);
+    Transform(const boost::uuids::uuid id, Entity* entity);
     
     nlohmann::json serialize();
     void deserialize(nlohmann::json data);

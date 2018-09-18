@@ -47,32 +47,32 @@ public:
         ISystem(scene) {};
     
     void initialize() {
-        //scene_.updates += Bind(&System::Update, this);
-        //scene_.renders += Bind(&System::Render, this);
+        
     };
     
     nlohmann::json serialize(std::map<boost::uuids::uuid, Entity>& entities) {
         nlohmann::json data;
-        
         for (auto& pairEntityIdToComponent : components_) {
             boost::uuids::uuid entityId = pairEntityIdToComponent.first;
             T& component = pairEntityIdToComponent.second;
-            data[boost::lexical_cast<std::string>(entityId)] = component.serialize();
+            nlohmann::json componentPair;
+            componentPair["id"] = boost::lexical_cast<std::string>(component.id);
+            componentPair["data"] = component.serialize();
+            data[boost::lexical_cast<std::string>(entityId)] = componentPair;
         }
-        
         return data;
     }
     
-    void deserialize(std::map<boost::uuids::uuid, Entity>& entities, nlohmann::json componentMap) {
-        
-        for (nlohmann::json::iterator iteratorEntityIdToComponentData = componentMap.begin(); iteratorEntityIdToComponentData != componentMap.end(); iteratorEntityIdToComponentData++) {
-            std::string entityId = iteratorEntityIdToComponentData.key();
-            nlohmann::json componentData = iteratorEntityIdToComponentData.value();
+    void deserialize(std::map<boost::uuids::uuid, Entity>& entities, nlohmann::json data) {
+        for (nlohmann::json::iterator iteratorEntityIdToComponentPair = data.begin(); iteratorEntityIdToComponentPair != data.end(); iteratorEntityIdToComponentPair++) {
+            std::string entityId = iteratorEntityIdToComponentPair.key();
+            nlohmann::json componentPair = iteratorEntityIdToComponentPair.value();
+            std::string componentId = componentPair["id"].get<std::string>();
+            nlohmann::json componentData = componentPair["data"];
             Entity* entity = &entities.at(boost::lexical_cast<boost::uuids::uuid>(entityId));
-            Component* component = add(entity);
+            Component* component = add(boost::lexical_cast<boost::uuids::uuid>(componentId), entity);
             component->deserialize(componentData);
         }
-        
     }
     
     void update() {
@@ -86,6 +86,10 @@ public:
     T* add(Entity* entity) {
         return &components_.emplace(entity->id, entity).first->second;
     };
+    
+    T* add(const boost::uuids::uuid id, Entity* entity) {
+        return &components_.try_emplace(entity->id, id, entity).first->second;
+    }
     
     void remove(Entity* entity) {
         components_.erase(entity->id);

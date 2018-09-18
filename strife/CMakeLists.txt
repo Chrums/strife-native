@@ -17,7 +17,6 @@ set_property(TARGET main PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
-    ${CONAN_LIBS}
     core
     project
 )
