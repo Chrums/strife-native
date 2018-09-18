@@ -1,3 +1,3 @@
 docker build -t instance .
 docker system prune
-docker run -v /home/ec2-user/environment:/home/environment -it instance
+docker run -v `dirname "$(readlink -f "$0")"`:/home/environment -it instance
