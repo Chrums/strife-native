@@ -2,6 +2,7 @@
 #define ENTITY_H
 
 #include <typeindex>
+#include <set>
 
 #include <boost/uuid/uuid.hpp>
 
@@ -9,8 +10,6 @@
 
 #include "Component.h"
 #include "Unique.h"
-
-using namespace std;
 
 class Scene;
 
@@ -26,6 +25,12 @@ public:
     
     virtual nlohmann::json serialize();
     virtual void deserialize(nlohmann::json data);
+    
+    void setParent(Entity* entity);
+    Entity* getParent();
+    void addChild(Entity* entity);
+    void removeChild(Entity* entity);
+    std::set<Entity*> getChildren();
     
     Component* addComponent(std::type_index type);
     void removeComponent(std::type_index type);
@@ -45,6 +50,11 @@ public:
     T* getComponent(void) {
         return static_cast<T*>(getComponent(std::type_index(typeid(T))));
     }
+    
+private:
+    
+    boost::uuids::uuid parentId_;
+    std::set<boost::uuids::uuid> childrenIds_;
     
 };
 

@@ -86,8 +86,8 @@ Entity* Scene::addEntity(const uuid id) {
 
 void Scene::removeEntity(Entity* entity) {
     entities_.erase(entity->id);
-    for (auto it : systems_) {
-        it.second->remove(entity);
+    for (auto pairSystemTypeToSystem : systems_) {
+        pairSystemTypeToSystem.second->remove(entity);
     }
 };
 

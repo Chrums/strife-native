@@ -10,7 +10,7 @@ using boost::uuids::uuid;
 using nlohmann::json;
 
 Unique::Unique() :
-    id(Unique::Generator()) {};
+    id(Unique::RandomGenerator()) {};
     
 Unique::Unique(const uuid id) :
     id(id) {};
@@ -25,4 +25,5 @@ void Unique::deserialize(json data) {
     id = boost::lexical_cast<uuid>(data["id"].get<string>());
 }
 
-boost::uuids::random_generator Unique::Generator;
+boost::uuids::random_generator Unique::RandomGenerator;
+boost::uuids::nil_generator Unique::NilGenerator;

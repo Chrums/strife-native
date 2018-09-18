@@ -21,7 +21,7 @@ class Game : public Engine {
 public:
     
     void initialize(Scene* scene) {
-        scene->initialize<Transform>("transform");
+        scene->initialize<Transform3f>("transform");
         //scene->initialize<Physics, Body>("body");
     }
     

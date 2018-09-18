@@ -2,7 +2,8 @@
 #define UNIQUE_H
 
 #include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/nil_generator.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -17,9 +18,8 @@ public:
     virtual nlohmann::json serialize();
     virtual void deserialize(nlohmann::json data);
     
-private:
-
-    static boost::uuids::random_generator Generator;
+    static boost::uuids::random_generator RandomGenerator;
+    static boost::uuids::nil_generator NilGenerator;
     
 };
 

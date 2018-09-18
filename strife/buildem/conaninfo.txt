@@ -1,0 +1,54 @@
+[settings]
+    compiler=gcc
+    compiler.libcxx=libstdc++
+    compiler.version=7
+
+[requires]
+    eigen/3.Y.Z
+    jsonformoderncpp/3.Y.Z
+    sdl2/2.Y.Z
+
+[options]
+
+
+[full_settings]
+    compiler=gcc
+    compiler.libcxx=libstdc++
+    compiler.version=7
+
+[full_requires]
+    eigen/3.3.4@conan/stable:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    jsonformoderncpp/3.2.0@vthiery/stable:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    sdl2/2.0.8@bincrafters/stable:95d16990e933882b486ed6bc08cedde3b795b6fc
+
+[full_options]
+    eigen:EIGEN_USE_BLAS=False
+    eigen:EIGEN_USE_LAPACKE=False
+    eigen:EIGEN_USE_LAPACKE_STRICT=False
+    sdl2:alsa=True
+    sdl2:arts=False
+    sdl2:directfb=False
+    sdl2:esd=False
+    sdl2:fPIC=True
+    sdl2:iconv=False
+    sdl2:jack=True
+    sdl2:mir=False
+    sdl2:nas=True
+    sdl2:pulse=True
+    sdl2:sdl2main=True
+    sdl2:shared=False
+    sdl2:wayland=False
+    sdl2:x11=True
+    sdl2:xcursor=True
+    sdl2:xinerama=True
+    sdl2:xinput=True
+    sdl2:xrandr=True
+    sdl2:xscrnsaver=True
+    sdl2:xshape=True
+    sdl2:xvm=True
+
+[recipe_hash]
+
+
+[env]
+

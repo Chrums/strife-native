@@ -6,7 +6,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-namespace Eigen {
+namespace Serialization {
     
     template <typename T, int R, int C>
     nlohmann::json SerializeMatrix(Eigen::Matrix<T, R, C> matrix) {
