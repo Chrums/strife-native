@@ -11,10 +11,6 @@
 class Transform : public Component {
     
 public:
-
-    Eigen::Vector3f position;
-    Eigen::Quaternionf rotation;
-    Eigen::Vector3f scale;
     
     Transform(const Transform& transform);
     Transform(Entity* entity);
@@ -22,7 +18,21 @@ public:
     
     nlohmann::json serialize();
     void deserialize(nlohmann::json data);
+
+    Eigen::Vector3f position();
     
+    template <typename T>
+    Transform& translate(const Eigen::MatrixBase<T> translation) {
+        data_.translate(translation);
+        return *this;
+    };
+    
+    Eigen::Quaternionf rotation();
+
+private:
+
+    Eigen::Affine3f data_;
+
 };
 
 #endif
