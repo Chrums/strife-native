@@ -52,26 +52,26 @@ void Entity::deserialize(json data) {
     
 };
 
-void Entity::setParent(Entity* entity) {
-    parentId_ = entity->id;
+void Entity::setParent(Entity* parent) {
+    parentId_ = parent->id;
 }
 
 Entity* Entity::getParent() {
     return scene->getEntity(parentId_);
 }
 
-void Entity::addChild(Entity* entity) {
-    childrenIds_.insert(entity->id);
+void Entity::addChild(Entity* child) {
+    childrenIds_.insert(child->id);
 }
 
-void Entity::removeChild(Entity* entity) {
-    childrenIds_.erase(entity->id);
+void Entity::removeChild(Entity* child) {
+    childrenIds_.erase(child->id);
 }
 
 set<Entity*> Entity::getChildren() {
     set<Entity*> entities;
-    for (uuid id : childrenIds_) {
-        Entity* entity = scene->getEntity(id);
+    for (uuid childId : childrenIds_) {
+        Entity* entity = scene->getEntity(childId);
         if (entity != nullptr) entities.insert(entity);
     }
     return entities;

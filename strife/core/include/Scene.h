@@ -32,6 +32,7 @@ public:
     Entity* addEntity(const boost::uuids::uuid id);
     void removeEntity(Entity* entity);
     Entity* getEntity(const boost::uuids::uuid id);
+    void moveEntity(Entity* entity, Entity* target);
     
     Component* addComponent(std::type_index type, Entity* entity);
     void removeComponent(std::type_index type, Entity* entity);

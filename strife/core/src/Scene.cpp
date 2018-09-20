@@ -85,10 +85,25 @@ Entity* Scene::addEntity(const uuid id) {
 };
 
 void Scene::removeEntity(Entity* entity) {
-    entities_.erase(entity->id);
+    
+    Entity* parent = entity->getParent();
+    if (parent != nullptr) {
+        parent->removeChild(entity);
+    }
+    
+    set<Entity*> children = entity->getChildren();
+    for (Entity* child : children) {
+        if (child != nullptr) {
+            removeEntity(entity);
+        }
+    }
+    
     for (auto pairSystemTypeToSystem : systems_) {
         pairSystemTypeToSystem.second->remove(entity);
     }
+    
+    entities_.erase(entity->id);
+    
 };
 
 Entity* Scene::getEntity(const uuid id) {
@@ -97,6 +112,18 @@ Entity* Scene::getEntity(const uuid id) {
         ? &search->second
         : nullptr;
 };
+
+void Scene::moveEntity(Entity* entity, Entity* target) {
+    
+    Entity* parent = entity->getParent();
+    if (parent != nullptr) {
+        parent->removeChild(entity);
+    }
+    
+    entity->setParent(target);
+    target->addChild(entity);
+    
+}
 
 Component* Scene::addComponent(std::type_index type, Entity* entity) {
     return systems_[type]->add(entity);
