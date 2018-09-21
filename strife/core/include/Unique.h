@@ -5,22 +5,26 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/nil_generator.hpp>
 
-#include <nlohmann/json.hpp>
-
-class Unique {
+namespace Strife {
     
-public:
-
-    boost::uuids::uuid id;
-    Unique();
-    Unique(const boost::uuids::uuid id);
+    class Unique {
+        
+    public:
     
-    virtual nlohmann::json serialize();
-    virtual void deserialize(nlohmann::json data);
+        static boost::uuids::nil_generator NilGenerator;
+        static boost::uuids::random_generator RandomGenerator;
+        
+        static Unique Nil();
+        static Unique Random();
+        
+        const boost::uuids::uuid id;
+        
+        Unique(const Unique& unique);
+        Unique();
+        Unique(const boost::uuids::uuid id);
+            
+    };
     
-    static boost::uuids::random_generator RandomGenerator;
-    static boost::uuids::nil_generator NilGenerator;
-    
-};
+}
 
 #endif

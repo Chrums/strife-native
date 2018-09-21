@@ -1,29 +1,24 @@
 #include "Unique.h"
 
-#include <string>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
-using namespace std;
+using namespace Strife;
 using boost::uuids::uuid;
-using nlohmann::json;
+
+boost::uuids::nil_generator Unique::NilGenerator;
+boost::uuids::random_generator Unique::RandomGenerator;
+
+Unique Unique::Nil() {
+    return Unique(NilGenerator());
+}
+
+Unique Unique::Random() {
+    return Unique(RandomGenerator());
+}
+
+Unique::Unique(const Unique& unique) :
+    id(unique.id) {};
 
 Unique::Unique() :
     id(Unique::RandomGenerator()) {};
-    
+
 Unique::Unique(const uuid id) :
     id(id) {};
-    
-json Unique::serialize() {
-    json data;
-    data["id"] = boost::lexical_cast<string>(id);
-    return data;
-};
-
-void Unique::deserialize(json data) {
-    id = boost::lexical_cast<uuid>(data["id"].get<string>());
-}
-
-boost::uuids::random_generator Unique::RandomGenerator;
-boost::uuids::nil_generator Unique::NilGenerator;
