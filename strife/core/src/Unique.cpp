@@ -22,3 +22,7 @@ Unique::Unique() :
 
 Unique::Unique(const uuid id) :
     id(id) {};
+    
+bool Unique::operator<(const Unique& unique) const {
+    return id < unique.id;
+}

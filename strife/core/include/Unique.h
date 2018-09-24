@@ -22,6 +22,8 @@ namespace Strife {
         Unique(const Unique& unique);
         Unique();
         Unique(const boost::uuids::uuid id);
+        
+        bool operator<(const Unique& unique) const;
             
     };
     

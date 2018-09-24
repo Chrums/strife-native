@@ -11,15 +11,13 @@ namespace Strife {
         
     public:
     
-        Entity* const addEntity();
-        Entity* const addEntity(const boost::uuids::uuid id);
+        const Entity* const addEntity();
+        const Entity* const addEntity(const boost::uuids::uuid id);
         void removeEntity(const Entity* const entity);
-        Entity* const getEntity(const boost::uuids::uuid id) const;
-        void moveEntity(Entity* const entity, Entity* const target);
         
     private:
     
-        std::map<boost::uuids::uuid, Entity> entities_;
+        std::set<Entity> entities_;
         
     };
     
