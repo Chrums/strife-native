@@ -17,7 +17,7 @@ class Entity : public Unique {
     
 public:
 
-    Scene* scene;
+    Scene* const scene;
 
     Entity(const Entity& entity);
     Entity(Scene* scene);
