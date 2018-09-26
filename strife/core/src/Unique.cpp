@@ -1,6 +1,6 @@
 #include "Unique.h"
 
-using namespace Strife;
+using namespace Strife::Core;
 using boost::uuids::uuid;
 
 boost::uuids::nil_generator Unique::NilGenerator;
@@ -23,6 +23,10 @@ Unique::Unique() :
 Unique::Unique(const uuid id) :
     id(id) {};
     
+bool Unique::operator==(const Unique& unique) const {
+    return id == unique.id;
+};
+
 bool Unique::operator<(const Unique& unique) const {
     return id < unique.id;
 }

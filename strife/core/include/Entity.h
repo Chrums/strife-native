@@ -6,67 +6,71 @@
 #include "Unique.h"
 
 namespace Strife {
-
-    class Scene;
-    class Component;
-
-    class Entity : public Unique {
-        
-        class Components {
+    namespace Core {
+    
+        class Scene;
+        class Component;
+    
+        class Entity : public Unique {
+            
+            class Components {
+                
+            public:
+                
+                Components(const Entity& entity);
+                
+                Component* const add(const std::type_index type) const;
+                Component* const add(const std::type_index type, const boost::uuids::uuid id) const;
+                void remove(const std::type_index type) const;
+                Component* const get(const std::type_index type) const;
+                
+                template <class T>
+                T* const add() const {
+                    const std::type_index type(typeid(T));
+                    Component* const component = add(type);
+                    return static_cast<T* const>(component);
+                };
+                
+                template <class T>
+                T* const add(const boost::uuids::uuid id) const {
+                    const std::type_index type(typeid(T));
+                    Component* const component = add(type, id);
+                    return static_cast<T* const>(component);
+                };
+                
+                template <class T>
+                void remove() const {
+                    const std::type_index type(typeid(T));
+                    remove(type);
+                };
+                
+                template <class T>
+                T* const get() const {
+                    const std::type_index type(typeid(T));
+                    Component* const component = get(type);
+                    return static_cast<T* const>(component);
+                };
+                
+            private:
+            
+                const Entity& entity_;
+                
+            };
             
         public:
             
-            Components(const Entity* const entity);
+            Scene* const scene;
+            const Components components;
             
-            Component* const add(const std::type_index type);
-            Component* const add(const std::type_index type, const boost::uuids::uuid id);
-            void remove(const std::type_index type);
-            Component* const get(const std::type_index type) const;
+            Entity(const Entity& entity);
+            Entity(Scene* const scene);
+            Entity(const boost::uuids::uuid id, Scene* const scene);
             
-            template <class T>
-            T* const add() {
-                const std::type_index type(typeid(T));
-                Component* const component = add(type);
-                return static_cast<T* const>(component);
-            };
-            
-            template <class T>
-            T* const add(const boost::uuids::uuid id) {
-                const std::type_index type(typeid(T));
-                Component* const component = add(type, id);
-                return static_cast<T* const>(component);
-            };
-            
-            template <class T>
-            void remove() {
-                const std::type_index type(typeid(T));
-                remove(type);
-            };
-            
-            template <class T>
-            T* const get() const {
-                const std::type_index type(typeid(T));
-                Component* const component = get(type);
-                return static_cast<T* const>(component);
-            };
-            
-        private:
-        
-            const Entity* const entity_;
+            void destroy() const;
             
         };
         
-    public:
-        
-        Scene* const scene;
-        const Components components;
-        
-        Entity(const Entity& entity);
-        Entity(Scene* const scene);
-        Entity(const boost::uuids::uuid id, Scene* const scene);
-        
-    };
-
+    }
 }
 
 #endif

@@ -1,11 +1,17 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef DATA_H
+#define DATA_H
 
 #include <string>
 #include <boost/uuid/uuid.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <nlohmann/json.hpp>
+
+namespace Strife {
+    namespace Core {
+        typedef nlohmann::json Data;
+    }
+}
 
 namespace nlohmann {
     

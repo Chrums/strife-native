@@ -1,18 +1,19 @@
 #include "Component.h"
 
-using namespace Strife;
+using namespace Strife::Core;
 using boost::uuids::uuid;
-using nlohmann::json;
 
-Component::Component(const Entity entity) :
-    entity(entity) {};
+Component::Component(const Entity& entity) :
+    entity(entity),
+    scene(*entity.scene) {};
     
-Component::Component(const uuid id, const Entity entity) :
+Component::Component(const uuid id, const Entity& entity) :
     Unique(id),
-    entity(entity) {};
+    entity(entity),
+    scene(*entity.scene) {};
     
-const json Component::serialize() const {
-    return json();
+const Data Component::serialize() const {
+    return Data();
 };
 
-void Component::deserialize(const json data) {};
+void Component::deserialize(const Data data) {};
