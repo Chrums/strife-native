@@ -1,5 +1,9 @@
 #include "Entity.h"
 
+#include <algorithm>
+#include <string>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include "Scene.h"
 
 using namespace Strife;
@@ -8,16 +12,16 @@ using boost::uuids::uuid;
 
 Entity::Components::Components(const Entity* const entity) :
     entity_(entity) {};
-    
-Component* const Entity::Components::add(const type_index type) {
+
+Component* const Entity::Components::add(const type_index type) const {
     return entity_->scene->components.add(type, entity_);
 };
 
-Component* const Entity::Components::add(const type_index type, const uuid id) {
+Component* const Entity::Components::add(const type_index type, const uuid id) const {
     return entity_->scene->components.add(type, id, entity_);
 };
 
-void Entity::Components::remove(const type_index type) {
+void Entity::Components::remove(const type_index type) const {
     entity_->scene->components.remove(type, entity_);
 };
 

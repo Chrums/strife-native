@@ -4,11 +4,9 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/nil_generator.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 namespace Strife {
-
+    
     class Unique {
         
     public:
@@ -26,7 +24,7 @@ namespace Strife {
         Unique(const boost::uuids::uuid id);
         
         bool operator<(const Unique& unique) const;
-        
+            
     };
     
 }

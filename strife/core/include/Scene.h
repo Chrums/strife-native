@@ -2,35 +2,50 @@
 #define SCENE_H
 
 #include <map>
-#include <string>
+#include <set>
 #include <typeindex>
 #include <boost/uuid/uuid.hpp>
+#include "Common.h"
+#include "Component.h"
 #include "Entity.h"
 #include "Storage.h"
 
 namespace Strife {
-    
+
     class Scene {
         
         class Entities : private std::set<Entity> {
-        
-        public:
             
+        public:
+        
             Entities(Scene* const scene);
+            
+            const nlohmann::json serialize() const;
+            void deserialize(const nlohmann::json data);
             
             const Entity* const add();
             const Entity* const add(const boost::uuids::uuid id);
             void remove(const Entity* const entity);
-            
+        
         private:
-            
+        
             Scene* const scene_;
             
         };
         
-        class Components : private std::map<std::type_index, IStorage*> {
+        class Components : private std::map<std::type_index, IStorage* const> {
             
         public:
+            
+            ~Components();
+            
+            const nlohmann::json serialize() const;
+            void deserialize(const nlohmann::json data);
+            
+            Component* const add(const std::type_index type, const Entity* const entity);
+            Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity* const entity);
+            void remove(const std::type_index type, const Entity* const entity);
+            Component* const get(const std::type_index type, const Entity* const entity) const;
             
             template <class T>
             void initialize(std::string identifier) {
@@ -48,29 +63,31 @@ namespace Strife {
                 typeToIdentifier_.insert({ type, identifier });
             };
             
-            Component* const add(const std::type_index type, const Entity* const entity);
-            Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity* const entity);
-            void remove(const std::type_index type, const Entity* const entity);
-            Component* const get(const std::type_index type, const Entity* const entity) const;
-            
             template <class T>
             T* const add(const Entity* const entity) {
-                return static_cast<Storage<T>*>(this->at(std::type_index(typeid(T))))->add(entity);
+                std::type_index type(typeid(T));
+                Component* const component = add(type, entity);
+                return static_cast<T* const>(component);
             };
             
             template <class T>
             T* const add(const boost::uuids::uuid id, const Entity* const entity) {
-                return static_cast<Storage<T>*>(this->at(std::type_index(typeid(T))))->add(id, entity);
+                std::type_index type(typeid(T));
+                Component* const component = add(type, id, entity);
+                return static_cast<T* const>(component);
             };
             
             template <class T>
             void remove(const Entity* const entity) {
-                static_cast<Storage<T>*>(this->at(std::type_index(typeid(T))))->remove(entity);
+                std::type_index type(typeid(T));
+                remove(type, entity);
             };
             
             template <class T>
             T* const get(const Entity* const entity) {
-                return static_cast<Storage<T>*>(this->at(std::type_index(typeid(T))))->get(entity);
+                std::type_index type(typeid(T));
+                Component* const component = get(type, entity);
+                return static_cast<T* const>(component);
             };
             
         private:
@@ -81,14 +98,17 @@ namespace Strife {
         };
         
     public:
-    
+        
         Entities entities;
         Components components;
-    
+        
         Scene();
         
+        const nlohmann::json serialize() const;
+        void deserialize(const nlohmann::json data);
+        
     };
-    
+
 }
 
 #endif

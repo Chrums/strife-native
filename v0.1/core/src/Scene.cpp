@@ -12,7 +12,7 @@ using boost::uuids::uuid;
 Scene::~Scene() {
     for (auto& pairSystemTypeToSystem : systems_) {
         ISystem* system = pairSystemTypeToSystem.second;
-        delete system;
+        delete pairSystemTypeToSystem.second;
     }
 }
 
