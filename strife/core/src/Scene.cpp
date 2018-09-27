@@ -15,10 +15,6 @@ const Entity Scene::Entities::add() const {
     return Entity(&scene_);
 };
 
-const Entity Scene::Entities::add(const uuid id) const {
-    return Entity(id, &scene_);
-};
-
 void Scene::Entities::remove(const Entity& entity) const {
     scene_.components.remove(entity);
 };

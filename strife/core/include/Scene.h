@@ -25,7 +25,6 @@ namespace Strife {
                 Entities(Scene& scene);
                 
                 const Entity add() const;
-                const Entity add(const boost::uuids::uuid id) const;
                 void remove(const Entity& entity) const;
                 const Entity get(const boost::uuids::uuid id) const;
                 
@@ -109,10 +108,10 @@ namespace Strife {
             };
             
         public:
-            
-            Entities entities;
+        
+            const Entities entities;
             Components components;
-            
+        
             Scene();
             
             const Data serialize() const;
