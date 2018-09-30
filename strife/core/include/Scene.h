@@ -51,20 +51,20 @@ namespace Strife {
                 Component* const get(const std::type_index type, const Entity& entity) const;
                 
                 template <class T>
-                void initialize(std::string identifier) {
+                void initialize() {
                     std::type_index type = std::type_index(typeid(T));
                     this->insert({ type, new Storage<T>(&scene_) });
-                    identifierToType_.insert({ identifier, type });
-                    typeToIdentifier_.insert({ type, identifier });
+                    identifierToType_.insert({ T::Identifier, type });
+                    typeToIdentifier_.insert({ type, T::Identifier });
                 };
                 
-                template <class T, class S>
-                void initialize(std::string identifier) {
-                    std::type_index type = std::type_index(typeid(T));
-                    this->insert({ type, new S(&scene_) });
-                    identifierToType_.insert({ identifier, type });
-                    typeToIdentifier_.insert({ type, identifier });
-                };
+                // template <class T, class S>
+                // void initialize(std::string identifier) {
+                //     std::type_index type = std::type_index(typeid(T));
+                //     this->insert({ type, new S(&scene_) });
+                //     identifierToType_.insert({ identifier, type });
+                //     typeToIdentifier_.insert({ type, identifier });
+                // };
                 
                 template <class T>
                 T* const add(const Entity& entity) {

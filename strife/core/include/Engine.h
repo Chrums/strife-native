@@ -13,10 +13,10 @@ namespace Strife {
             
             class Scenes : std::map<std::string, Scene> {
                 
+            public:
+                
                 Scenes(Engine& engine);
                 
-            public:
-            
                 Scene& active;
                 
                 void load(const std::string identifier, const std::string path);
@@ -50,6 +50,8 @@ namespace Strife {
         public:
         
             Scenes scenes;
+            
+            Engine();
             
         protected:
         
