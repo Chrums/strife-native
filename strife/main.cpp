@@ -10,6 +10,7 @@
 #include "Event.h"
 #include "Scene.h"
 #include "Storage.h"
+#include "System.h"
 
 using namespace Strife::Core;
 using namespace std;

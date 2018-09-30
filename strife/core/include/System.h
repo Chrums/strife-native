@@ -51,7 +51,7 @@ namespace Strife {
             void on(std::function<void(Event*)> callback) {
                 const std::type_index eventType = std::type_index(typeid(E));
                 callbacks_.insert({ eventType, callback });
-                //Strife::Core::Engine::Instance().dispatcher.on(std::bind(&dispatchEvent, &this, std::placeholders::_1));
+                Engine::Instance().dispatcher.on(std::bind(&dispatchEvent, &this, std::placeholders::_1));
             }
 
             void dispatchEvent(Event* event, std::type_index eventType) {

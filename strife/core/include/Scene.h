@@ -9,7 +9,8 @@
 #include "Data.h"
 #include "Entity.h"
 #include "Storage.h"
-#include "System.h"
+//#include "System.h"
+class ISystem;
 
 namespace Strife {
     namespace Core {
@@ -17,39 +18,39 @@ namespace Strife {
         class Component;
 
         class Scene {
-            
+
             class Entities {
-                
+
             public:
-                
+
                 Entities(Scene& scene);
-                
+
                 const Entity add() const;
                 void remove(const Entity& entity) const;
                 const Entity get(const boost::uuids::uuid id) const;
-                
+
             private:
-            
+
                 Scene& scene_;
-                
+
             };
-            
+
             class Components : private std::map<std::type_index, IStorage* const> {
-                
+
             public:
-                
+
                 Components(Scene& scene);
                 ~Components();
-                
+
                 const Data serialize() const;
                 void deserialize(const Data data);
-                
+
                 Component* const add(const std::type_index type, const Entity& entity);
                 Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
                 void remove(const std::type_index type, const Entity& entity);
                 void remove(const Entity& entity);
                 Component* const get(const std::type_index type, const Entity& entity) const;
-                
+
                 template <class T>
                 void initialize() {
                     std::type_index type = std::type_index(typeid(T));
@@ -57,7 +58,7 @@ namespace Strife {
                     identifierToType_.insert({ T::Identifier, type });
                     typeToIdentifier_.insert({ type, T::Identifier });
                 };
-                
+
                 // template <class T, class S>
                 // void initialize(std::string identifier) {
                 //     std::type_index type = std::type_index(typeid(T));
@@ -65,58 +66,58 @@ namespace Strife {
                 //     identifierToType_.insert({ identifier, type });
                 //     typeToIdentifier_.insert({ type, identifier });
                 // };
-                
+
                 template <class T>
                 T* const add(const Entity& entity) {
                     std::type_index type(typeid(T));
                     Component* const component = add(type, entity);
                     return static_cast<T* const>(component);
                 };
-                
+
                 template <class T>
                 T* const add(const boost::uuids::uuid id, const Entity& entity) {
                     std::type_index type(typeid(T));
                     Component* const component = add(type, id, entity);
                     return static_cast<T* const>(component);
                 };
-                
+
                 template <class T>
                 void remove(const Entity& entity) {
                     std::type_index type(typeid(T));
                     remove(type, entity);
                 };
-                
+
                 template <class T>
                 T* const get(const Entity& entity) {
                     std::type_index type(typeid(T));
                     Component* const component = get(type, entity);
                     return static_cast<T* const>(component);
                 };
-                
+
             private:
-                
+
                 Scene& scene_;
                 std::map<std::string, std::type_index> identifierToType_;
                 std::map<std::type_index, std::string> typeToIdentifier_;
-                
+
             };
-            
+
             class Systems : private std::set<ISystem* const> {
-                
-                
-                
+
+
+
             };
-            
+
         public:
-        
+
             const Entities entities;
             Components components;
-        
+
             Scene();
-            
+
             const Data serialize() const;
             void deserialize(const Data data);
-            
+
         };
 
     }
