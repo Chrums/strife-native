@@ -18,31 +18,31 @@ using nlohmann::json;
 
 
 class TestEvent : public Event {
-    
+
 public:
 
     static const unsigned int Priority;
-    
+
     string data;
-    
+
 };
 
 const unsigned int TestEvent::Priority = Event::Synchronous;
 
 class TestComponent : public Component {
-    
+
 public:
 
     static const string Identifier;
 
     string value;
-    
+
     TestComponent(const Entity& entity) :
         Component(entity) {};
-        
+
     TestComponent(const uuid id, const Entity& entity) :
         Component(id, entity) {};
-        
+
     const json serialize() const {
         return value;
     };
@@ -56,11 +56,11 @@ public:
 const string TestComponent::Identifier = "Test";
 
 // class Ultima : public Engine {
-    
+
 //     void initialize(Scene scene) {
 //         scene.components.initialize<Test>();
 //     }
-    
+
 // };
 
 
@@ -80,25 +80,18 @@ int main() {
 
     json data = s->serialize();
     cout << data << endl;
-    
-    Dispatcher d;
-    d.initialize<TestEvent>();
-    
-    auto callback = [=](Event* event) {
+
+    Dispatcher dis;
+    dis.initialize<TestEvent>();
+
+    auto callback = [=](Event* event, type_index type) {
         //cout << event->data << endl;
     };
-    
-    d.on<TestEvent>(callback);
-    
-    delete s;
-    Scene* d = new Scene();
-    d->components.initialize<Test>("test");
 
-    d->deserialize(data);
-    cout << d->serialize() << endl;
+    dis.on<TestEvent>(callback);
 
     delete s;
-    delete d;
+
 
     SDL_Init(SDL_INIT_VIDEO);
 
