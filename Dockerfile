@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && pip install conan
+    
+RUN conan remote add public-conan https://api.bintray.com/conan/bincrafters/public-conan
 
 WORKDIR /home/environment
 
