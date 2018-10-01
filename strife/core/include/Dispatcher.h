@@ -59,10 +59,10 @@ namespace Strife {
             };
 
             template <class T>
-            void trigger(const Entity& entity, std::function<void(T&, std::type_index)> initializer) {
+            void trigger(const Entity& entity, std::function<void(T&)> initializer) {
                 const std::type_index type = std::type_index(typeid(T));
                 T* const event = new T(entity);
-                initializer(*event, type);
+                initializer(*event);
                 if (T::Priority == Event::Synchronous) {
                     dispatch(type, event);
                 } else {

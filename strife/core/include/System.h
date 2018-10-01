@@ -27,7 +27,7 @@ namespace Strife {
 
             virtual ~ISystem() = default;
 
-            virtual void intialize() const = 0;
+            virtual void initialize() const = 0;
 
         protected:
 
@@ -43,26 +43,31 @@ namespace Strife {
             System(Scene* const scene) :
                 ISystem(scene) {};
 
-            void initialize() const {
+            virtual void initialize() const {
 
             };
 
+            ~System() {
+
+            }
+
             template<class E>
-            void on(std::function<void(Event*)> callback) {
+            void on(std::function<void(T*, Event*)> callback) {
                 const std::type_index eventType = std::type_index(typeid(E));
                 callbacks_.insert({ eventType, callback });
-                Engine::Instance().dispatcher.on(std::bind(&dispatchEvent, &this, std::placeholders::_1));
+                std::function<void(Event*, std::type_index)> boundCallback = [this](Event* event, std::type_index type) { dispatchEvent(event, type); };
+                Engine::Instance()->dispatcher.on<E>(boundCallback);
             }
 
             void dispatchEvent(Event* event, std::type_index eventType) {
                 T* const component = event->entity.components.get<T>();
                 auto callback = callbacks_.find(eventType);
-                callback(component, event);
+                callback->second(component, event);
             }
 
         private:
 
-            std::unordered_map<const std::type_index, std::function<void(T const&, Event*)> > callbacks_;
+            std::map<const std::type_index, std::function<void(T*, Event*)> > callbacks_;
 
         };
 

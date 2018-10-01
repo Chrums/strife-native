@@ -22,13 +22,15 @@ class TestEvent : public Event {
 
 public:
 
+    TestEvent(const Entity& entity) : Event(entity) {}
+
     static const unsigned int Priority;
 
     string data;
 
 };
 
-const unsigned int TestEvent::Priority = Event::Synchronous;
+const unsigned int TestEvent::Priority = 10;
 
 class TestComponent : public Component {
 
@@ -52,6 +54,11 @@ public:
         value = data.get<string>();
     };
 
+    void handleEvent(Event* event) {
+        auto e = dynamic_cast<TestEvent*>(event);
+        cout << "data:" << e->data << endl;
+    }
+
 };
 
 const string TestComponent::Identifier = "Test";
@@ -64,7 +71,9 @@ const string TestComponent::Identifier = "Test";
 
 // };
 
-
+void makeTestEvent(TestEvent& event) {
+    event.data = "HI!";
+}
 
 int main() {
 
@@ -78,6 +87,11 @@ int main() {
     Entity e1(s);
     TestComponent* const t1 = e1.components.add<TestComponent>();
     t1->value = "1";
+
+    System<TestComponent> sys(s);
+    sys.on<TestEvent>(&TestComponent::handleEvent);
+    Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
+    Engine::Instance()->dispatcher.dispatch(std::type_index(typeid(TestEvent)));
 
     json data = s->serialize();
     cout << data << endl;
