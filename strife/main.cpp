@@ -88,10 +88,13 @@ int main() {
     TestComponent* const t1 = e1.components.add<TestComponent>();
     t1->value = "1";
 
+    Engine::Instance()->dispatcher.initialize<TestEvent>();
     System<TestComponent> sys(s);
     sys.on<TestEvent>(&TestComponent::handleEvent);
     Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
     Engine::Instance()->dispatcher.dispatch(std::type_index(typeid(TestEvent)));
+    Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
+    Engine::Instance()->dispatcher.dispatch();
 
     json data = s->serialize();
     cout << data << endl;

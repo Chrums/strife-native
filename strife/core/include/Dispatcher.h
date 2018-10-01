@@ -23,7 +23,7 @@ namespace Strife {
             void initialize() {
                 const std::type_index type = std::type_index(typeid(T));
                 events_[type];
-                std::set<std::type_index> types = priorities_[T::Priority];
+                std::set<std::type_index>& types = priorities_[T::Priority];
                 types.insert(type);
             }
 
@@ -97,6 +97,14 @@ namespace Strife {
                     Event* event = events->second.front();
                     events->second.pop();
                     dispatch(type, event);
+                }
+            }
+
+            void dispatch() {
+                for (auto priority : priorities_) {
+                    for (auto type : priority.second) {
+                        dispatch(type);
+                    }
                 }
             }
 
