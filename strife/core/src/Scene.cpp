@@ -10,7 +10,7 @@ using boost::uuids::uuid;
 
 Scene::Entities::Entities(Scene& scene) :
     scene_(scene) {};
-    
+
 const Entity Scene::Entities::add() const {
     return Entity(&scene_);
 };
@@ -78,9 +78,16 @@ Component* const Scene::Components::get(const type_index type, const Entity& ent
     return this->at(type)->get(entity);
 };
 
-Scene::Scene() :
+Scene::Scene(Dispatcher& dispatcher) :
     entities(*this),
-    components(*this) {};
+    components(*this),
+    dispatcher_(dispatcher) {};
+
+Scene::~Scene() {
+    for (auto system : systems_) {
+        delete system;
+    }
+}
 
 const Data Scene::serialize() const {
     Data data;

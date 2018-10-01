@@ -27,7 +27,7 @@ namespace Strife {
 
             virtual ~ISystem() = default;
 
-            virtual void initialize() const = 0;
+            virtual void initialize() = 0;
 
         protected:
 
@@ -43,8 +43,8 @@ namespace Strife {
             System(Scene* const scene, Dispatcher& dispatcher) :
                 ISystem(scene), dispatcher_(dispatcher) {};
 
-            virtual void initialize() const {
-
+            virtual void initialize() {
+                T::initialize(*this);
             };
 
             ~System() {

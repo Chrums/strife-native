@@ -9,22 +9,22 @@
 
 namespace Strife {
     namespace Core {
-    
+
         class Component : public Unique {
-            
+
         public:
-            
+
             const Entity& entity;
             Scene& scene;
-            
+
             virtual const Data serialize() const;
             virtual void deserialize(const Data data);
-            
+
         protected:
-            
+
             Component(const Entity& entity);
             Component(const boost::uuids::uuid id, const Entity& entity);
-            
+
         };
 
     }

@@ -36,6 +36,10 @@ class TestComponent : public Component {
 
 public:
 
+    static void initialize(System<TestComponent>& system) {
+        system.on<TestEvent>(&TestComponent::handleEvent);
+    }
+
     static const string Identifier;
 
     string value;
@@ -56,7 +60,7 @@ public:
 
     void handleEvent(Event* event) {
         auto e = dynamic_cast<TestEvent*>(event);
-        cout << "data:" << e->data << endl;
+        cout << "data:" << e->data << " " << value << endl;
     }
 
 };
@@ -77,8 +81,8 @@ void makeTestEvent(TestEvent& event) {
 
 int main() {
 
-    Scene* s = new Scene();
-    s->components.initialize<TestComponent>();
+    Scene* s = new Scene(Engine::Instance()->dispatcher);
+    s->initialize<TestComponent>();
 
     Entity e0(s);
     TestComponent* const t0 = e0.components.add<TestComponent>();
@@ -89,11 +93,9 @@ int main() {
     t1->value = "1";
 
     Engine::Instance()->dispatcher.initialize<TestEvent>();
-    System<TestComponent> sys(s, Engine::Instance()->dispatcher);
-    sys.on<TestEvent>(&TestComponent::handleEvent);
     Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
     Engine::Instance()->dispatcher.dispatch(std::type_index(typeid(TestEvent)));
-    Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
+    Engine::Instance()->dispatcher.trigger<TestEvent>(e1, makeTestEvent);
     Engine::Instance()->dispatcher.dispatch();
 
     json data = s->serialize();

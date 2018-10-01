@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <vector>
 #include <typeindex>
 #include <boost/uuid/uuid.hpp>
 #include "Data.h"
@@ -101,18 +102,26 @@ namespace Strife {
 
             };
 
-            class Systems : private std::set<ISystem* const> {
+        private:
 
-
-
-            };
+            std::vector<ISystem*> systems_;
+            Dispatcher& dispatcher_;
 
         public:
 
             const Entities entities;
             Components components;
 
-            Scene();
+            Scene(Dispatcher& dispatcher);
+            ~Scene();
+
+            template <class T>
+            void initialize() {
+                components.initialize<T>();
+                System<T>* system = new System<T>(this, dispatcher_);
+                system->initialize();
+                systems_.push_back(system);
+            }
 
             const Data serialize() const;
             void deserialize(const Data data);
