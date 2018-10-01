@@ -1,15 +1,13 @@
-         ___        ______     ____ _                 _  ___  
-        / \ \      / / ___|   / ___| | ___  _   _  __| |/ _ \ 
-       / _ \ \ /\ / /\___ \  | |   | |/ _ \| | | |/ _` | (_) |
-      / ___ \ V  V /  ___) | | |___| | (_) | |_| | (_| |\__, |
-     /_/   \_\_/\_/  |____/   \____|_|\___/ \__,_|\__,_|  /_/ 
- ----------------------------------------------------------------- 
+# <img src="strife.svg" alt="Strife Logo" width="40" height="40"/> Strife
 
+This is the Strife game engine. Strife aims to be a performant general purpose game engine which will support multiple platforms including the web (through emscripten).
 
-Hi there! Welcome to AWS Cloud9!
-
-To get started, create some files, play with the terminal,
-or visit https://docs.aws.amazon.com/console/cloud9/ for our documentation.
-
-Happy coding!
-
+Setup
+-----
+* Install git and Docker
+* Clone the repository
+```
+cd strife
+./run
+./build.sh
+```
