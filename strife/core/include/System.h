@@ -10,8 +10,8 @@
 #include <nlohmann/json.hpp>
 #include "Component.h"
 #include "Entity.h"
-#include "Engine.h"
 #include "Event.h"
+#include "Dispatcher.h"
 
 namespace Strife {
     namespace Core {
@@ -40,8 +40,8 @@ namespace Strife {
 
         public:
 
-            System(Scene* const scene) :
-                ISystem(scene) {};
+            System(Scene* const scene, Dispatcher& dispatcher) :
+                ISystem(scene), dispatcher_(dispatcher) {};
 
             virtual void initialize() const {
 
@@ -56,7 +56,7 @@ namespace Strife {
                 const std::type_index eventType = std::type_index(typeid(E));
                 callbacks_.insert({ eventType, callback });
                 std::function<void(Event*, std::type_index)> boundCallback = [this](Event* event, std::type_index type) { dispatchEvent(event, type); };
-                Engine::Instance()->dispatcher.on<E>(boundCallback);
+                dispatcher_.on<E>(boundCallback);
             }
 
             void dispatchEvent(Event* event, std::type_index eventType) {
@@ -68,6 +68,7 @@ namespace Strife {
         private:
 
             std::map<const std::type_index, std::function<void(T*, Event*)> > callbacks_;
+            Dispatcher& dispatcher_;
 
         };
 

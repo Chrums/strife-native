@@ -89,7 +89,7 @@ int main() {
     t1->value = "1";
 
     Engine::Instance()->dispatcher.initialize<TestEvent>();
-    System<TestComponent> sys(s);
+    System<TestComponent> sys(s, Engine::Instance()->dispatcher);
     sys.on<TestEvent>(&TestComponent::handleEvent);
     Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
     Engine::Instance()->dispatcher.dispatch(std::type_index(typeid(TestEvent)));

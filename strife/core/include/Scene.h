@@ -9,8 +9,7 @@
 #include "Data.h"
 #include "Entity.h"
 #include "Storage.h"
-//#include "System.h"
-class ISystem;
+#include "System.h"
 
 namespace Strife {
     namespace Core {
