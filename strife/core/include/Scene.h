@@ -94,6 +94,10 @@ namespace Strife {
                     return static_cast<T* const>(component);
                 };
 
+                std::vector<Component*> get(std::type_index type) const {
+                    return this->at(type)->get();
+                };
+
             private:
 
                 Scene& scene_;
@@ -117,9 +121,17 @@ namespace Strife {
 
             template <class T>
             void initialize() {
+                static_assert(std::is_base_of<Component, T>::value, "T not derived from Component");
                 components.initialize<T>();
                 System<T>* system = new System<T>(this, dispatcher_);
                 system->initialize();
+                systems_.push_back(system);
+            }
+
+            template <class T>
+            void initializeSystem() {
+                static_assert(std::is_base_of<ISystem, T>::value, "T not derived from ISystem");
+                T* system = new T(this, dispatcher_);
                 systems_.push_back(system);
             }
 

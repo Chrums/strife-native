@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <functional>
+#include <vector>
 #include <boost/uuid/uuid.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -12,28 +13,12 @@
 #include "Entity.h"
 #include "Event.h"
 #include "Dispatcher.h"
+#include "ISystem.h"
 
 namespace Strife {
     namespace Core {
 
         class Scene;
-
-        class ISystem {
-
-        public:
-
-            ISystem(Scene* const scene) :
-                scene_(scene) {};
-
-            virtual ~ISystem() = default;
-
-            virtual void initialize() = 0;
-
-        protected:
-
-            Scene* const scene_;
-
-        };
 
         template <class T>
         class System : public ISystem {
@@ -61,9 +46,17 @@ namespace Strife {
             }
 
             void dispatchEvent(Event* event, std::type_index eventType) {
-                T* const component = event->entity.components.get<T>();
                 auto callback = callbacks_.find(eventType);
-                callback->second(component, event);
+                if (event->entity.has_value()) {
+                    T* const component = event->entity.value().components.get<T>();
+                    callback->second(component, event);
+                } else {
+                    const std::type_index type = std::type_index(typeid(T));
+                    auto components = getComponents(type);
+                    for (auto component : components) {
+                        callback->second((T*)component, event);
+                    }
+                }
             }
 
         private:

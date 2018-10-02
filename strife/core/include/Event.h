@@ -2,6 +2,7 @@
 #define EVENT_H
 
 #include "Entity.h"
+#include <optional>
 
 namespace Strife {
     namespace Core {
@@ -12,9 +13,9 @@ namespace Strife {
 
             static const unsigned int Synchronous;
 
-            const Entity& entity;
+            const std::optional<Entity> entity;
 
-            Event(const Entity& entity);
+            Event(const std::optional<Entity> entity);
 
             virtual ~Event() = default;
 

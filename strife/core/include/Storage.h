@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <boost/uuid/uuid.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -12,40 +13,41 @@
 
 namespace Strife {
     namespace Core {
-    
+
         class Scene;
-        
+
         class IStorage {
-            
+
         public:
-        
+
             IStorage(Scene* const scene) :
                 scene_(scene) {};
-                
+
             virtual ~IStorage() = default;
-            
+
             virtual const Data serialize() const = 0;
             virtual void deserialize(const Data data) = 0;
-        
+
             virtual Component* const add(const Entity entity) = 0;
             virtual Component* const add(const boost::uuids::uuid id, const Entity entity) = 0;
             virtual void remove(const Entity entity) = 0;
             virtual Component* const get(const Entity entity) const = 0;
-            
+            virtual std::vector<Component*> const get() const = 0;
+
         protected:
-            
+
             Scene* const scene_;
-            
+
         };
-        
+
         template <class T>
         class Storage : public IStorage, private std::map<Entity, T> {
-            
+
         public:
-        
+
             Storage(Scene* const scene) :
                 IStorage(scene) {};
-        
+
             const Data serialize() const {
                 Data data;
                 for (const auto& pairEntityToComponent : *this) {
@@ -57,7 +59,7 @@ namespace Strife {
                 }
                 return data;
             };
-            
+
             void deserialize(const Data data) {
                 for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
                     const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
@@ -68,25 +70,33 @@ namespace Strife {
                     component->deserialize(componentData);
                 }
             };
-                
+
             T* const add(const Entity entity) {
                 return &this->emplace(entity, entity).first->second;
             };
-        
+
             T* const add(const boost::uuids::uuid id, const Entity entity) {
                 return &this->try_emplace(entity, id, entity).first->second;
             };
-            
+
             void remove(const Entity entity) {
                 this->erase(entity);
             };
-            
+
             T* const get(const Entity entity) const {
                 return const_cast<T* const>(&this->at(entity));
             };
-            
+
+            std::vector<Component*> const get() const {
+                std::vector<Component*> components;
+                for (auto it = this->begin(); it != this->end(); it++) {
+                    components.push_back((Component*)&(it->second));
+                }
+                return components;
+            };
+
         };
-    
+
     }
 }
 
