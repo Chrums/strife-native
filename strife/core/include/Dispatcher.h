@@ -40,11 +40,8 @@ namespace Strife {
                 }
             };
 
-            template <class T>
-            void trigger(const std::optional<Entity> entity) {
-                const std::type_index type = std::type_index(typeid(T));
-                T* const event = new T(entity);
-                if (T::Priority == Event::Synchronous) {
+            void trigger(const std::type_index type, Event* event, const unsigned int priority) {
+                if (priority == Event::Synchronous) {
                     dispatch(type, event);
                 } else {
                     auto events = events_.find(type);
@@ -56,25 +53,23 @@ namespace Strife {
                         events->second.push(event);
                     }
                 }
+            }
+
+            template <class T>
+            void trigger(const std::optional<Entity> entity) {
+                const std::type_index type = std::type_index(typeid(T));
+                T* const event = new T(entity);
+                const unsigned int priority = T::Priority;
+                trigger(type, event, priority);
             };
 
             template <class T>
             void trigger(const std::optional<Entity> entity, std::function<void(T&)> initializer) {
                 const std::type_index type = std::type_index(typeid(T));
                 T* const event = new T(entity);
+                const unsigned int priority = T::Priority;
                 initializer(*event);
-                if (T::Priority == Event::Synchronous) {
-                    dispatch(type, event);
-                } else {
-                    auto events = events_.find(type);
-                    if (events == events_.end()) {
-                        std::queue<Event*> eventQueue;
-                        eventQueue.push(event);
-                        events_.insert({type, eventQueue});
-                    } else {
-                        events->second.push(event);
-                    }
-                }
+                trigger(type, event, priority);
             };
 
             template <class T>

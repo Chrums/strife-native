@@ -123,7 +123,7 @@ namespace Strife {
             void initialize() {
                 static_assert(std::is_base_of<Component, T>::value, "T not derived from Component");
                 components.initialize<T>();
-                System<T>* system = new System<T>(this, dispatcher_);
+                ISystem* system = new System<T>(this, dispatcher_);
                 system->initialize();
                 systems_.push_back(system);
             }
