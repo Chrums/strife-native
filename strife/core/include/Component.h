@@ -14,7 +14,7 @@ namespace Strife {
 
         public:
 
-            const Entity& entity;
+            const Entity entity;
             Scene& scene;
 
             virtual const Data serialize() const;
