@@ -226,25 +226,16 @@ int main() {
     json data = s->serialize();
     cout << data << endl;
 
-    Dispatcher dis;
-    dis.initialize<TestEvent>();
-
-    auto callback = [=](Event* event, type_index type) {
-        //cout << event->data << endl;
-    };
-
-    dis.on<TestEvent>(callback);
-
 
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = SDL_CreateWindow(
-    "SDL2Test",
-    SDL_WINDOWPOS_UNDEFINED,
-    SDL_WINDOWPOS_UNDEFINED,
-    640,
-    480,
-    0
+        "SDL2Test",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        640,
+        480,
+        0
     );
 
 
@@ -260,11 +251,6 @@ int main() {
     auto makeFinishRenderEvent = [=](FinishRenderEvent& event) {
         event.window = window;
     };
-
-    Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
-    Engine::Instance()->dispatcher.trigger<RenderEvent>(e1, makeRenderEvent);
-    Engine::Instance()->dispatcher.trigger<UpdateEvent>(e1);
-    Engine::Instance()->dispatcher.dispatch();
 
      //Main loop flag
      bool quit = false;
