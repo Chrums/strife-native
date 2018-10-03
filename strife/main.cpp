@@ -12,6 +12,8 @@
 #include "Storage.h"
 #include "System.h"
 
+#include "components/Transform.h"
+
 using namespace Strife::Core;
 using namespace std;
 using boost::uuids::uuid;
@@ -115,33 +117,62 @@ public:
         Component(id, entity) {};
 
     const json serialize() const {
-        return value;
+        json data;
+        data["value"] = value;
+        data["x"] = x;
+        return data;
     };
 
     void deserialize(json data) {
-        value = data.get<string>();
+        value = data["value"];
+        x = data["x"];
     };
 
     void handleEvent(Event* event) {
         auto e = dynamic_cast<TestEvent*>(event);
-        cout << "data:" << e->data << " " << entity.id << " " << value << endl;//" e:" << event->entity.value().id << endl;
+        cout << "data:" << e->data << " " << entity.id << " " << value << endl;
     }
 
     void update(Event* event) {
         auto e = dynamic_cast<UpdateEvent*>(event);
-        //cout << "data:" << e->data << " " << value << endl;
         x += 1;
+
+        try {
+            auto t = entity.components.get<Transform2f>();
+            const Uint8 *state = SDL_GetKeyboardState(NULL);
+            if (state[SDL_SCANCODE_RIGHT]) {
+                t->translation().x()++;
+            }
+            if (state[SDL_SCANCODE_LEFT]) {
+                t->translation().x()--;
+            }
+            if (state[SDL_SCANCODE_UP]) {
+                t->translation().y()--;
+            }
+            if (state[SDL_SCANCODE_DOWN]) {
+                t->translation().y()++;
+            }
+
+        } catch (const std::exception& e) {
+            // TODO: Should probably allow for requesting non existent Components w/o exception
+        }
     }
 
     void render(Event* event) {
         auto e = dynamic_cast<RenderEvent*>(event);
-        //cout << "data:" << e->data << " " << value << endl;
-        //x += 1;
         SDL_Rect rect;
         rect.x = x;
         rect.y = 0;
         rect.w = 32;
         rect.h = 32;
+
+        try {
+            auto t = entity.components.get<Transform2f>();
+            rect.x = t->translation().x();
+            rect.y = t->translation().y();
+        } catch (const std::exception& e) {
+            // TODO: Should probably allow for requesting non existent Components w/o exception
+        }
 
         SDL_SetRenderDrawColor(e->renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(e->renderer, &rect);
@@ -206,22 +237,22 @@ int main() {
 
     Scene* s = new Scene(Engine::Instance()->dispatcher);
     s->initialize<TestComponent>();
+    s->initialize<Transform2f>();
     s->initializeSystem<RenderSystem>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
-    cout << t0->entity.id << " t0id" << endl;
+    Transform2f* tr0 = e0.components.add<Transform2f>();
+    cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
     t0->value = "0";
+    t0->x = 0;
 
     Entity e1(s);
     TestComponent* t1 = e1.components.add<TestComponent>();
     t1->value = "1";
     t1->x = 60;
 
-    Engine::Instance()->dispatcher.trigger<TestEvent>(e0, makeTestEvent);
-    Engine::Instance()->dispatcher.dispatch(std::type_index(typeid(TestEvent)));
-    Engine::Instance()->dispatcher.trigger<TestEvent>(e1, makeTestEvent);
-    Engine::Instance()->dispatcher.dispatch();
+    // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 
     json data = s->serialize();
     cout << data << endl;

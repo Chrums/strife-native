@@ -24,6 +24,7 @@ find_package(Threads REQUIRED)
 find_package(Boost REQUIRED)
 
 add_subdirectory(core)
+add_subdirectory(project)
 
 add_executable(main main.cpp)
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
@@ -32,4 +33,5 @@ target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
     ${CONAN_LIBS_SDL2}
     core
+    project
 )
