@@ -95,73 +95,22 @@ void makeTestEvent(TestEvent& event) {
     event.data = "HI!";
 }
 
-class TestComponent : public Component {
+class DrawSquare : public Component {
 
 public:
 
-    static void initialize(System<TestComponent>& system) {
-        system.on<TestEvent>(&TestComponent::handleEvent);
-        system.on<UpdateEvent>(&TestComponent::update);
-        system.on<RenderEvent>(&TestComponent::render);
+    static void initialize(System<DrawSquare>& system) {
+        system.on<RenderEvent>(&DrawSquare::render);
     }
 
     static const string Identifier;
 
-    string value;
-    int x = 0;
-
-    TestComponent(const Entity& entity) :
-        Component(entity) {};
-
-    TestComponent(const uuid id, const Entity& entity) :
-        Component(id, entity) {};
-
-    const json serialize() const {
-        json data;
-        data["value"] = value;
-        data["x"] = x;
-        return data;
-    };
-
-    void deserialize(json data) {
-        value = data["value"];
-        x = data["x"];
-    };
-
-    void handleEvent(Event* event) {
-        auto e = dynamic_cast<TestEvent*>(event);
-        cout << "data:" << e->data << " " << entity.id << " " << value << endl;
-    }
-
-    void update(Event* event) {
-        auto e = dynamic_cast<UpdateEvent*>(event);
-        x += 1;
-
-        try {
-            auto t = entity.components.get<Transform2f>();
-            const Uint8 *state = SDL_GetKeyboardState(NULL);
-            if (state[SDL_SCANCODE_RIGHT]) {
-                t->translation().x()++;
-            }
-            if (state[SDL_SCANCODE_LEFT]) {
-                t->translation().x()--;
-            }
-            if (state[SDL_SCANCODE_UP]) {
-                t->translation().y()--;
-            }
-            if (state[SDL_SCANCODE_DOWN]) {
-                t->translation().y()++;
-            }
-
-        } catch (const std::exception& e) {
-            // TODO: Should probably allow for requesting non existent Components w/o exception
-        }
-    }
+    using Component::Component;
 
     void render(Event* event) {
         auto e = dynamic_cast<RenderEvent*>(event);
         SDL_Rect rect;
-        rect.x = x;
+        rect.x = 0;
         rect.y = 0;
         rect.w = 32;
         rect.h = 32;
@@ -176,6 +125,110 @@ public:
 
         SDL_SetRenderDrawColor(e->renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(e->renderer, &rect);
+    }
+
+};
+
+const string DrawSquare::Identifier = "DrawSquare";
+
+class Velocity : public Component {
+
+public:
+
+    static void initialize(System<Velocity>& system) {
+        system.on<UpdateEvent>(&Velocity::update);
+    }
+
+    static const string Identifier;
+
+    using Component::Component;
+
+    int xSpeed = 0;
+    int ySpeed = 0;
+
+    const json serialize() const {
+        json data;
+        data["xSpeed"] = xSpeed;
+        data["ySpeed"] = ySpeed;
+        return data;
+    };
+
+    void deserialize(json data) {
+        xSpeed = data["xSpeed"];
+        ySpeed = data["ySpeed"];
+    };
+
+    void update(Event* event) {
+        try {
+            auto t = entity.components.get<Transform2f>();
+            t->translation().x() += xSpeed;
+            t->translation().y() += ySpeed;
+        } catch (const std::exception& e) {
+            // TODO: Should probably allow for requesting non existent Components w/o exception
+        }
+    }
+
+};
+
+const string Velocity::Identifier = "Velocity";
+
+class TestComponent : public Component {
+
+public:
+
+    static void initialize(System<TestComponent>& system) {
+        system.on<TestEvent>(&TestComponent::handleEvent);
+        system.on<UpdateEvent>(&TestComponent::update);
+    }
+
+    static const string Identifier;
+
+    string value;
+
+    TestComponent(const Entity& entity) :
+        Component(entity) {};
+
+    TestComponent(const uuid id, const Entity& entity) :
+        Component(id, entity) {};
+
+    const json serialize() const {
+        json data;
+        data["value"] = value;
+        return data;
+    };
+
+    void deserialize(json data) {
+        value = data["value"];
+    };
+
+    void handleEvent(Event* event) {
+        auto e = dynamic_cast<TestEvent*>(event);
+        cout << "data:" << e->data << " " << entity.id << " " << value << endl;
+    }
+
+    void update(Event* event) {
+        auto e = dynamic_cast<UpdateEvent*>(event);
+
+        try {
+            auto v = entity.components.get<Velocity>();
+            v->xSpeed = 0;
+            v->ySpeed = 0;
+            const Uint8 *state = SDL_GetKeyboardState(NULL);
+            if (state[SDL_SCANCODE_RIGHT]) {
+                v->xSpeed = 1;
+            }
+            if (state[SDL_SCANCODE_LEFT]) {
+                v->xSpeed = -1;
+            }
+            if (state[SDL_SCANCODE_UP]) {
+                v->ySpeed = -1;
+            }
+            if (state[SDL_SCANCODE_DOWN]) {
+                v->ySpeed = 1;
+            }
+        } catch (const std::exception& e) {
+            // TODO: Should probably allow for requesting non existent Components w/o exception
+        }
     }
 
 };
@@ -238,19 +291,24 @@ int main() {
     Scene* s = new Scene(Engine::Instance()->dispatcher);
     s->initialize<TestComponent>();
     s->initialize<Transform2f>();
+    s->initialize<DrawSquare>();
+    s->initialize<Velocity>();
     s->initializeSystem<RenderSystem>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
     Transform2f* tr0 = e0.components.add<Transform2f>();
+    e0.components.add<Velocity>();
+    e0.components.add<DrawSquare>();
+    tr0->translation().x() = 60;
     cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
     t0->value = "0";
-    t0->x = 0;
 
     Entity e1(s);
-    TestComponent* t1 = e1.components.add<TestComponent>();
-    t1->value = "1";
-    t1->x = 60;
+    Transform2f* tr1 = e1.components.add<Transform2f>();
+    auto v1 = e1.components.add<Velocity>();
+    e1.components.add<DrawSquare>();
+    v1->ySpeed = 1;
 
     // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 
