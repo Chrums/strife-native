@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <boost/uuid/uuid_io.hpp>
 #include <nlohmann/json.hpp>
@@ -24,7 +25,7 @@ class TestEvent : public Event {
 
 public:
 
-    TestEvent(const std::optional<Entity> entity) : Event(entity) {}
+    using Event::Event;
 
     static const unsigned int Priority;
 
@@ -38,7 +39,7 @@ class UpdateEvent : public Event {
 
 public:
 
-    UpdateEvent(const std::optional<Entity> entity) : Event(entity) {}
+    using Event::Event;
 
     static const unsigned int Priority;
 
@@ -52,7 +53,7 @@ class RenderEvent : public Event {
 
 public:
 
-    RenderEvent(const std::optional<Entity> entity) : Event(entity) {}
+    using Event::Event;
 
     static const unsigned int Priority;
 
@@ -66,7 +67,7 @@ class BeginRenderEvent : public Event {
 
 public:
 
-    BeginRenderEvent(const std::optional<Entity> entity) : Event(entity) {}
+    using Event::Event;
 
     static const unsigned int Priority;
 
@@ -80,7 +81,7 @@ class FinishRenderEvent : public Event {
 
 public:
 
-    FinishRenderEvent(const std::optional<Entity> entity) : Event(entity) {}
+    using Event::Event;
 
     static const unsigned int Priority;
 
@@ -151,12 +152,12 @@ public:
         data["xSpeed"] = xSpeed;
         data["ySpeed"] = ySpeed;
         return data;
-    };
+    }
 
     void deserialize(json data) {
         xSpeed = data["xSpeed"];
         ySpeed = data["ySpeed"];
-    };
+    }
 
     void update(Event* event) {
         try {
@@ -185,21 +186,17 @@ public:
 
     string value;
 
-    TestComponent(const Entity& entity) :
-        Component(entity) {};
-
-    TestComponent(const uuid id, const Entity& entity) :
-        Component(id, entity) {};
+    using Component::Component;
 
     const json serialize() const {
         json data;
         data["value"] = value;
         return data;
-    };
+    }
 
     void deserialize(json data) {
         value = data["value"];
-    };
+    }
 
     void handleEvent(Event* event) {
         auto e = dynamic_cast<TestEvent*>(event);
@@ -247,10 +244,10 @@ public:
 
         dispatcher_.on<BeginRenderEvent>([this](Event* event, std::type_index type) { beginRender(event, type); });
         dispatcher_.on<FinishRenderEvent>([this](Event* event, std::type_index type) { finishRender(event, type); });
-    };
+    }
 
     virtual void initialize() {
-    };
+    }
 
     ~RenderSystem() {
 
@@ -309,6 +306,16 @@ int main() {
     auto v1 = e1.components.add<Velocity>();
     e1.components.add<DrawSquare>();
     v1->ySpeed = 1;
+
+//    try {
+//        std::ifstream file;
+//        file.open("strife/project/scenes/default.json");
+//        json j;
+//        file >> j;
+//        s->deserialize(j);
+//    } catch (exception& e) {
+//        cout << e.what() << endl;
+//    }
 
     // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 

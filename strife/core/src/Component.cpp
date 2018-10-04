@@ -17,3 +17,5 @@ const Data Component::serialize() const {
 };
 
 void Component::deserialize(const Data data) {};
+
+Component::~Component() {};

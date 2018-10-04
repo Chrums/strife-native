@@ -23,6 +23,8 @@ namespace Strife {
             Component(const Entity& entity);
             Component(const boost::uuids::uuid id, const Entity& entity);
 
+            virtual ~Component();
+
         };
 
     }
