@@ -63,8 +63,8 @@ namespace Strife {
             Components components;
 
             Entity(const Entity& entity);
-            Entity(Scene* const scene);
-            Entity(const boost::uuids::uuid id, Scene* const scene);
+            Entity(Scene* scene);
+            Entity(const boost::uuids::uuid id, Scene* scene);
 
             void destroy();
 

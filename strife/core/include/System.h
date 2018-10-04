@@ -48,8 +48,14 @@ namespace Strife {
             void dispatchEvent(Event* event, std::type_index eventType) {
                 auto callback = callbacks_.find(eventType);
                 if (event->entity.has_value()) {
-                    T* const component = event->entity.value().components.get<T>();
-                    callback->second(component, event);
+                    try {
+                        T* const component = event->entity.value().components.get<T>();
+                        callback->second(component, event);
+                    } catch (...) {
+                        // TODO: Really though, this shouldn't be an exception
+                        // Also, it's a bit odd that we have check all event handlers
+                        // against an entity given we could know which are being handled
+                    }
                 } else {
                     const std::type_index type = std::type_index(typeid(T));
                     auto components = getComponents(type);

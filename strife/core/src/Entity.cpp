@@ -30,11 +30,11 @@ Entity::Entity(const Entity& entity) :
     scene(entity.scene),
     components(*this) {};
 
-Entity::Entity(Scene* const scene) :
+Entity::Entity(Scene* scene) :
     scene(scene),
     components(*this) {};
 
-Entity::Entity(const boost::uuids::uuid id, Scene* const scene) :
+Entity::Entity(const boost::uuids::uuid id, Scene* scene) :
     Unique(id),
     scene(scene),
     components(*this) {};

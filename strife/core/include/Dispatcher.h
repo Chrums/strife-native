@@ -72,6 +72,14 @@ namespace Strife {
                 trigger(type, event, priority);
             };
 
+            template<class T, typename... ArgTypes>
+            void triggerArg(ArgTypes... args) {
+                const std::type_index type = std::type_index(typeid(T));
+                T* const event = new T(std::forward<ArgTypes>(args)...);
+                const unsigned int priority = T::Priority;
+                trigger(type, event, priority);
+            }
+
             template <class T>
             void trigger(std::function<void(T&)> initializer) {
                 trigger<T>(std::nullopt, initializer);

@@ -91,6 +91,34 @@ public:
 
 const unsigned int FinishRenderEvent::Priority = 1100;
 
+class FindCollisionsEvent : public Event {
+
+public:
+
+    using Event::Event;
+
+    static const unsigned int Priority;
+
+};
+
+const unsigned int FindCollisionsEvent::Priority = 400;
+
+class CollisionEvent : public Event {
+
+public:
+
+    const Entity other;
+
+    CollisionEvent(Entity entity, Entity other) :
+        Event(entity), other(other) {}
+
+    static const unsigned int Priority;
+
+};
+
+const unsigned int CollisionEvent::Priority = 410;
+
+
 
 void makeTestEvent(TestEvent& event) {
     event.data = "HI!";
@@ -180,6 +208,7 @@ public:
     static void initialize(System<TestComponent>& system) {
         system.on<TestEvent>(&TestComponent::handleEvent);
         system.on<UpdateEvent>(&TestComponent::update);
+        system.on<CollisionEvent>(&TestComponent::collision);
     }
 
     static const string Identifier;
@@ -228,6 +257,11 @@ public:
         }
     }
 
+    void collision(Event* event) {
+        auto e = dynamic_cast<CollisionEvent*>(event);
+        cout << "collided!: " << e->other.id << endl;
+    }
+
 };
 
 const string TestComponent::Identifier = "Test";
@@ -274,6 +308,53 @@ private:
 
 };
 
+class PhysicsSystem : public ISystem {
+
+public:
+
+    PhysicsSystem(Scene* const scene, Dispatcher& dispatcher) :
+        ISystem(scene), dispatcher_(dispatcher) {
+
+        dispatcher_.initialize<FindCollisionsEvent>();
+
+        dispatcher_.on<FindCollisionsEvent>([this](Event* event, std::type_index type) { findCollisions(event, type); });
+    }
+
+    virtual void initialize() {
+    }
+
+    ~PhysicsSystem() {
+
+    }
+
+    void findCollisions(Event* event, std::type_index eventType) {
+        auto transforms = this->getComponents<Transform2f>();
+        for (auto tA : transforms) {
+            auto transformA = static_cast<Transform2f*>(tA);
+            for (auto tB : transforms) {
+                auto transformB = static_cast<Transform2f*>(tB);
+                if (((transformA->translation().x() <= transformB->translation().x() + 32 && transformA->translation().x() >= transformB->translation().x())
+                        && (transformA->translation().y() <= transformB->translation().y() + 32 && transformA->translation().y() >= transformB->translation().y()))
+                    || ((transformB->translation().x() <= transformA->translation().x() + 32 && transformB->translation().x() >= transformA->translation().x())
+                        && (transformB->translation().y() <= transformA->translation().y() + 32 && transformB->translation().y() >= transformA->translation().y()))) {
+
+                    if (transformA->entity.id != transformB->entity.id) {
+                        CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
+                        dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+private:
+
+    Dispatcher& dispatcher_;
+
+};
+
 // class Ultima : public Engine {
 
 //     void initialize(Scene scene) {
@@ -291,6 +372,7 @@ int main() {
     s->initialize<DrawSquare>();
     s->initialize<Velocity>();
     s->initializeSystem<RenderSystem>();
+    s->initializeSystem<PhysicsSystem>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
@@ -305,7 +387,7 @@ int main() {
     Transform2f* tr1 = e1.components.add<Transform2f>();
     auto v1 = e1.components.add<Velocity>();
     e1.components.add<DrawSquare>();
-    v1->ySpeed = 1;
+    //v1->ySpeed = 1;
 
 //    try {
 //        std::ifstream file;
@@ -364,6 +446,7 @@ int main() {
 
        //Engine::Instance()->dispatcher.trigger<TestEvent>(makeTestEvent);
        Engine::Instance()->dispatcher.trigger<UpdateEvent>();
+       Engine::Instance()->dispatcher.trigger<FindCollisionsEvent>();
        Engine::Instance()->dispatcher.trigger<RenderEvent>(makeRenderEvent);
        Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
        Engine::Instance()->dispatcher.trigger<FinishRenderEvent>(makeFinishRenderEvent);
