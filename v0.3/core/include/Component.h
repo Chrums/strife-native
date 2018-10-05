@@ -13,19 +13,17 @@ namespace Strife {
         class Component : public Unique {
 
         public:
-        
-            template <class C>
-            static void AssertBase();
 
             const Entity entity;
             Scene& scene;
 
-            Component(const Entity& entity);
-            Component(const boost::uuids::uuid id, const Entity& entity);
-            virtual ~Component() = default;
-
             virtual const Data serialize() const;
             virtual void deserialize(const Data data);
+
+            Component(const Entity& entity);
+            Component(const boost::uuids::uuid id, const Entity& entity);
+
+            virtual ~Component();
 
         };
 

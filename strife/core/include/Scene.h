@@ -51,52 +51,59 @@ namespace Strife {
                 void remove(const Entity& entity);
                 Component* const get(const std::type_index type, const Entity& entity) const;
 
-                template <class T>
-                void initialize() {
-                    std::type_index type = std::type_index(typeid(T));
-                    this->insert({ type, new Storage<T>(&scene_) });
-                    identifierToType_.insert({ T::Identifier, type });
-                    typeToIdentifier_.insert({ type, T::Identifier });
+                template <class C>
+                Storage<C>& initialize() {
+                    //Component::AssertBase<C>();
+                    std::type_index type = std::type_index(typeid(C));
+                    Storage<C>* const storage = new Storage<C>(&scene_);
+                    this->insert({ type, storage });
+                    identifierToType_.insert({ C::Identifier, type });
+                    typeToIdentifier_.insert({ type, C::Identifier });
+                    return *storage;
                 };
 
-                // template <class T, class S>
-                // void initialize(std::string identifier) {
-                //     std::type_index type = std::type_index(typeid(T));
-                //     this->insert({ type, new S(&scene_) });
-                //     identifierToType_.insert({ identifier, type });
-                //     typeToIdentifier_.insert({ type, identifier });
-                // };
+                template <class C, class S>
+                S& initialize() {
+                    //Component::AssertBase<C>();
+                    IStorage::AssertBase<S>();
+                    std::type_index type = std::type_index(typeid(C));
+                    S* const storage = new S(&scene_);
+                    this->insert({ type, storage });
+                    identifierToType_.insert({ C::Identifier, type });
+                    typeToIdentifier_.insert({ type, C::Identifier });
+                    return *storage;
+                };
 
-                template <class T>
-                T* const add(const Entity& entity) {
-                    std::type_index type(typeid(T));
+                template <class C>
+                C* const add(const Entity& entity) {
+                    std::type_index type(typeid(C));
                     Component* const component = add(type, entity);
-                    return static_cast<T* const>(component);
+                    return static_cast<C* const>(component);
                 };
 
-                template <class T>
-                T* const add(const boost::uuids::uuid id, const Entity& entity) {
-                    std::type_index type(typeid(T));
+                template <class C>
+                C* const add(const boost::uuids::uuid id, const Entity& entity) {
+                    std::type_index type(typeid(C));
                     Component* const component = add(type, id, entity);
-                    return static_cast<T* const>(component);
+                    return static_cast<C* const>(component);
                 };
 
-                template <class T>
+                template <class C>
                 void remove(const Entity& entity) {
-                    std::type_index type(typeid(T));
+                    std::type_index type(typeid(C));
                     remove(type, entity);
                 };
 
-                template <class T>
-                T* const get(const Entity& entity) {
-                    std::type_index type(typeid(T));
+                template <class C>
+                C* const get(const Entity& entity) {
+                    std::type_index type(typeid(C));
                     Component* const component = get(type, entity);
-                    return static_cast<T* const>(component);
+                    return static_cast<C* const>(component);
                 };
 
-                std::vector<Component*> get(std::type_index type) const {
-                    return this->at(type)->get();
-                };
+                // std::vector<Component*> get(const std::type_index type) const {
+                //     return this->at(type)->get();
+                // };
 
             private:
 
@@ -105,29 +112,54 @@ namespace Strife {
                 std::map<std::type_index, std::string> typeToIdentifier_;
 
             };
-
-        private:
-
-            std::vector<ISystem*> systems_;
-            Dispatcher& dispatcher_;
+            
+            class Systems : private std::map<std::type_index, ISystem* const> {
+                
+            public:
+            
+                Systems(Scene& scene);
+                ~Systems();
+                
+                template <class C>
+                System<C>& initialize(Dispatcher& dispatcher, Storage<C>& storage) {
+                    //Component::AssertBase<C>(); Component is forward declared... should Component hold a pointer to a Scene so that this can be asserted?
+                    std::type_index type(typeid(C));
+                    System<C>* const system = new System<C>(&scene_, dispatcher, storage);
+                    this->insert({ type, system });
+                    return *system;
+                }
+                
+                template <class S>
+                S& initialize() {
+                    ISystem::AssertBase<S>();
+                    std::type_index type(typeid(S));
+                    S* const system = new S(scene_);
+                    this->insert({ type, system });
+                    return *system;
+                }
+                
+            private:
+            
+                Scene& scene_;
+                
+            };
 
         public:
 
             const Entities entities;
             Components components;
+            Systems systems;
 
             Scene(Dispatcher& dispatcher);
             ~Scene();
 
-            template <class T>
+            template <class C>
             void initialize() {
-                static_assert(std::is_base_of<Component, T>::value, "T not derived from Component");
-                components.initialize<T>();
-                ISystem* system = new System<T>(this, dispatcher_);
-                system->initialize();
-                systems_.push_back(system);
+                Storage<C>& storage = components.initialize<C>();
+                System<C>& system = systems.initialize<C>(dispatcher_, storage);
             }
 
+            // DEPRECATED
             template <class T>
             void initializeSystem() {
                 static_assert(std::is_base_of<ISystem, T>::value, "T not derived from ISystem");
@@ -137,6 +169,11 @@ namespace Strife {
 
             const Data serialize() const;
             void deserialize(const Data data);
+
+        private:
+    
+            std::vector<ISystem*> systems_;
+            Dispatcher& dispatcher_;
 
         };
 

@@ -100,7 +100,7 @@ class DrawSquare : public Component {
 
 public:
 
-    static void Initialize(System<DrawSquare>& system) {
+    static void initialize(System<DrawSquare>& system) {
         system.on<RenderEvent>(&DrawSquare::render);
     }
 
@@ -136,7 +136,7 @@ class Velocity : public Component {
 
 public:
 
-    static void Initialize(System<Velocity>& system) {
+    static void initialize(System<Velocity>& system) {
         system.on<UpdateEvent>(&Velocity::update);
     }
 
@@ -177,7 +177,7 @@ class TestComponent : public Component {
 
 public:
 
-    static void Initialize(System<TestComponent>& system) {
+    static void initialize(System<TestComponent>& system) {
         system.on<TestEvent>(&TestComponent::handleEvent);
         system.on<UpdateEvent>(&TestComponent::update);
     }

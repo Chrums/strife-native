@@ -2,67 +2,87 @@
 #define SYSTEM_H
 
 #include <map>
-#include <string>
 #include <functional>
-#include <vector>
-#include <boost/uuid/uuid.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <nlohmann/json.hpp>
-#include "Component.h"
 #include "Entity.h"
 #include "Event.h"
 #include "Dispatcher.h"
-#include "ISystem.h"
+#include "Storage.h"
 
 namespace Strife {
     namespace Core {
 
         class Scene;
+        
+        class ISystem {
 
-        template <class T>
+        public:
+            
+            template <class S>
+            static void AssertBase();
+
+            ISystem(Scene* const scene) :
+                scene_(scene) {};
+
+            virtual ~ISystem() = default;
+
+        protected:
+
+            Scene* const scene_;
+
+        };
+        
+        template <class S>
+        void ISystem::AssertBase() {
+            static_assert(
+                std::is_base_of<ISystem, S>::value,
+                "Type not derived from ISystem"
+            );
+        };
+
+        template <class C>
         class System : public ISystem {
 
         public:
 
-            System(Scene* const scene, Dispatcher& dispatcher) :
-                ISystem(scene), dispatcher_(dispatcher) {};
-
-            virtual void initialize() {
-                T::initialize(*this);
+            System(Scene* const scene, Dispatcher& dispatcher, IStorage& storage) :
+                ISystem(scene),
+                dispatcher_(dispatcher),
+                storage_(storage) {
+                C::Initialize(*this);
             };
 
-            ~System() {
+            ~System() = default;
 
+            template <class E>
+            void on(std::function<void(C* const, Event*)> callback) {
+                const std::type_index type = std::type_index(typeid(E));
+                callbacks_.insert({ type, callback });
+                dispatcher_.initialize<E>(); // TODO: Do this elsewhere... probably wherever the Event class is declared... (Engine::Instance()->dispatcher.initialize<E>())
+                dispatcher_.on<E>(std::bind(&System<C>::dispatch, this, std::placeholders::_1, std::placeholders::_2));
             }
 
-            template<class E>
-            void on(std::function<void(T*, Event*)> callback) {
-                const std::type_index eventType = std::type_index(typeid(E));
-                callbacks_.insert({ eventType, callback });
-                std::function<void(Event*, std::type_index)> boundCallback = [this](Event* event, std::type_index type) { dispatchEvent(event, type); };
-                dispatcher_.initialize<E>();
-                dispatcher_.on<E>(boundCallback);
-            }
-
-            void dispatchEvent(Event* event, std::type_index eventType) {
-                auto callback = callbacks_.find(eventType);
-                if (event->entity.has_value()) {
-                    T* const component = event->entity.value().components.get<T>();
-                    callback->second(component, event);
-                } else {
-                    const std::type_index type = std::type_index(typeid(T));
-                    auto components = getComponents(type);
-                    for (auto component : components) {
-                        callback->second((T*)component, event);
+            void dispatch(Event* event, std::type_index type) {
+                auto iteratorTypeToCallback = callbacks_.find(type);
+                if (iteratorTypeToCallback != callbacks_.end()) {
+                    std::function<void(C*, Event*)> callback = iteratorTypeToCallback->second;
+                    if (event->entity.has_value()) {
+                        C* const component = event->entity.value().components.get<C>();
+                        callback(component, event);
+                    } else {
+                        storage_.each(
+                            [=](const Entity entity, Component* const component) {
+                                callback(static_cast<C* const>(component), event);
+                            }
+                        );
                     }
                 }
             }
 
         private:
 
-            std::map<const std::type_index, std::function<void(T*, Event*)> > callbacks_;
+            std::map<const std::type_index, std::function<void(C* const, Event*)> > callbacks_;
             Dispatcher& dispatcher_;
+            IStorage& storage_;
 
         };
 

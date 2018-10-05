@@ -17,7 +17,7 @@ class Transform : public Strife::Core::Component, public Eigen::Transform<T, D, 
 
 public:
 
-    static void Initialize(Strife::Core::System<Transform>& system) {};
+    static void initialize(Strife::Core::System<Transform>& system) {}
 
     static const std::string Identifier;
 

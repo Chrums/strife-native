@@ -78,20 +78,9 @@ Component* const Scene::Components::get(const type_index type, const Entity& ent
     return this->at(type)->get(entity);
 };
 
-Scene::Systems::Systems(Scene& scene) :
-    scene_(scene) {};
-
-Scene::Systems::~Systems() {
-    for (const auto& pairTypeToSystem : *this) {
-        ISystem* const system = pairTypeToSystem.second;
-        delete system;
-    }
-};
-
 Scene::Scene(Dispatcher& dispatcher) :
     entities(*this),
     components(*this),
-    systems(*this),
     dispatcher_(dispatcher) {};
 
 Scene::~Scene() {

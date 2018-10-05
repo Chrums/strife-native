@@ -16,9 +16,10 @@ namespace Strife {
 
             public:
 
-                Scene* active;
+                Scenes(Engine* engine) : engine_(engine), active(nullptr) {
+                }
 
-                Scenes(Engine& engine);
+                Scene* active;
 
                 void load(const std::string identifier, const std::string path);
                 void unload(const std::string identifier);
@@ -26,7 +27,7 @@ namespace Strife {
 
             private:
 
-                Engine& engine_;
+                Engine* engine_;
 
             };
 
@@ -55,15 +56,13 @@ namespace Strife {
             Scenes scenes;
             Dispatcher dispatcher;
 
-            virtual ~Engine() = default;
+            ~Engine();
 
         protected:
 
             static Engine* instance_;
-            
-            Engine();
-            
-            virtual void initialize();
+            virtual void initialize() {};
+            Engine() : scenes(this){}
 
         };
 
