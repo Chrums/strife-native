@@ -59,21 +59,47 @@ namespace Strife {
                 callbacks_.insert({ type, callback });
                 dispatcher_.initialize<E>(); // TODO: Do this elsewhere... probably wherever the Event class is declared... (Engine::Instance()->dispatcher.initialize<E>())
                 dispatcher_.on<E>(std::bind(&System<C>::dispatch, this, std::placeholders::_1, std::placeholders::_2));
-            }
+            };
 
             void dispatch(Event* event, std::type_index type) {
                 auto iteratorTypeToCallback = callbacks_.find(type);
                 if (iteratorTypeToCallback != callbacks_.end()) {
                     std::function<void(C*, Event*)> callback = iteratorTypeToCallback->second;
                     if (event->entity.has_value()) {
-                        C* const component = event->entity.value().components.get<C>();
-                        callback(component, event);
+                        try {
+                            C* const component = event->entity.value().components.get<C>();
+                            callback(component, event);
+                        } catch (...) {
+                            // TODO: Really though, this shouldn't be an exception
+                            // Also, it's a bit odd that we have check all event handlers
+                            // against an entity given we could know which are being handled
+                        }
                     } else {
                         storage_.each(
                             [=](const Entity entity, Component* const component) {
                                 callback(static_cast<C* const>(component), event);
                             }
                         );
+                    }
+                }
+            };
+            
+            void dispatchEvent(Event* event, std::type_index eventType) {
+                auto callback = callbacks_.find(eventType);
+                if (event->entity.has_value()) {
+                    try {
+                        T* const component = event->entity.value().components.get<T>();
+                        callback->second(component, event);
+                    } catch (...) {
+                        // TODO: Really though, this shouldn't be an exception
+                        // Also, it's a bit odd that we have check all event handlers
+                        // against an entity given we could know which are being handled
+                    }
+                } else {
+                    const std::type_index type = std::type_index(typeid(T));
+                    auto components = getComponents(type);
+                    for (auto component : components) {
+                        callback->second((T*)component, event);
                     }
                 }
             }

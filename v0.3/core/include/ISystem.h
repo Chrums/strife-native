@@ -34,6 +34,12 @@ namespace Strife {
 
             std::vector<Component*> const getComponents(std::type_index type) const;
 
+            template <class T>
+            std::vector<Component*> const getComponents() const {
+                const std::type_index type = std::type_index(typeid(T));
+                return getComponents(type);
+            }
+
         };
     }
 }
