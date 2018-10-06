@@ -74,6 +74,10 @@ void Scene::Components::remove(const Entity& entity) {
     }
 };
 
+IStorage* const Scene::Components::get(const type_index type) const {
+    return this->at(type);
+};
+
 Component* const Scene::Components::get(const type_index type, const Entity& entity) const {
     return this->at(type)->get(entity);
 };

@@ -49,6 +49,7 @@ namespace Strife {
                 Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
                 void remove(const std::type_index type, const Entity& entity);
                 void remove(const Entity& entity);
+                IStorage* const get(const std::type_index type) const;
                 Component* const get(const std::type_index type, const Entity& entity) const;
 
                 template <class C>
@@ -93,6 +94,12 @@ namespace Strife {
                     std::type_index type(typeid(C));
                     remove(type, entity);
                 };
+                
+                template <class C>
+                IStorage* const get() const {
+                    std::type_index type(typeid(C));
+                    return this->at(type);
+                };
 
                 template <class C>
                 C* const get(const Entity& entity) {
@@ -100,10 +107,6 @@ namespace Strife {
                     Component* const component = get(type, entity);
                     return static_cast<C* const>(component);
                 };
-
-                // std::vector<Component*> get(const std::type_index type) const {
-                //     return this->at(type)->get();
-                // };
 
             private:
 

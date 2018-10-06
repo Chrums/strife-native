@@ -328,23 +328,29 @@ public:
     }
 
     void findCollisions(Event* event, std::type_index eventType) {
-        auto transforms = this->getComponents<Transform2f>();
-        for (auto tA : transforms) {
-            auto transformA = static_cast<Transform2f*>(tA);
-            for (auto tB : transforms) {
-                auto transformB = static_cast<Transform2f*>(tB);
-                if (((transformA->translation().x() <= transformB->translation().x() + 32 && transformA->translation().x() >= transformB->translation().x())
-                        && (transformA->translation().y() <= transformB->translation().y() + 32 && transformA->translation().y() >= transformB->translation().y()))
-                    || ((transformB->translation().x() <= transformA->translation().x() + 32 && transformB->translation().x() >= transformA->translation().x())
-                        && (transformB->translation().y() <= transformA->translation().y() + 32 && transformB->translation().y() >= transformA->translation().y()))) {
-
-                    if (transformA->entity.id != transformB->entity.id) {
-                        CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
-                        dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
-                    }
-                }
-            }
+        
+        auto transforms = this->scene_->components.get<Transform2f>();
+        for (auto t = transforms->begin(); t != transforms->end(); t++) {
+            cout << (*t).first.id << endl;
         }
+        
+        // auto transforms = this->scene_->components.get<Transform2f>();
+        // for (auto tA : transforms) {
+        //     auto transformA = static_cast<Transform2f*>(tA);
+        //     for (auto tB : transforms) {
+        //         auto transformB = static_cast<Transform2f*>(tB);
+        //         if (((transformA->translation().x() <= transformB->translation().x() + 32 && transformA->translation().x() >= transformB->translation().x())
+        //                 && (transformA->translation().y() <= transformB->translation().y() + 32 && transformA->translation().y() >= transformB->translation().y()))
+        //             || ((transformB->translation().x() <= transformA->translation().x() + 32 && transformB->translation().x() >= transformA->translation().x())
+        //                 && (transformB->translation().y() <= transformA->translation().y() + 32 && transformB->translation().y() >= transformA->translation().y()))) {
+
+        //             if (transformA->entity.id != transformB->entity.id) {
+        //                 CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
+        //                 dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
+        //             }
+        //         }
+        //     }
+        // }
     }
 
 

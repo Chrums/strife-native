@@ -20,6 +20,61 @@ namespace Strife {
         class IStorage {
 
         public:
+        
+            class Iterator {
+            
+            public:
+                
+                class CoolIt {
+                    
+                public:
+                    
+                    CoolIt() = default;
+                    virtual ~CoolIt() = default;
+                    
+                    
+                    virtual void increment() = 0;
+                    
+                    virtual std::pair<const Entity, Component* const> dereference() = 0;
+                    
+                    virtual bool equal(const CoolIt* iterator) const = 0;
+                };
+                
+                Iterator(CoolIt* it) {
+                    it_ = it;
+                };
+                virtual ~Iterator() {
+                    delete it_;
+                };
+                
+                Iterator& operator++() {
+                    it_->increment();
+                    return *this;
+                };
+                
+                Iterator& operator++(int) {
+                    it_->increment();
+                    return *this;
+                };
+                
+                virtual std::pair<const Entity, Component* const> operator*() {
+                    return it_->dereference();
+                };
+                
+                virtual bool operator==(const Iterator& iterator) const {
+                    return it_->equal(iterator.it_);
+                };
+                
+                virtual bool operator!=(const Iterator& iterator) const {
+                    return !it_->equal(iterator.it_);
+                };
+                
+            protected:
+                
+                CoolIt* it_ = nullptr;
+
+                
+            };
 
             template <class S>
             static void AssertBase();
@@ -36,6 +91,9 @@ namespace Strife {
             virtual void remove(const Entity entity) = 0;
             virtual Component* const get(const Entity entity) const = 0;
             virtual void each(std::function<void(const Entity, Component* const)> callback) = 0;
+            
+            virtual Iterator begin() = 0;
+            virtual Iterator end() = 0;
 
         protected:
 
@@ -52,7 +110,38 @@ namespace Strife {
         };
 
         template <class C>
-        class Storage : public IStorage, private std::map<Entity, C> {
+        class Storage : public IStorage {
+            
+            class Iterator : public IStorage::Iterator::CoolIt {
+                
+            public:
+            
+                Iterator(typename std::map<Entity, C>::iterator iterator) :
+                    iterator_(iterator) {};
+                    
+                ~Iterator() = default;
+            
+                void increment() {
+                    iterator_++;
+                }
+                
+                std::pair<const Entity, Component* const> dereference() {
+                    std::pair<const Entity, C> iterator = *iterator_;
+                    const Entity entity = iterator.first;
+                    Component* const component = &iterator.second;
+                    return {entity, component};
+                }
+                
+                bool equal(const CoolIt* iterator) const {
+                    
+                    return iterator_ == static_cast<const Iterator*>(iterator)->iterator_;
+                }
+                
+            private:
+            
+                typename std::map<Entity, C>::iterator iterator_;
+                
+            };
 
         public:
 
@@ -61,7 +150,7 @@ namespace Strife {
 
             const Data serialize() const {
                 Data data;
-                for (const auto& pairEntityToComponent : *this) {
+                for (const auto& pairEntityToComponent : components_) {
                     const Entity entity = pairEntityToComponent.first;
                     const C component = pairEntityToComponent.second;
                     const std::string entityIdentifier = boost::lexical_cast<std::string>(entity.id);
@@ -83,28 +172,40 @@ namespace Strife {
             };
 
             C* const add(const Entity entity) {
-                return &this->emplace(entity, entity).first->second;
+                return &components_.emplace(entity, entity).first->second;
             };
 
             C* const add(const boost::uuids::uuid id, const Entity entity) {
-                return &this->try_emplace(entity, id, entity).first->second;
+                return &components_.try_emplace(entity, id, entity).first->second;
             };
 
             void remove(const Entity entity) {
-                this->erase(entity);
+                components_.erase(entity);
             };
 
             C* const get(const Entity entity) const {
-                return const_cast<C* const>(&this->at(entity));
+                return const_cast<C* const>(&components_.at(entity));
             };
             
             void each(std::function<void(const Entity, Component* const)> callback) {
-                for (auto& iteratorEntityToComponent : *this) {
+                for (auto& iteratorEntityToComponent : components_) {
                     const Entity entity = iteratorEntityToComponent.first;
                     Component* const component = &iteratorEntityToComponent.second;
                     callback(entity, component);
                 }
             };
+            
+            IStorage::Iterator begin() {
+                return IStorage::Iterator(new Iterator(components_.begin()));
+            }
+            
+            IStorage::Iterator end() {
+                return IStorage::Iterator(new Iterator(components_.end()));
+            }
+            
+        private:
+        
+            std::map<Entity, C> components_;
 
         };
 
