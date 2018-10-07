@@ -90,7 +90,6 @@ namespace Strife {
             virtual Component* const add(const boost::uuids::uuid id, const Entity entity) = 0;
             virtual void remove(const Entity entity) = 0;
             virtual Component* const get(const Entity entity) const = 0;
-            virtual void each(std::function<void(const Entity, Component* const)> callback) = 0;
             
             virtual Iterator begin() = 0;
             virtual Iterator end() = 0;
@@ -143,7 +142,7 @@ namespace Strife {
         public:
 
             Storage(Scene* const scene) :
-                IStorage(scene) {};
+                IStorage(scene) {}
 
             const Data serialize() const {
                 Data data;
@@ -155,7 +154,7 @@ namespace Strife {
                     data[entityIdentifier] = componentData;
                 }
                 return data;
-            };
+            }
 
             void deserialize(const Data data) {
                 for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
@@ -166,31 +165,23 @@ namespace Strife {
                     C* const component = add(entity);
                     component->deserialize(componentData);
                 }
-            };
+            }
 
             C* const add(const Entity entity) {
                 return &components_.emplace(entity, entity).first->second;
-            };
+            }
 
             C* const add(const boost::uuids::uuid id, const Entity entity) {
                 return &components_.try_emplace(entity, id, entity).first->second;
-            };
+            }
 
             void remove(const Entity entity) {
                 components_.erase(entity);
-            };
+            }
 
             C* const get(const Entity entity) const {
                 return const_cast<C* const>(&components_.at(entity));
-            };
-            
-            void each(std::function<void(const Entity, Component* const)> callback) {
-                for (auto& iteratorEntityToComponent : components_) {
-                    const Entity entity = iteratorEntityToComponent.first;
-                    Component* const component = &iteratorEntityToComponent.second;
-                    callback(entity, component);
-                }
-            };
+            }
             
             IStorage::Iterator begin() {
                 return IStorage::Iterator(new Iterator(components_.begin()));
