@@ -126,10 +126,7 @@ namespace Strife {
                 }
                 
                 std::pair<const Entity, Component* const> dereference() {
-                    std::pair<const Entity, C> iterator = *iterator_;
-                    const Entity entity = iterator.first;
-                    Component* const component = &iterator.second;
-                    return {entity, component};
+                    return {iterator_->first, &iterator_->second};
                 }
                 
                 bool equal(const CoolIt* iterator) const {
