@@ -461,6 +461,7 @@ int main() {
        startTime = SDL_GetTicks();
      }
 
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
