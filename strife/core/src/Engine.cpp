@@ -4,7 +4,7 @@ using namespace Strife::Core;
 using namespace std;
 
 Engine::Scenes::Scenes(Engine& engine) :
-    engine_(engine) {};
+    active(nullptr), engine_(engine) {};
 
 Engine* Engine::instance_ = nullptr;
 

@@ -133,10 +133,10 @@ namespace Strife {
                 }
                 
                 template <class S>
-                S& initialize() {
+                S& initialize(Dispatcher& dispatcher) {
                     ISystem::AssertBase<S>();
                     std::type_index type(typeid(S));
-                    S* const system = new S(scene_);
+                    S* const system = new S(scene_, dispatcher);
                     this->insert({ type, system });
                     return *system;
                 }
