@@ -1,11 +1,16 @@
 #include <iostream>
+#include <fstream>
 
+#include <boost/filesystem/path.hpp>
+
+#include "Data.h"
 #include "Sprite.h"
 #include "Transform.h"
 #include "events/RenderEvent.h"
 
 using namespace std;
 using namespace Strife::Core;
+using boost::filesystem::path;
 
 const string Sprite::Identifier = "Sprite";
 
@@ -20,39 +25,46 @@ Sprite::Sprite(const Strife::Core::Entity &entity) :
 Sprite::Sprite(const boost::uuids::uuid id, const Strife::Core::Entity &entity) :
     texture_(nullptr), Component(id, entity) {}
 
-const nlohmann::json Sprite::serialize() const {
-    nlohmann::json data;
-    //data["data"] = Serialization::SerializeMatrix<T, D+1, D+1>(this->matrix());
+const Data Sprite::serialize() const {
+    Data data;
+    data["dataFile"] = dataFile_;
+    data["currentFrame"] = currentFrame_;
+    data["frameTime"] = frameTime_;
     return data;
 }
 
-void Sprite::deserialize(nlohmann::json data) {
-    frames_.resize(data["frames"].size());
-    Uint32 frameNum = 0;
-    for (auto frame : data["frames"]) {
-        frames_[frameNum++].deserialize(frame);
-    }
-    textureWidth_ = data["textureWidth"];
-    textureHeight_ = data["textureHeight"];
-    textureName_ = data["textureName"];
+void Sprite::deserialize(Data data) {
+    dataFile_ = data["dataFile"];
     currentFrame_ = data["currentFrame"];
     frameTime_ = data["frameTime"];
+
+    // TODO: Move animation data to system
+    Data imageData;
+    try {
+        std::ifstream file;
+        file.open(dataFile_);
+        file >> imageData;
+    } catch (exception& e) {
+        cout << dataFile_ << " : " << e.what() << endl;
+        throw std::runtime_error("Couldn't load image data");
+    }
+
+    frames_.resize(imageData["frames"].size());
+    Uint32 frameNum = 0;
+    for (auto frame : imageData["frames"].items()) {
+        frames_[frameNum++].deserialize(frame.value()["frame"]);
+    }
+    textureWidth_ = imageData["meta"]["size"]["w"];
+    textureHeight_ = imageData["meta"]["size"]["h"];
+    path texturePath = dataFile_;
+    texturePath = texturePath.parent_path();
+    string relativeTexturePath = imageData["meta"]["image"];
+    texturePath /= relativeTexturePath;
+
+    textureName_ = texturePath.string();
 }
 
 void Sprite::render(Event *event) {
-    Frame f;
-    f.x = 0;
-    f.y = 0;
-    f.w = 16;
-    f.h = 16;
-    f.length = 200;
-    frames_.push_back(f);
-    textureName_ = "assets/images/ball.png";
-    textureWidth_ = 32;
-    textureHeight_ = 32;
-    currentFrame_ = 0;
-
-
     auto e = dynamic_cast<RenderEvent*>(event);
     if (texture_ == nullptr) {
         texture_ = loadTexture(textureName_, e->renderer);

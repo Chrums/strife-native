@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "Component.h"
+#include "Data.h"
 #include "Entity.h"
 #include "System.h"
 #include "Event.h"
@@ -24,9 +25,9 @@ public:
 
     Sprite(const boost::uuids::uuid id, const Strife::Core::Entity& entity);
 
-    const nlohmann::json serialize() const;
+    const Strife::Core::Data serialize() const;
 
-    void deserialize(nlohmann::json data);
+    void deserialize(Strife::Core::Data data);
 
     void render(Strife::Core::Event* event);
 
@@ -35,7 +36,6 @@ private:
     SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
 
     struct Frame : public SDL_Rect {
-        Uint32 length;
 
         const nlohmann::json serialize() const {
             nlohmann::json data;
@@ -43,7 +43,6 @@ private:
             data["y"] = y;
             data["w"] = w;
             data["h"] = h;
-            data["length"] = length;
             return data;
         }
 
@@ -52,7 +51,6 @@ private:
             y = data["y"];
             w = data["w"];
             h = data["h"];
-            length = data["length"];
         }
     };
 
@@ -61,6 +59,8 @@ private:
     Uint32 textureWidth_;
     Uint32 textureHeight_;
     std::vector<Frame> frames_;
+
+    std::string dataFile_;
     Uint32 currentFrame_;
     Uint32 frameTime_;
 

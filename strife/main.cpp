@@ -368,6 +368,7 @@ int main() {
     TestComponent* t0 = e0.components.add<TestComponent>();
     Transform2f* tr0 = e0.components.add<Transform2f>();
     Sprite* sp0 = e0.components.add<Sprite>();
+    sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0}"_json);
     e0.components.add<Velocity>();
     e0.components.add<DrawSquare>();
     tr0->translation().x() = 60;
