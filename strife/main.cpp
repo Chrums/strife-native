@@ -14,6 +14,9 @@
 #include "System.h"
 
 #include "components/Transform.h"
+#include "components/Sprite.h"
+
+#include "events/RenderEvent.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -48,20 +51,6 @@ public:
 };
 
 const unsigned int UpdateEvent::Priority = 500;
-
-class RenderEvent : public Event {
-
-public:
-
-    using Event::Event;
-
-    static const unsigned int Priority;
-
-    SDL_Renderer* renderer;
-
-};
-
-const unsigned int RenderEvent::Priority = 1000;
 
 class BeginRenderEvent : public Event {
 
@@ -371,12 +360,14 @@ int main() {
     s->initialize<Transform2f>();
     s->initialize<DrawSquare>();
     s->initialize<Velocity>();
+    s->initialize<Sprite>();
     s->initializeSystem<RenderSystem>();
     s->initializeSystem<PhysicsSystem>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
     Transform2f* tr0 = e0.components.add<Transform2f>();
+    Sprite* sp0 = e0.components.add<Sprite>();
     e0.components.add<Velocity>();
     e0.components.add<DrawSquare>();
     tr0->translation().x() = 60;
