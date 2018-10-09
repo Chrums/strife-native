@@ -136,7 +136,7 @@ namespace Strife {
                 S& initialize() {
                     ISystem::AssertBase<S>();
                     std::type_index type(typeid(S));
-                    S* const system = new S(scene_, dispatcher_);
+                    S* const system = new S(&scene_, dispatcher_);
                     this->insert({ type, system });
                     return *system;
                 }

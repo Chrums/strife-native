@@ -10,6 +10,8 @@ target_include_directories(project PUBLIC
 )
 
 target_link_libraries(project LINK_PUBLIC
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${CONAN_LIBS}
     core

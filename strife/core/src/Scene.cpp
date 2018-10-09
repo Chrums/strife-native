@@ -85,18 +85,19 @@ Component* const Scene::Components::get(const type_index type, const Entity& ent
 Scene::Systems::Systems(Scene& scene, Dispatcher& dispatcher) :
     scene_(scene),
     dispatcher_(dispatcher) {};
+    
+Scene::Systems::~Systems() {
+    for (const auto& pairTypeToSystem : *this) {
+        ISystem* const system = pairTypeToSystem.second;
+        delete system;
+    }
+};
 
 Scene::Scene(Dispatcher& dispatcher) :
     entities(*this),
     components(*this),
-    systems(*this),
+    systems(*this, dispatcher),
     dispatcher_(dispatcher) {};
-
-Scene::~Scene() {
-    for (auto system : systems_) {
-        delete system;
-    }
-}
 
 const Data Scene::serialize() const {
     Data data;
