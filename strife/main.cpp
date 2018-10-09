@@ -14,6 +14,9 @@
 #include "System.h"
 
 #include "components/Transform.h"
+#include "components/Sprite.h"
+
+#include "events/RenderEvent.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -48,20 +51,6 @@ public:
 };
 
 const unsigned int UpdateEvent::Priority = 500;
-
-class RenderEvent : public Event {
-
-public:
-
-    using Event::Event;
-
-    static const unsigned int Priority;
-
-    SDL_Renderer* renderer;
-
-};
-
-const unsigned int RenderEvent::Priority = 1000;
 
 class BeginRenderEvent : public Event {
 
@@ -327,30 +316,24 @@ public:
 
     }
 
-    void findCollisions(Event* event, std::type_index eventType) {
-        
-        auto transforms = this->scene_->components.get<Transform2f>();
-        for (auto t = transforms->begin(); t != transforms->end(); t++) {
-            cout << (*t).first.id << endl;
-        }
-        
-        // auto transforms = this->scene_->components.get<Transform2f>();
-        // for (auto tA : transforms) {
-        //     auto transformA = static_cast<Transform2f*>(tA);
-        //     for (auto tB : transforms) {
-        //         auto transformB = static_cast<Transform2f*>(tB);
-        //         if (((transformA->translation().x() <= transformB->translation().x() + 32 && transformA->translation().x() >= transformB->translation().x())
-        //                 && (transformA->translation().y() <= transformB->translation().y() + 32 && transformA->translation().y() >= transformB->translation().y()))
-        //             || ((transformB->translation().x() <= transformA->translation().x() + 32 && transformB->translation().x() >= transformA->translation().x())
-        //                 && (transformB->translation().y() <= transformA->translation().y() + 32 && transformB->translation().y() >= transformA->translation().y()))) {
+    void findCollisions(Event* event, std::type_index eventType) {        
+         auto transforms = this->scene_->components.get<Transform2f>();
+         for (auto tA : *transforms) {
+             auto transformA = static_cast<Transform2f*>(tA.second);
+             for (auto tB : *transforms) {
+                 auto transformB = static_cast<Transform2f*>(tB.second);
+                 if (((transformA->translation().x() <= transformB->translation().x() + 32 && transformA->translation().x() >= transformB->translation().x())
+                         && (transformA->translation().y() <= transformB->translation().y() + 32 && transformA->translation().y() >= transformB->translation().y()))
+                     || ((transformB->translation().x() <= transformA->translation().x() + 32 && transformB->translation().x() >= transformA->translation().x())
+                         && (transformB->translation().y() <= transformA->translation().y() + 32 && transformB->translation().y() >= transformA->translation().y()))) {
 
-        //             if (transformA->entity.id != transformB->entity.id) {
-        //                 CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
-        //                 dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
-        //             }
-        //         }
-        //     }
-        // }
+                     if (transformA->entity.id != transformB->entity.id) {
+                         CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
+                         dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
+                     }
+                 }
+             }
+         }
     }
 
 
@@ -377,12 +360,15 @@ int main() {
     s->initialize<Transform2f>();
     s->initialize<DrawSquare>();
     s->initialize<Velocity>();
-    s->initializeSystem<RenderSystem>();
-    s->initializeSystem<PhysicsSystem>();
+    s->initialize<Sprite>();
+    s->systems.initialize<RenderSystem>();
+    s->systems.initialize<PhysicsSystem>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
     Transform2f* tr0 = e0.components.add<Transform2f>();
+    Sprite* sp0 = e0.components.add<Sprite>();
+    sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0}"_json);
     e0.components.add<Velocity>();
     e0.components.add<DrawSquare>();
     tr0->translation().x() = 60;
@@ -467,6 +453,7 @@ int main() {
        startTime = SDL_GetTicks();
      }
 
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 

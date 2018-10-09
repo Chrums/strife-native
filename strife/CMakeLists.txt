@@ -21,7 +21,7 @@ conan_basic_setup()
 #set(CMAKE_CXX_FLAGS "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/project")
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 add_subdirectory(core)
 add_subdirectory(project)
@@ -34,6 +34,8 @@ include_directories(AFTER SYSTEM
 )
 
 target_link_libraries(main LINK_PUBLIC
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${CONAN_LIBS_SDL2}
     core

@@ -20,7 +20,7 @@ namespace Strife {
             static Unique Nil();
             static Unique Random();
             
-            const boost::uuids::uuid id;
+            boost::uuids::uuid id;
             
             Unique(const Unique& unique);
             Unique();

@@ -75,11 +75,9 @@ namespace Strife {
                             // against an entity given we could know which are being handled
                         }
                     } else {
-                        storage_.each(
-                            [=](const Entity entity, Component* const component) {
-                                callback(static_cast<C* const>(component), event);
-                            }
-                        );
+                        for (auto componentPair : storage_) {
+                            callback(static_cast<C* const>(componentPair.second), event);
+                        }
                     }
                 }
             };

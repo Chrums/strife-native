@@ -120,14 +120,14 @@ namespace Strife {
                 
             public:
             
-                Systems(Scene& scene);
+                Systems(Scene& scene, Dispatcher& dispatcher);
                 ~Systems();
                 
                 template <class C>
-                System<C>& initialize(Dispatcher& dispatcher, Storage<C>& storage) {
+                System<C>& initialize(Storage<C>& storage) {
                     //Component::AssertBase<C>(); Component is forward declared... should Component hold a pointer to a Scene so that this can be asserted?
                     std::type_index type(typeid(C));
-                    System<C>* const system = new System<C>(&scene_, dispatcher, storage);
+                    System<C>* const system = new System<C>(&scene_, dispatcher_, storage);
                     this->insert({ type, system });
                     return *system;
                 }
@@ -136,7 +136,7 @@ namespace Strife {
                 S& initialize() {
                     ISystem::AssertBase<S>();
                     std::type_index type(typeid(S));
-                    S* const system = new S(scene_);
+                    S* const system = new S(scene_, dispatcher_);
                     this->insert({ type, system });
                     return *system;
                 }
@@ -144,6 +144,7 @@ namespace Strife {
             private:
             
                 Scene& scene_;
+                Dispatcher& dispatcher_;
                 
             };
 
@@ -154,28 +155,19 @@ namespace Strife {
             Systems systems;
 
             Scene(Dispatcher& dispatcher);
-            ~Scene();
+            ~Scene() = default;
 
             template <class C>
             void initialize() {
                 Storage<C>& storage = components.initialize<C>();
-                System<C>& system = systems.initialize<C>(dispatcher_, storage);
-            }
-
-            // DEPRECATED
-            template <class T>
-            void initializeSystem() {
-                static_assert(std::is_base_of<ISystem, T>::value, "T not derived from ISystem");
-                T* system = new T(this, dispatcher_);
-                systems_.push_back(system);
+                System<C>& system = systems.initialize<C>(storage);
             }
 
             const Data serialize() const;
             void deserialize(const Data data);
 
         private:
-    
-            std::vector<ISystem*> systems_;
+        
             Dispatcher& dispatcher_;
 
         };

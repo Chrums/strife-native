@@ -110,10 +110,7 @@ namespace Strife {
                 }
                 
                 std::pair<const Entity, Component* const> operator*() {
-                    std::pair<const Entity, C> iterator = *iterator_;
-                    const Entity entity = iterator.first;
-                    Component* const component = &iterator.second;
-                    return { entity, component };
+                    return { iterator_->first, &iterator_->second };
                 }
                 
                 bool operator==(const IIterator<std::pair<const Entity, Component* const>>* const iterator) const {
@@ -129,7 +126,7 @@ namespace Strife {
         public:
 
             Storage(Scene* const scene) :
-                IStorage(scene) {};
+                IStorage(scene) {}
 
             const Data serialize() const {
                 Data data;
@@ -141,7 +138,7 @@ namespace Strife {
                     data[entityIdentifier] = componentData;
                 }
                 return data;
-            };
+            }
 
             void deserialize(const Data data) {
                 for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
@@ -152,23 +149,23 @@ namespace Strife {
                     C* const component = add(entity);
                     component->deserialize(componentData);
                 }
-            };
+            }
 
             C* const add(const Entity entity) {
                 return &components_.emplace(entity, entity).first->second;
-            };
+            }
 
             C* const add(const boost::uuids::uuid id, const Entity entity) {
                 return &components_.try_emplace(entity, id, entity).first->second;
-            };
+            }
 
             void remove(const Entity entity) {
                 components_.erase(entity);
-            };
+            }
 
             C* const get(const Entity entity) const {
                 return const_cast<C* const>(&components_.at(entity));
-            };
+            }
             
             IStorage::Iterator begin() {
                 return IStorage::Iterator(new Iterator(components_.begin()));
