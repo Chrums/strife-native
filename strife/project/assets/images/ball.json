@@ -3,14 +3,14 @@
     "still": {
       "next": "still",
       "frames": [
-        {"name": "still", "length": 0.125}
+        {"name": "still", "length": 125}
       ]
     },
     "bounce": {
       "next": "still",
       "frames": [
-        {"name": "bounce0", "length": 0.1},
-        {"name": "bounce1", "length": 0.1}
+        {"name": "bounce0", "length": 100},
+        {"name": "bounce1", "length": 100}
       ]
     }
   },

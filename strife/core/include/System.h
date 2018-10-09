@@ -12,11 +12,11 @@ namespace Strife {
     namespace Core {
 
         class Scene;
-        
+
         class ISystem {
 
         public:
-            
+
             template <class S>
             static void AssertBase();
 
@@ -30,7 +30,7 @@ namespace Strife {
             Scene* const scene_;
 
         };
-        
+
         template <class S>
         void ISystem::AssertBase() {
             static_assert(

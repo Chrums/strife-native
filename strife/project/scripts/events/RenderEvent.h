@@ -7,14 +7,13 @@
 
 class RenderEvent : public Strife::Core::Event {
 
-public:
-
+   public:
     using Strife::Core::Event::Event;
 
     static const unsigned int Priority;
 
     SDL_Renderer* renderer;
-
+    Uint32 dt;
 };
 
-#endif // RENDEREVENT_H
+#endif  // RENDEREVENT_H

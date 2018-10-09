@@ -50,11 +50,13 @@ void SpriteAnimation::loadSprite(string spritePath) {
 }
 
 Animation& SpriteAnimation::getAnimation(string spriteName, string animationName) {
+    loadSprite(spriteName);
     SpriteData& sprite = sprites_.at(spriteName);
     return sprite.animations.at(animationName);
 }
 
-SDL_Texture* SpriteAnimation::getTexture(string spriteName, SDL_Renderer *renderer) {
+SDL_Texture* SpriteAnimation::getTexture(string spriteName, SDL_Renderer* renderer) {
+    loadSprite(spriteName);
     SpriteData& sprite = sprites_.at(spriteName);
     if (sprite.texture == nullptr) {
         sprite.texture = loadTexture(sprite.textureName, renderer);
@@ -62,22 +64,22 @@ SDL_Texture* SpriteAnimation::getTexture(string spriteName, SDL_Renderer *render
     return sprite.texture;
 }
 
-SDL_Texture *SpriteAnimation::loadTexture(string path, SDL_Renderer *renderer) {
+SDL_Texture* SpriteAnimation::loadTexture(string path, SDL_Renderer* renderer) {
     //The final texture
     SDL_Texture* newTexture = nullptr;
     //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if(loadedSurface == nullptr) {
+    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+    if (loadedSurface == nullptr) {
         cout << "Unable to load image " << path.c_str() << " " << IMG_GetError() << endl;
         throw std::runtime_error("Couldn't load texture");
     } else {
         //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( renderer, loadedSurface );
-        if( newTexture == nullptr ) {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if (newTexture == nullptr) {
+            printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
         }
         //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
+        SDL_FreeSurface(loadedSurface);
     }
     return newTexture;
 }
