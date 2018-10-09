@@ -11,6 +11,7 @@
 #include "Event.h"
 #include "Scene.h"
 #include "Storage.h"
+#include "IStorage.h"
 #include "System.h"
 
 #include "components/Transform.h"
