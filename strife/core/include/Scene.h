@@ -136,9 +136,15 @@ namespace Strife {
                 S& initialize(Dispatcher& dispatcher) {
                     ISystem::AssertBase<S>();
                     std::type_index type(typeid(S));
-                    S* const system = new S(scene_, dispatcher);
+                    S* const system = new S(&scene_, dispatcher);
                     this->insert({ type, system });
                     return *system;
+                }
+
+                template <class C>
+                C* const get() const {
+                    std::type_index type(typeid(C));
+                    return static_cast<C*>(this->at(type));
                 }
                 
             private:
@@ -166,16 +172,14 @@ namespace Strife {
             template <class T>
             void initializeSystem() {
                 static_assert(std::is_base_of<ISystem, T>::value, "T not derived from ISystem");
-                T* system = new T(this, dispatcher_);
-                systems_.push_back(system);
+                T& system = systems.initialize<T>(dispatcher_);
             }
 
             const Data serialize() const;
             void deserialize(const Data data);
 
         private:
-    
-            std::vector<ISystem*> systems_;
+
             Dispatcher& dispatcher_;
 
         };

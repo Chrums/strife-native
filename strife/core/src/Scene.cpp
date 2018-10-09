@@ -99,9 +99,6 @@ Scene::Scene(Dispatcher& dispatcher) :
     dispatcher_(dispatcher) {};
 
 Scene::~Scene() {
-    for (auto system : systems_) {
-        delete system;
-    }
 }
 
 const Data Scene::serialize() const {

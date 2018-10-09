@@ -18,6 +18,8 @@
 
 #include "events/RenderEvent.h"
 
+#include "systems/SpriteAnimation.h"
+
 using namespace Strife::Core;
 using namespace std;
 using boost::uuids::uuid;
@@ -259,7 +261,7 @@ class RenderSystem : public ISystem {
 
 public:
 
-    RenderSystem(Scene* const scene, Dispatcher& dispatcher) :
+    RenderSystem(Strife::Core::Scene* const scene, Dispatcher& dispatcher) :
         ISystem(scene), dispatcher_(dispatcher) {
 
         dispatcher_.initialize<BeginRenderEvent>();
@@ -301,7 +303,7 @@ class PhysicsSystem : public ISystem {
 
 public:
 
-    PhysicsSystem(Scene* const scene, Dispatcher& dispatcher) :
+    PhysicsSystem(Strife::Core::Scene* const scene, Dispatcher& dispatcher) :
         ISystem(scene), dispatcher_(dispatcher) {
 
         dispatcher_.initialize<FindCollisionsEvent>();
@@ -355,7 +357,7 @@ private:
 
 int main() {
 
-    Scene* s = new Scene(Engine::Instance()->dispatcher);
+    Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
     s->initialize<TestComponent>();
     s->initialize<Transform2f>();
     s->initialize<DrawSquare>();
@@ -363,6 +365,7 @@ int main() {
     s->initialize<Sprite>();
     s->initializeSystem<RenderSystem>();
     s->initializeSystem<PhysicsSystem>();
+    s->initializeSystem<SpriteAnimation>();
 
     Entity e0(s);
     TestComponent* t0 = e0.components.add<TestComponent>();
