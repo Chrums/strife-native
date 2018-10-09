@@ -147,8 +147,8 @@ class Velocity : public Component {
 
     using Component::Component;
 
-    int xSpeed = 0;
-    int ySpeed = 0;
+    float xSpeed = 0;
+    float ySpeed = 0;
 
     const json serialize() const {
         json data;
@@ -349,7 +349,7 @@ int main() {
     e1.components.add<DrawSquare>();
     Sprite* sp1 = e1.components.add<Sprite>();
     sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json);
-    //v1->ySpeed = 1;
+    v1->ySpeed = 0.25f;
 
     //    try {
     //        std::ifstream file;
