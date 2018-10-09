@@ -13,22 +13,8 @@
 class Scene;
 
 struct Frame : public SDL_Rect {
-
-    const Strife::Core::Data serialize() const {
-        Strife::Core::Data data;
-        data["x"] = x;
-        data["y"] = y;
-        data["w"] = w;
-        data["h"] = h;
-        return data;
-    }
-
-    void deserialize(Strife::Core::Data data) {
-        x = data["x"];
-        y = data["y"];
-        w = data["w"];
-        h = data["h"];
-    }
+    const Strife::Core::Data serialize() const;
+    void deserialize(Strife::Core::Data data);
 };
 
 struct Animation {
@@ -57,9 +43,7 @@ public:
     virtual void initialize() {
     }
 
-    ~SpriteAnimation() {
-
-    }
+    ~SpriteAnimation() = default;
 
     void loadSprite(std::string spritePath);
 

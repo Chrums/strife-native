@@ -81,3 +81,19 @@ SDL_Texture *SpriteAnimation::loadTexture(string path, SDL_Renderer *renderer) {
     }
     return newTexture;
 }
+
+const Data Frame::serialize() const {
+    Strife::Core::Data data;
+    data["x"] = x;
+    data["y"] = y;
+    data["w"] = w;
+    data["h"] = h;
+    return data;
+}
+
+void Frame::deserialize(Data data) {
+    x = data["x"];
+    y = data["y"];
+    w = data["w"];
+    h = data["h"];
+}
