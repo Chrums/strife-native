@@ -35,30 +35,7 @@ private:
 
     SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
 
-    struct Frame : public SDL_Rect {
-
-        const nlohmann::json serialize() const {
-            nlohmann::json data;
-            data["x"] = x;
-            data["y"] = y;
-            data["w"] = w;
-            data["h"] = h;
-            return data;
-        }
-
-        void deserialize(nlohmann::json data) {
-            x = data["x"];
-            y = data["y"];
-            w = data["w"];
-            h = data["h"];
-        }
-    };
-
     SDL_Texture* texture_;
-    std::string textureName_;
-    Uint32 textureWidth_;
-    Uint32 textureHeight_;
-    std::vector<Frame> frames_;
 
     std::string dataFile_;
     Uint32 currentFrame_;

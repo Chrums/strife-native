@@ -4,11 +4,12 @@
 #include <boost/uuid/uuid.hpp>
 #include "Data.h"
 #include "Entity.h"
-#include "Scene.h"
 #include "Unique.h"
 
 namespace Strife {
     namespace Core {
+
+        class Scene;
 
         class Component : public Unique {
 

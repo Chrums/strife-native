@@ -140,6 +140,12 @@ namespace Strife {
                     this->insert({ type, system });
                     return *system;
                 }
+
+                template <class C>
+                C* const get() const {
+                    std::type_index type(typeid(C));
+                    return static_cast<C*>(this->at(type));
+                }
                 
             private:
             

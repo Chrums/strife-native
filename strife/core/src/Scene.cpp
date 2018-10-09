@@ -98,7 +98,7 @@ Scene::Scene(Dispatcher& dispatcher) :
     components(*this),
     systems(*this, dispatcher),
     dispatcher_(dispatcher) {};
-
+    
 const Data Scene::serialize() const {
     Data data;
     data["components"] = components.serialize();

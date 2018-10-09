@@ -11,6 +11,7 @@
 #include "Component.h"
 #include "Entity.h"
 #include "utility/Serialization.h"
+#include "System.h"
 
 template <typename T, int D>
 class Transform : public Strife::Core::Component, public Eigen::Transform<T, D, Eigen::Affine> {

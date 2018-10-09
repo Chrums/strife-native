@@ -7,6 +7,8 @@
 #include "Sprite.h"
 #include "Transform.h"
 #include "events/RenderEvent.h"
+#include "systems/SpriteAnimation.h"
+#include "Scene.h"
 
 using namespace std;
 using namespace Strife::Core;
@@ -37,39 +39,19 @@ void Sprite::deserialize(Data data) {
     dataFile_ = data["dataFile"];
     currentFrame_ = data["currentFrame"];
     frameTime_ = data["frameTime"];
-
-    // TODO: Move animation data to system
-    Data imageData;
-    try {
-        std::ifstream file;
-        file.open(dataFile_);
-        file >> imageData;
-    } catch (exception& e) {
-        cout << dataFile_ << " : " << e.what() << endl;
-        throw std::runtime_error("Couldn't load image data");
-    }
-
-    frames_.resize(imageData["frames"].size());
-    Uint32 frameNum = 0;
-    for (auto frame : imageData["frames"].items()) {
-        frames_[frameNum++].deserialize(frame.value()["frame"]);
-    }
-    textureWidth_ = imageData["meta"]["size"]["w"];
-    textureHeight_ = imageData["meta"]["size"]["h"];
-    path texturePath = dataFile_;
-    texturePath = texturePath.parent_path();
-    string relativeTexturePath = imageData["meta"]["image"];
-    texturePath /= relativeTexturePath;
-
-    textureName_ = texturePath.string();
 }
 
 void Sprite::render(Event *event) {
     auto e = dynamic_cast<RenderEvent*>(event);
     if (texture_ == nullptr) {
-        texture_ = loadTexture(textureName_, e->renderer);
+        auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
+        spriteSystem->loadSprite(dataFile_);
+        texture_ = spriteSystem->getTexture(dataFile_, e->renderer);
     }
-    Frame* curFrame = &frames_[currentFrame_];
+
+    auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
+    Animation& animation = spriteSystem->getAnimation(dataFile_, "still");
+    Frame* curFrame = animation.frames[0];
 
     SDL_Rect destRect;
     destRect.x = 0;
