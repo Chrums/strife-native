@@ -261,7 +261,7 @@ class RenderSystem : public ISystem {
 
 public:
 
-    RenderSystem(Strife::Core::Scene* const scene, Dispatcher& dispatcher) :
+    RenderSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher) :
         ISystem(scene), dispatcher_(dispatcher) {
 
         dispatcher_.initialize<BeginRenderEvent>();
@@ -303,8 +303,9 @@ class PhysicsSystem : public ISystem {
 
 public:
 
-    PhysicsSystem(Strife::Core::Scene* const scene, Dispatcher& dispatcher) :
-        ISystem(scene), dispatcher_(dispatcher) {
+    PhysicsSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher) :
+        ISystem(scene),
+        dispatcher_(dispatcher) {
 
         dispatcher_.initialize<FindCollisionsEvent>();
 
@@ -319,7 +320,7 @@ public:
     }
 
     void findCollisions(Event* event, std::type_index eventType) {        
-         auto transforms = this->scene_->components.get<Transform2f>();
+         auto transforms = this->scene_.components.get<Transform2f>();
          for (auto tA : *transforms) {
              auto transformA = static_cast<Transform2f*>(tA.second);
              for (auto tB : *transforms) {

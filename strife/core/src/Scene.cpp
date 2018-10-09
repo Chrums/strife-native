@@ -12,7 +12,7 @@ Scene::Entities::Entities(Scene& scene) :
     scene_(scene) {};
 
 const Entity Scene::Entities::add() const {
-    return Entity(&scene_);
+    return Entity(scene_);
 };
 
 void Scene::Entities::remove(const Entity& entity) const {
@@ -20,7 +20,7 @@ void Scene::Entities::remove(const Entity& entity) const {
 };
 
 const Entity Scene::Entities::get(const uuid id) const {
-    return Entity(id, &scene_);
+    return Entity(id, scene_);
 };
 
 Scene::Components::Components(Scene& scene) :

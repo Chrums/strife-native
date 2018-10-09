@@ -13,12 +13,12 @@ void Component::AssertBase() {
 
 Component::Component(const Entity& entity) :
     entity(entity),
-    scene(*entity.scene) {};
+    scene(entity.scene) {};
 
 Component::Component(const uuid id, const Entity& entity) :
     Unique(id),
     entity(entity),
-    scene(*entity.scene) {};
+    scene(entity.scene) {};
 
 const Data Component::serialize() const {
     return Data();

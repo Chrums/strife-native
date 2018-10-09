@@ -3,48 +3,23 @@
 
 #include <map>
 #include <functional>
+#include "Dispatcher.h"
 #include "Entity.h"
 #include "Event.h"
-#include "Dispatcher.h"
+#include "ISystem.h"
 #include "Storage.h"
 
 namespace Strife {
     namespace Core {
 
         class Scene;
-        
-        class ISystem {
-
-        public:
-            
-            template <class S>
-            static void AssertBase();
-
-            ISystem(Scene* const scene) :
-                scene_(scene) {};
-
-            virtual ~ISystem() = default;
-
-        protected:
-
-            Scene* const scene_;
-
-        };
-        
-        template <class S>
-        void ISystem::AssertBase() {
-            static_assert(
-                std::is_base_of<ISystem, S>::value,
-                "Type not derived from ISystem"
-            );
-        };
 
         template <class C>
         class System : public ISystem {
 
         public:
 
-            System(Scene* const scene, Dispatcher& dispatcher, IStorage& storage) :
+            System(Scene& scene, Dispatcher& dispatcher, IStorage& storage) :
                 ISystem(scene),
                 dispatcher_(dispatcher),
                 storage_(storage) {
@@ -75,8 +50,8 @@ namespace Strife {
                             // against an entity given we could know which are being handled
                         }
                     } else {
-                        for (auto componentPair : storage_) {
-                            callback(static_cast<C* const>(componentPair.second), event);
+                        for (auto pairEntityToComponent : storage_) {
+                            callback(static_cast<C* const>(pairEntityToComponent.second), event);
                         }
                     }
                 }
@@ -84,7 +59,7 @@ namespace Strife {
 
         private:
 
-            std::map<const std::type_index, std::function<void(C* const, Event*)> > callbacks_;
+            std::map<const std::type_index, std::function<void(C* const, Event*)>> callbacks_;
             Dispatcher& dispatcher_;
             IStorage& storage_;
 

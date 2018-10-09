@@ -50,7 +50,7 @@ class SpriteAnimation : public Strife::Core::ISystem {
 
 public:
 
-    SpriteAnimation(Strife::Core::Scene* const scene, Strife::Core::Dispatcher& dispatcher) :
+    SpriteAnimation(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher) :
         ISystem(scene) {
     }
 

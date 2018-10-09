@@ -17,7 +17,7 @@ namespace Strife {
 
             public:
 
-                Components(Entity* entity);
+                Components(Entity& entity);
 
                 Component* const add(const std::type_index type);
                 Component* const add(const std::type_index type, const boost::uuids::uuid id);
@@ -53,18 +53,18 @@ namespace Strife {
 
             private:
 
-                Entity* entity_;
+                Entity& entity_;
 
             };
 
         public:
 
-            Scene* scene;
+            Scene& scene;
             Components components;
 
             Entity(const Entity& entity);
-            Entity(Scene* scene);
-            Entity(const boost::uuids::uuid id, Scene* scene);
+            Entity(Scene& scene);
+            Entity(const boost::uuids::uuid id, Scene& scene);
 
             void destroy();
 

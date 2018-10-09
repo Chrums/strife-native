@@ -127,7 +127,7 @@ namespace Strife {
                 System<C>& initialize(Storage<C>& storage) {
                     //Component::AssertBase<C>(); Component is forward declared... should Component hold a pointer to a Scene so that this can be asserted?
                     std::type_index type(typeid(C));
-                    System<C>* const system = new System<C>(&scene_, dispatcher_, storage);
+                    System<C>* const system = new System<C>(scene_, dispatcher_, storage);
                     this->insert({ type, system });
                     return *system;
                 }
@@ -136,7 +136,7 @@ namespace Strife {
                 S& initialize() {
                     ISystem::AssertBase<S>();
                     std::type_index type(typeid(S));
-                    S* const system = new S(&scene_, dispatcher_);
+                    S* const system = new S(scene_, dispatcher_);
                     this->insert({ type, system });
                     return *system;
                 }

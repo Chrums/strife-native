@@ -44,12 +44,12 @@ void Sprite::deserialize(Data data) {
 void Sprite::render(Event *event) {
     auto e = dynamic_cast<RenderEvent*>(event);
     if (texture_ == nullptr) {
-        auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
+        auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
         spriteSystem->loadSprite(dataFile_);
         texture_ = spriteSystem->getTexture(dataFile_, e->renderer);
     }
 
-    auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
+    auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
     Animation& animation = spriteSystem->getAnimation(dataFile_, "still");
     Frame* curFrame = animation.frames[0];
 
