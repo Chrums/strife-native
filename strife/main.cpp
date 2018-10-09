@@ -339,7 +339,6 @@ int main() {
     Sprite* sp0 = e0.components.add<Sprite>();
     sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json);
     e0.components.add<Velocity>();
-    e0.components.add<DrawSquare>();
     tr0->translation().x() = 60;
     cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
     t0->value = "0";
@@ -348,6 +347,8 @@ int main() {
     Transform2f* tr1 = e1.components.add<Transform2f>();
     auto v1 = e1.components.add<Velocity>();
     e1.components.add<DrawSquare>();
+    Sprite* sp1 = e1.components.add<Sprite>();
+    sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json);
     //v1->ySpeed = 1;
 
     //    try {
