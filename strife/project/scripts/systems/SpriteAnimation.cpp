@@ -2,11 +2,11 @@
 
 #include <fstream>
 #include <iostream>
-#include <boost/filesystem/path.hpp>
+//#include <boost/filesystem/path.hpp>
 
 using namespace std;
 using namespace Strife::Core;
-using namespace boost::filesystem;
+//using namespace boost::filesystem;
 
 void SpriteAnimation::loadSprite(string spritePath) {
     if (sprites_.find(spritePath) != sprites_.end()) {
@@ -40,10 +40,10 @@ void SpriteAnimation::loadSprite(string spritePath) {
     }
     sprite.textureWidth = imageData["meta"]["size"]["w"];
     sprite.textureHeight = imageData["meta"]["size"]["h"];
-    path texturePath = spritePath;
-    texturePath = texturePath.parent_path();
-    string relativeTexturePath = imageData["meta"]["image"];
-    texturePath /= relativeTexturePath;
+    //    path texturePath = spritePath;
+    //    texturePath = texturePath.parent_path();
+    //    string relativeTexturePath = imageData["meta"]["image"];
+    //    texturePath /= relativeTexturePath;
 
     sprite.textureName = texturePath.string();
     sprite.texture = nullptr;
