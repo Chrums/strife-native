@@ -17,33 +17,31 @@ template <typename T, int D>
 class Transform : public Strife::Core::Component, public Eigen::Transform<T, D, Eigen::Affine> {
 
 public:
+	static void Initialize(Strife::Core::System<Transform>& system) {}
 
-    static void Initialize(Strife::Core::System<Transform>& system) {}
+	static const std::string Identifier;
 
-    static const std::string Identifier;
+	Transform(const Transform& transform)
+	    : Component(transform.entity)
+	    , Eigen::Transform<T, D, Eigen::Affine>(transform) {}
 
-    Transform(const Transform& transform) :
-        Component(transform.entity),
-        Eigen::Transform<T, D, Eigen::Affine>(transform) {}
+	Transform(const Strife::Core::Entity& entity)
+	    : Component(entity)
+	    , Eigen::Transform<T, D, Eigen::Affine>(Eigen::Transform<T, D, Eigen::Affine>::Identity()) {}
 
-    Transform(const Strife::Core::Entity& entity) :
-        Component(entity),
-        Eigen::Transform<T, D, Eigen::Affine>(Eigen::Transform<T, D, Eigen::Affine>::Identity()) {}
+	Transform(const boost::uuids::uuid id, const Strife::Core::Entity& entity)
+	    : Component(id, entity)
+	    , Eigen::Transform<T, D, Eigen::Affine>(Eigen::Transform<T, D, Eigen::Affine>::Identity()) {}
 
-    Transform(const boost::uuids::uuid id, const Strife::Core::Entity& entity) :
-        Component(id, entity),
-        Eigen::Transform<T, D, Eigen::Affine>(Eigen::Transform<T, D, Eigen::Affine>::Identity()) {}
+	const nlohmann::json serialize() const {
+		nlohmann::json data;
+		data["data"] = Serialization::SerializeMatrix<T, D + 1, D + 1>(this->matrix());
+		return data;
+	}
 
-    const nlohmann::json serialize() const {
-        nlohmann::json data;
-        data["data"] = Serialization::SerializeMatrix<T, D+1, D+1>(this->matrix());
-        return data;
-    }
-
-    void deserialize(nlohmann::json data) {
-        this->matrix() = Serialization::DeserializeMatrix<T, D+1, D+1>(data["data"]);
-    }
-
+	void deserialize(nlohmann::json data) {
+		this->matrix() = Serialization::DeserializeMatrix<T, D + 1, D + 1>(data["data"]);
+	}
 };
 
 typedef Transform<float, 2> Transform2f;

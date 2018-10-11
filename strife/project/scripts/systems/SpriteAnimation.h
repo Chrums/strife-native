@@ -13,48 +13,45 @@
 class Scene;
 
 struct Frame : public SDL_Rect {
-    const Strife::Core::Data serialize() const;
-    void deserialize(Strife::Core::Data data);
+	const Strife::Core::Data serialize() const;
+	void deserialize(Strife::Core::Data data);
 };
 
 struct Animation {
-    Animation* nextAnimation;
-    std::vector<Frame*> frames;
-    std::vector<Uint32> frameLengths;
+	Animation* nextAnimation;
+	std::vector<Frame*> frames;
+	std::vector<Uint32> frameLengths;
 };
 
 struct SpriteData {
-    SDL_Texture* texture;
-    std::string textureName;
-    Uint32 textureWidth;
-    Uint32 textureHeight;
-    std::unordered_map<std::string, Frame> frames;
-    std::unordered_map<std::string, Animation> animations;
+	SDL_Texture* texture;
+	std::string textureName;
+	Uint32 textureWidth;
+	Uint32 textureHeight;
+	std::unordered_map<std::string, Frame> frames;
+	std::unordered_map<std::string, Animation> animations;
 };
 
 class SpriteAnimation : public Strife::Core::ISystem {
 
 public:
+	SpriteAnimation(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher)
+	    : ISystem(scene) {}
 
-    SpriteAnimation(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher) :
-        ISystem(scene) {
-    }
+	virtual void initialize() {}
 
-    virtual void initialize() {
-    }
+	~SpriteAnimation() = default;
 
-    ~SpriteAnimation() = default;
+	void loadSprite(std::string spritePath);
 
-    void loadSprite(std::string spritePath);
+	Animation& getAnimation(std::string spriteName, std::string animationName);
 
-    Animation& getAnimation(std::string spriteName, std::string animationName);
-
-    SDL_Texture* getTexture(std::string spriteName, SDL_Renderer* renderer);
+	SDL_Texture* getTexture(std::string spriteName, SDL_Renderer* renderer);
 
 private:
-    std::unordered_map<std::string, SpriteData> sprites_;
+	std::unordered_map<std::string, SpriteData> sprites_;
 
-    SDL_Texture* loadTexture(std::string path, SDL_Renderer *renderer);
+	SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
 };
 
 #endif

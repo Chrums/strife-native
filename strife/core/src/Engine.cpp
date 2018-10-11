@@ -3,19 +3,20 @@
 using namespace Strife::Core;
 using namespace std;
 
-Engine::Scenes::Scenes(Engine& engine) :
-    active(nullptr), engine_(engine) {};
+Engine::Scenes::Scenes(Engine& engine)
+    : active(nullptr)
+    , engine_(engine){};
 
 Engine* Engine::instance_ = nullptr;
 
 Engine* Engine::Instance() {
-    if (Engine::instance_ == nullptr) {
-        Engine::instance_ = new Engine();
-    }
-    return Engine::instance_;
+	if (Engine::instance_ == nullptr) {
+		Engine::instance_ = new Engine();
+	}
+	return Engine::instance_;
 }
 
-Engine::Engine() :
-    scenes(*this) {};
-    
-void Engine::initialize() {};
+Engine::Engine()
+    : scenes(*this){};
+
+void Engine::initialize(){};

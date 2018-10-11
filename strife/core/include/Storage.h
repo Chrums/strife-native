@@ -15,99 +15,93 @@
 #include "IStorage.h"
 
 namespace Strife {
-    namespace Core {
+	namespace Core {
 
-        class Scene;
+		class Scene;
 
-        template <class C>
-        class Storage : public IStorage {
+		template <class C>
+		class Storage : public IStorage {
 
-            class Iterator : public IIterator<std::pair<const Entity, Component* const>> {
+			class Iterator : public IIterator<std::pair<const Entity, Component* const>> {
 
-            public:
+			public:
+				Iterator(typename std::map<Entity, C>::iterator iterator)
+				    : iterator_(iterator) {}
 
-                Iterator(typename std::map<Entity, C>::iterator iterator) :
-                    iterator_(iterator) {}
+				~Iterator() = default;
 
-                ~Iterator() = default;
+				void operator++() {
+					iterator_++;
+				}
 
-                void operator++() {
-                    iterator_++;
-                }
+				std::pair<const Entity, Component* const> operator*() {
+					return {iterator_->first, &iterator_->second};
+				}
 
-                std::pair<const Entity, Component* const> operator*() {
-                    return { iterator_->first, &iterator_->second };
-                }
+				bool operator==(const IIterator<std::pair<const Entity, Component* const>>* const iterator) const {
+					return iterator_ == static_cast<const Iterator*>(iterator)->iterator_;
+				}
 
-                bool operator==(const IIterator<std::pair<const Entity, Component* const>>* const iterator) const {
-                    return iterator_ == static_cast<const Iterator*>(iterator)->iterator_;
-                }
+			private:
+				typename std::map<Entity, C>::iterator iterator_;
+			};
 
-            private:
+		public:
+			Storage(Scene& scene)
+			    : IStorage(scene) {}
 
-                typename std::map<Entity, C>::iterator iterator_;
+			const Data serialize() const {
+				Data data;
+				for (const auto& pairEntityToComponent : components_) {
+					const Entity entity = pairEntityToComponent.first;
+					const C component = pairEntityToComponent.second;
+					const std::string entityIdentifier = boost::lexical_cast<std::string>(entity.id);
+					const Data componentData = component.serialize();
+					data[entityIdentifier] = componentData;
+				}
+				return data;
+			}
 
-            };
+			void deserialize(const Data data) {
+				for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
+					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
+					const Data componentData = iteratorEntityIdentifierToComponentData.value();
+					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
+					const Entity entity(entityId, scene_);
+					C* const component = add(entity);
+					component->deserialize(componentData);
+				}
+			}
 
-        public:
+			C* const add(const Entity entity) {
+				return &components_.emplace(entity, entity).first->second;
+			}
 
-            Storage(Scene& scene) :
-                IStorage(scene) {}
+			C* const add(const boost::uuids::uuid id, const Entity entity) {
+				return &components_.try_emplace(entity, id, entity).first->second;
+			}
 
-            const Data serialize() const {
-                Data data;
-                for (const auto& pairEntityToComponent : components_) {
-                    const Entity entity = pairEntityToComponent.first;
-                    const C component = pairEntityToComponent.second;
-                    const std::string entityIdentifier = boost::lexical_cast<std::string>(entity.id);
-                    const Data componentData = component.serialize();
-                    data[entityIdentifier] = componentData;
-                }
-                return data;
-            }
+			void remove(const Entity entity) {
+				components_.erase(entity);
+			}
 
-            void deserialize(const Data data) {
-                for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
-                    const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
-                    const Data componentData = iteratorEntityIdentifierToComponentData.value();
-                    const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity(entityId, scene_);
-                    C* const component = add(entity);
-                    component->deserialize(componentData);
-                }
-            }
+			C* const get(const Entity entity) const {
+				return const_cast<C* const>(&components_.at(entity));
+			}
 
-            C* const add(const Entity entity) {
-                return &components_.emplace(entity, entity).first->second;
-            }
+			IStorage::Iterator begin() {
+				return IStorage::Iterator(new Iterator(components_.begin()));
+			}
 
-            C* const add(const boost::uuids::uuid id, const Entity entity) {
-                return &components_.try_emplace(entity, id, entity).first->second;
-            }
+			IStorage::Iterator end() {
+				return IStorage::Iterator(new Iterator(components_.end()));
+			}
 
-            void remove(const Entity entity) {
-                components_.erase(entity);
-            }
+		private:
+			std::map<Entity, C> components_;
+		};
 
-            C* const get(const Entity entity) const {
-                return const_cast<C* const>(&components_.at(entity));
-            }
-
-            IStorage::Iterator begin() {
-                return IStorage::Iterator(new Iterator(components_.begin()));
-            }
-
-            IStorage::Iterator end() {
-                return IStorage::Iterator(new Iterator(components_.end()));
-            }
-
-        private:
-
-            std::map<Entity, C> components_;
-
-        };
-
-    }
-}
+	}  // namespace Core
+}  // namespace Strife
 
 #endif

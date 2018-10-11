@@ -14,172 +14,160 @@
 #include "System.h"
 
 namespace Strife {
-    namespace Core {
+	namespace Core {
 
-        class Component;
+		class Component;
 
-        class Scene {
+		class Scene {
 
-            class Entities {
+			class Entities {
 
-            public:
+			public:
+				Entities(Scene& scene);
 
-                Entities(Scene& scene);
+				const Entity add() const;
+				void remove(const Entity& entity) const;
+				const Entity get(const boost::uuids::uuid id) const;
 
-                const Entity add() const;
-                void remove(const Entity& entity) const;
-                const Entity get(const boost::uuids::uuid id) const;
+			private:
+				Scene& scene_;
+			};
 
-            private:
+			class Components : private std::map<std::type_index, IStorage* const> {
 
-                Scene& scene_;
+			public:
+				Components(Scene& scene);
+				~Components();
 
-            };
+				const Data serialize() const;
+				void deserialize(const Data data);
 
-            class Components : private std::map<std::type_index, IStorage* const> {
+				Component* const add(const std::type_index type, const Entity& entity);
+				Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
+				void remove(const std::type_index type, const Entity& entity);
+				void remove(const Entity& entity);
+				IStorage* const get(const std::type_index type) const;
+				Component* const get(const std::type_index type, const Entity& entity) const;
 
-            public:
+				template <class C>
+				Storage<C>& initialize() {
+					Component::AssertBase<C>();
+					std::type_index type = std::type_index(typeid(C));
+					Storage<C>* const storage = new Storage<C>(scene_);
+					this->insert({type, storage});
+					identifierToType_.insert({C::Identifier, type});
+					typeToIdentifier_.insert({type, C::Identifier});
+					return *storage;
+				};
 
-                Components(Scene& scene);
-                ~Components();
+				template <class C, class S>
+				S& initialize() {
+					Component::AssertBase<C>();
+					IStorage::AssertBase<S>();
+					std::type_index type = std::type_index(typeid(C));
+					S* const storage = new S(scene_);
+					this->insert({type, storage});
+					identifierToType_.insert({C::Identifier, type});
+					typeToIdentifier_.insert({type, C::Identifier});
+					return *storage;
+				};
 
-                const Data serialize() const;
-                void deserialize(const Data data);
+				template <class C>
+				C* const add(const Entity& entity) {
+					std::type_index type(typeid(C));
+					Component* const component = add(type, entity);
+					return static_cast<C* const>(component);
+				};
 
-                Component* const add(const std::type_index type, const Entity& entity);
-                Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
-                void remove(const std::type_index type, const Entity& entity);
-                void remove(const Entity& entity);
-                IStorage* const get(const std::type_index type) const;
-                Component* const get(const std::type_index type, const Entity& entity) const;
+				template <class C>
+				C* const add(const boost::uuids::uuid id, const Entity& entity) {
+					std::type_index type(typeid(C));
+					Component* const component = add(type, id, entity);
+					return static_cast<C* const>(component);
+				};
 
-                template <class C>
-                Storage<C>& initialize() {
-                    Component::AssertBase<C>();
-                    std::type_index type = std::type_index(typeid(C));
-                    Storage<C>* const storage = new Storage<C>(scene_);
-                    this->insert({ type, storage });
-                    identifierToType_.insert({ C::Identifier, type });
-                    typeToIdentifier_.insert({ type, C::Identifier });
-                    return *storage;
-                };
+				template <class C>
+				void remove(const Entity& entity) {
+					std::type_index type(typeid(C));
+					remove(type, entity);
+				};
 
-                template <class C, class S>
-                S& initialize() {
-                    Component::AssertBase<C>();
-                    IStorage::AssertBase<S>();
-                    std::type_index type = std::type_index(typeid(C));
-                    S* const storage = new S(scene_);
-                    this->insert({ type, storage });
-                    identifierToType_.insert({ C::Identifier, type });
-                    typeToIdentifier_.insert({ type, C::Identifier });
-                    return *storage;
-                };
+				template <class C>
+				IStorage* const get() const {
+					std::type_index type(typeid(C));
+					return this->at(type);
+				};
 
-                template <class C>
-                C* const add(const Entity& entity) {
-                    std::type_index type(typeid(C));
-                    Component* const component = add(type, entity);
-                    return static_cast<C* const>(component);
-                };
+				template <class C>
+				C* const get(const Entity& entity) {
+					std::type_index type(typeid(C));
+					Component* const component = get(type, entity);
+					return static_cast<C* const>(component);
+				};
 
-                template <class C>
-                C* const add(const boost::uuids::uuid id, const Entity& entity) {
-                    std::type_index type(typeid(C));
-                    Component* const component = add(type, id, entity);
-                    return static_cast<C* const>(component);
-                };
+			private:
+				Scene& scene_;
+				std::map<std::string, std::type_index> identifierToType_;
+				std::map<std::type_index, std::string> typeToIdentifier_;
+			};
 
-                template <class C>
-                void remove(const Entity& entity) {
-                    std::type_index type(typeid(C));
-                    remove(type, entity);
-                };
-                
-                template <class C>
-                IStorage* const get() const {
-                    std::type_index type(typeid(C));
-                    return this->at(type);
-                };
+			class Systems : private std::map<std::type_index, ISystem* const> {
 
-                template <class C>
-                C* const get(const Entity& entity) {
-                    std::type_index type(typeid(C));
-                    Component* const component = get(type, entity);
-                    return static_cast<C* const>(component);
-                };
+			public:
+				Systems(Scene& scene, Dispatcher& dispatcher);
+				~Systems();
 
-            private:
+				template <class C>
+				System<C>& initialize(Storage<C>& storage) {
+					Component::AssertBase<C>();
+					std::type_index type(typeid(C));
+					System<C>* const system = new System<C>(scene_, dispatcher_, storage);
+					this->insert({type, system});
+					return *system;
+				}
 
-                Scene& scene_;
-                std::map<std::string, std::type_index> identifierToType_;
-                std::map<std::type_index, std::string> typeToIdentifier_;
+				template <class S>
+				S& initialize() {
+					ISystem::AssertBase<S>();
+					std::type_index type(typeid(S));
+					S* const system = new S(scene_, dispatcher_);
+					this->insert({type, system});
+					return *system;
+				}
 
-            };
-            
-            class Systems : private std::map<std::type_index, ISystem* const> {
-                
-            public:
-            
-                Systems(Scene& scene, Dispatcher& dispatcher);
-                ~Systems();
-                
-                template <class C>
-                System<C>& initialize(Storage<C>& storage) {
-                    Component::AssertBase<C>();
-                    std::type_index type(typeid(C));
-                    System<C>* const system = new System<C>(scene_, dispatcher_, storage);
-                    this->insert({ type, system });
-                    return *system;
-                }
-                
-                template <class S>
-                S& initialize() {
-                    ISystem::AssertBase<S>();
-                    std::type_index type(typeid(S));
-                    S* const system = new S(scene_, dispatcher_);
-                    this->insert({ type, system });
-                    return *system;
-                }
+				template <class C>
+				C* const get() const {
+					std::type_index type(typeid(C));
+					return static_cast<C*>(this->at(type));
+				}
 
-                template <class C>
-                C* const get() const {
-                    std::type_index type(typeid(C));
-                    return static_cast<C*>(this->at(type));
-                }
-                
-            private:
-            
-                Scene& scene_;
-                Dispatcher& dispatcher_;
-                
-            };
+			private:
+				Scene& scene_;
+				Dispatcher& dispatcher_;
+			};
 
-        public:
+		public:
+			const Entities entities;
+			Components components;
+			Systems systems;
 
-            const Entities entities;
-            Components components;
-            Systems systems;
+			Scene(Dispatcher& dispatcher);
+			~Scene() = default;
 
-            Scene(Dispatcher& dispatcher);
-            ~Scene() = default;
+			template <class C>
+			void initialize() {
+				Storage<C>& storage = components.initialize<C>();
+				System<C>& system = systems.initialize<C>(storage);
+			}
 
-            template <class C>
-            void initialize() {
-                Storage<C>& storage = components.initialize<C>();
-                System<C>& system = systems.initialize<C>(storage);
-            }
+			const Data serialize() const;
+			void deserialize(const Data data);
 
-            const Data serialize() const;
-            void deserialize(const Data data);
+		private:
+			Dispatcher& dispatcher_;
+		};
 
-        private:
-        
-            Dispatcher& dispatcher_;
-
-        };
-
-    }
-}
+	}  // namespace Core
+}  // namespace Strife
 
 #endif

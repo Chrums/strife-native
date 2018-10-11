@@ -7,26 +7,26 @@ boost::uuids::nil_generator Unique::NilGenerator;
 boost::uuids::random_generator Unique::RandomGenerator;
 
 Unique Unique::Nil() {
-    return Unique(NilGenerator());
+	return Unique(NilGenerator());
 }
 
 Unique Unique::Random() {
-    return Unique(RandomGenerator());
+	return Unique(RandomGenerator());
 }
 
-Unique::Unique(const Unique& unique) :
-    id(unique.id) {};
+Unique::Unique(const Unique& unique)
+    : id(unique.id){};
 
-Unique::Unique() :
-    id(Unique::RandomGenerator()) {};
+Unique::Unique()
+    : id(Unique::RandomGenerator()){};
 
-Unique::Unique(const uuid id) :
-    id(id) {};
-    
+Unique::Unique(const uuid id)
+    : id(id){};
+
 bool Unique::operator==(const Unique& unique) const {
-    return id == unique.id;
+	return id == unique.id;
 };
 
 bool Unique::operator<(const Unique& unique) const {
-    return id < unique.id;
+	return id < unique.id;
 }

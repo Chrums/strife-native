@@ -5,23 +5,21 @@
 #include <optional>
 
 namespace Strife {
-    namespace Core {
+	namespace Core {
 
-        class Event {
+		class Event {
 
-        public:
+		public:
+			static const unsigned int Synchronous;
 
-            static const unsigned int Synchronous;
+			const std::optional<Entity> entity;
 
-            const std::optional<Entity> entity;
+			Event(const std::optional<Entity> entity);
 
-            Event(const std::optional<Entity> entity);
+			virtual ~Event() = default;
+		};
 
-            virtual ~Event() = default;
-
-        };
-
-    }
-}
+	}  // namespace Core
+}  // namespace Strife
 
 #endif

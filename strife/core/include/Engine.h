@@ -8,66 +8,57 @@
 #include "Dispatcher.h"
 
 namespace Strife {
-    namespace Core {
+	namespace Core {
 
-        class Engine {
+		class Engine {
 
-            class Scenes : std::map<std::string, Scene> {
+			class Scenes : std::map<std::string, Scene> {
 
-            public:
+			public:
+				Scene* active;
 
-                Scene* active;
+				Scenes(Engine& engine);
 
-                Scenes(Engine& engine);
+				void load(const std::string identifier, const std::string path);
+				void unload(const std::string identifier);
+				void swap(const std::string identifier);
 
-                void load(const std::string identifier, const std::string path);
-                void unload(const std::string identifier);
-                void swap(const std::string identifier);
+			private:
+				Engine& engine_;
+			};
 
-            private:
+			class Components {
 
-                Engine& engine_;
+			public:
+				template <class T>
+				void initialize(std::string identifier) {
+					std::type_index type = std::type_index(typeid(T));
+					identifierToType_.insert({identifier, type});
+					typeToIdentifier_.insert({type, identifier});
+				};
 
-            };
+			private:
+				std::map<std::string, std::type_index> identifierToType_;
+				std::map<std::type_index, std::string> typeToIdentifier_;
+			};
 
-            class Components {
+		public:
+			static Engine* Instance();
 
-            public:
+			Scenes scenes;
+			Dispatcher dispatcher;
 
-                template <class T>
-                void initialize(std::string identifier) {
-                    std::type_index type = std::type_index(typeid(T));
-                    identifierToType_.insert({ identifier, type });
-                    typeToIdentifier_.insert({ type, identifier });
-                };
+			virtual ~Engine() = default;
 
-            private:
+		protected:
+			static Engine* instance_;
 
-                std::map<std::string, std::type_index> identifierToType_;
-                std::map<std::type_index, std::string> typeToIdentifier_;
+			Engine();
 
-            };
+			virtual void initialize();
+		};
 
-        public:
-
-            static Engine* Instance();
-
-            Scenes scenes;
-            Dispatcher dispatcher;
-
-            virtual ~Engine() = default;
-
-        protected:
-
-            static Engine* instance_;
-            
-            Engine();
-            
-            virtual void initialize();
-
-        };
-
-    }
-}
+	}  // namespace Core
+}  // namespace Strife
 
 #endif
