@@ -1,4 +1,5 @@
 BasedOnStyle: Google
+AccessModifierOffset: '-4'
 AlignAfterOpenBracket: Align
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: Empty
