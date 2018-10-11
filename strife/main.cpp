@@ -210,20 +210,25 @@ class TestComponent : public Component {
 
         try {
             auto v = entity.components.get<Velocity>();
+            auto sprite = entity.components.get<Sprite>();
             v->xSpeed = 0;
             v->ySpeed = 0;
             const Uint8* state = SDL_GetKeyboardState(NULL);
             if (state[SDL_SCANCODE_RIGHT]) {
                 v->xSpeed = 1;
+                sprite->setAnimation("bounce");
             }
             if (state[SDL_SCANCODE_LEFT]) {
                 v->xSpeed = -1;
+                sprite->setAnimation("bounce");
             }
             if (state[SDL_SCANCODE_UP]) {
                 v->ySpeed = -1;
+                sprite->setAnimation("bounce");
             }
             if (state[SDL_SCANCODE_DOWN]) {
                 v->ySpeed = 1;
+                sprite->setAnimation("bounce");
             }
         } catch (const std::exception& e) {
             // TODO: Should probably allow for requesting non existent Components w/o exception

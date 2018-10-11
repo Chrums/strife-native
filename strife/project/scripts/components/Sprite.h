@@ -31,6 +31,8 @@ class Sprite : public Strife::Core::Component {
 
     void render(Strife::Core::Event* event);
 
+    void setAnimation(std::string path);
+
    private:
     SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
 

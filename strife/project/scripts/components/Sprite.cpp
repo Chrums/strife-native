@@ -79,6 +79,16 @@ void Sprite::render(Event* event) {
     }
 }
 
+void Sprite::setAnimation(string animationName) {
+    auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
+    Animation* animation = &spriteSystem->getAnimation(dataFile_, animationName);
+    if (animation != animation_) {
+        animation_ = animation;
+        currentFrame_ = 0;
+        frameTime_ = 0;
+    }
+}
+
 SDL_Texture* Sprite::loadTexture(string path, SDL_Renderer* renderer) {
     //The final texture
     SDL_Texture* newTexture = nullptr;
