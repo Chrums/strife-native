@@ -12,11 +12,11 @@
 #include "Entity.h"
 #include "System.h"
 #include "Event.h"
+#include "systems/SpriteAnimation.h"
 
 class Sprite : public Strife::Core::Component {
 
-public:
-
+   public:
     static void Initialize(Strife::Core::System<Sprite>& system);
 
     static const std::string Identifier;
@@ -31,16 +31,17 @@ public:
 
     void render(Strife::Core::Event* event);
 
-private:
+    void setAnimation(std::string path);
 
+   private:
     SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
 
     SDL_Texture* texture_;
+    Animation* animation_;
 
     std::string dataFile_;
     Uint32 currentFrame_;
     Uint32 frameTime_;
-
 };
 
-#endif // SPRITE_H
+#endif  // SPRITE_H

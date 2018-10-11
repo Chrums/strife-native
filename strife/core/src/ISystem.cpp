@@ -2,5 +2,5 @@
 
 using namespace Strife::Core;
 
-ISystem::ISystem(Scene& scene) :
-    scene_(scene) {}
+ISystem::ISystem(Scene& scene)
+    : scene_(scene) {}
