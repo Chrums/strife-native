@@ -4,6 +4,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <nlohmann/json.hpp>
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include "Component.h"
 #include "Dispatcher.h"
 #include "Engine.h"
@@ -222,6 +223,12 @@ public:
 			if (state[SDL_SCANCODE_UP]) {
 				v->ySpeed = -1;
                 sprite->setAnimation("bounce");
+			}
+			if (state[SDL_SCANCODE_DOWN]) {
+				v->ySpeed = 1;
+				sprite->setAnimation("bounce");
+			}
+            if (state[SDL_SCANCODE_SPACE]) {
                 cout << "sp" << endl;
                 try {
                     std::ifstream file;
@@ -232,11 +239,7 @@ public:
                 } catch (exception& e) {
                     cout << e.what() << endl;
                 }
-			}
-			if (state[SDL_SCANCODE_DOWN]) {
-				v->ySpeed = 1;
-				sprite->setAnimation("bounce");
-			}
+            }
         }
 	}
 
