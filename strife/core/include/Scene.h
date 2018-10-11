@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Storage.h"
 #include "System.h"
+#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -40,7 +41,7 @@ namespace Strife {
 				~Components();
 
 				const Data serialize() const;
-				void deserialize(const Data data);
+                void deserialize(const Data data);
 
 				Component* const add(const std::type_index type, const Entity& entity);
 				Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
@@ -161,7 +162,7 @@ namespace Strife {
 			}
 
 			const Data serialize() const;
-			void deserialize(const Data data);
+            void deserialize(const Data data);
 
 		private:
 			Dispatcher& dispatcher_;

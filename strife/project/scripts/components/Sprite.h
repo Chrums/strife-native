@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "System.h"
 #include "Event.h"
+#include "EntityMap.h"
 #include "systems/SpriteAnimation.h"
 
 class Sprite : public Strife::Core::Component {
@@ -27,7 +28,7 @@ public:
 
 	const Strife::Core::Data serialize() const;
 
-	void deserialize(Strife::Core::Data data);
+    void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
 
 	void render(Strife::Core::Event* event);
 

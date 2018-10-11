@@ -7,6 +7,7 @@
 #include "Component.h"
 #include "Data.h"
 #include "Entity.h"
+#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -37,7 +38,7 @@ namespace Strife {
 			virtual ~IStorage() = default;
 
 			virtual const Data serialize() const = 0;
-			virtual void deserialize(const Data data) = 0;
+            virtual void deserialize(const Data data, EntityMap& entityMap) = 0;
 
 			virtual Component* const add(const Entity entity) = 0;
 			virtual Component* const add(const boost::uuids::uuid id, const Entity entity) = 0;

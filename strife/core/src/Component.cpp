@@ -1,4 +1,5 @@
 #include "Component.h"
+#include "EntityMap.h"
 
 using namespace Strife::Core;
 using boost::uuids::uuid;
@@ -16,4 +17,4 @@ const Data Component::serialize() const {
 	return Data();
 };
 
-void Component::deserialize(const Data data){};
+void Component::deserialize(const Data data, EntityMap& entityMap){};

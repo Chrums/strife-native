@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "EntityMap.h"
 
 #include <string>
 #include <boost/lexical_cast.hpp>
@@ -51,7 +52,8 @@ void Scene::Components::deserialize(const Data data) {
 		const Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);
 		IStorage* const storage = this->at(type);
-		storage->deserialize(storageData);
+        EntityMap entityMap(scene_);
+        storage->deserialize(storageData, entityMap);
 	}
 };
 
@@ -106,5 +108,5 @@ const Data Scene::serialize() const {
 };
 
 void Scene::deserialize(const Data data) {
-	components.deserialize(data["components"]);
+    components.deserialize(data["components"]);
 };

@@ -5,6 +5,7 @@
 #include "Data.h"
 #include "Entity.h"
 #include "Unique.h"
+#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -25,12 +26,12 @@ namespace Strife {
 			virtual ~Component() = default;
 
 			virtual const Data serialize() const;
-			virtual void deserialize(const Data data);
+            virtual void deserialize(const Data data, EntityMap& entityMap);
 		};
 
 		template <class C>
 		void Component::AssertBase() {
-			static_assert(std::is_base_of<Component, C>::value, "Type not derived from Component");
+            static_assert(std::is_base_of<Component, C>::value, "Type not derived from Component");
 		}
 
 	}  // namespace Core

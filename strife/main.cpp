@@ -13,6 +13,7 @@
 #include "Storage.h"
 #include "IStorage.h"
 #include "System.h"
+#include "EntityMap.h"
 
 #include "components/Transform.h"
 #include "components/Sprite.h"
@@ -157,7 +158,7 @@ public:
 		return data;
 	}
 
-	void deserialize(json data) {
+    void deserialize(json data, EntityMap& entityMap) {
 		xSpeed = data["xSpeed"];
 		ySpeed = data["ySpeed"];
 	}
@@ -196,7 +197,7 @@ public:
 		return data;
 	}
 
-	void deserialize(json data) {
+    void deserialize(json data, EntityMap& entityMap) {
 		value = data["value"];
 	}
 
@@ -342,7 +343,8 @@ int main() {
 	TestComponent* t0 = e0.components.add<TestComponent>();
 	Transform2f* tr0 = e0.components.add<Transform2f>();
 	Sprite* sp0 = e0.components.add<Sprite>();
-	sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json);
+    EntityMap entityMap(*s);
+    sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json, entityMap);
 	e0.components.add<Velocity>();
 	tr0->translation().x() = 60;
 	cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
@@ -353,7 +355,7 @@ int main() {
 	auto v1 = e1.components.add<Velocity>();
 	e1.components.add<DrawSquare>();
 	Sprite* sp1 = e1.components.add<Sprite>();
-	sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json);
+    sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json, entityMap);
 	v1->ySpeed = 0.25f;
 
 	//    try {

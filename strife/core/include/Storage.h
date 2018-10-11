@@ -13,6 +13,7 @@
 #include "Entity.h"
 #include "IIterator.h"
 #include "IStorage.h"
+#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -62,14 +63,14 @@ namespace Strife {
 				return data;
 			}
 
-			void deserialize(const Data data) {
+            void deserialize(const Data data, EntityMap& entityMap) {
 				for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					const Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-					const Entity entity(entityId, scene_);
+                    const Entity entity = entityMap.getEntity(entityId);
 					C* const component = add(entity);
-					component->deserialize(componentData);
+                    component->deserialize(componentData, entityMap);
 				}
 			}
 
