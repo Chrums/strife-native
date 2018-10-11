@@ -51,7 +51,7 @@ namespace Strife {
 
         public:
 
-            Storage(Scene* const scene) :
+            Storage(Scene& scene) :
                 IStorage(scene) {}
 
             const Data serialize() const {

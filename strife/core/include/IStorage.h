@@ -37,7 +37,7 @@ namespace Strife {
             template <class S>
             static void AssertBase();
 
-            IStorage(Scene* const scene);;
+            IStorage(Scene& scene);
             virtual ~IStorage() = default;
 
             virtual const Data serialize() const = 0;
@@ -53,7 +53,7 @@ namespace Strife {
 
         protected:
 
-            Scene* const scene_;
+            Scene& scene_;
 
         };
 
@@ -67,4 +67,5 @@ namespace Strife {
 
     }
 }
+
 #endif // ISTORAGE_H

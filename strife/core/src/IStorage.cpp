@@ -2,10 +2,7 @@
 
 using namespace Strife::Core;
 
-IStorage::IStorage(Scene * const scene) :
-    scene_(scene) {}
-
-IStorage::Iterator::Iterator(IIterator<std::pair<const Entity, Component * const> > * const iterator) :
+IStorage::Iterator::Iterator(IIterator<std::pair<const Entity, Component* const>>* const iterator) :
     iterator_(iterator) {}
 
 IStorage::Iterator::~Iterator() {
@@ -22,7 +19,7 @@ IStorage::Iterator &IStorage::Iterator::operator++(int) {
     return *this;
 }
 
-std::pair<const Entity, Component * const> IStorage::Iterator::operator*() {
+std::pair<const Entity, Component* const> IStorage::Iterator::operator*() {
     return *(*iterator_);
 }
 
@@ -33,3 +30,6 @@ bool IStorage::Iterator::operator==(const IStorage::Iterator &iterator) const {
 bool IStorage::Iterator::operator!=(const IStorage::Iterator &iterator) const {
     return !((*iterator_) == iterator.iterator_);
 }
+
+IStorage::IStorage(Scene& scene) :
+    scene_(scene) {}

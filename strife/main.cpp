@@ -369,7 +369,7 @@ int main() {
     s->systems.initialize<PhysicsSystem>();
     s->systems.initialize<SpriteAnimation>();
 
-    Entity e0(s);
+    Entity e0(*s);
     TestComponent* t0 = e0.components.add<TestComponent>();
     Transform2f* tr0 = e0.components.add<Transform2f>();
     Sprite* sp0 = e0.components.add<Sprite>();
@@ -380,7 +380,7 @@ int main() {
     cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
     t0->value = "0";
 
-    Entity e1(s);
+    Entity e1(*s);
     Transform2f* tr1 = e1.components.add<Transform2f>();
     auto v1 = e1.components.add<Velocity>();
     e1.components.add<DrawSquare>();

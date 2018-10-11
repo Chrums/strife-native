@@ -29,6 +29,14 @@ namespace Strife {
             virtual void deserialize(const Data data);
 
         };
+        
+        template <class C>
+        void Component::AssertBase() {
+            static_assert(
+                std::is_base_of<Component, C>::value,
+                "Type not derived from Component"
+            );
+        }
 
     }
 }

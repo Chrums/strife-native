@@ -7,6 +7,7 @@
 #include <vector>
 #include <typeindex>
 #include <boost/uuid/uuid.hpp>
+#include "Component.h"
 #include "Data.h"
 #include "Entity.h"
 #include "Storage.h"
@@ -54,9 +55,9 @@ namespace Strife {
 
                 template <class C>
                 Storage<C>& initialize() {
-                    //Component::AssertBase<C>();
+                    Component::AssertBase<C>();
                     std::type_index type = std::type_index(typeid(C));
-                    Storage<C>* const storage = new Storage<C>(&scene_);
+                    Storage<C>* const storage = new Storage<C>(scene_);
                     this->insert({ type, storage });
                     identifierToType_.insert({ C::Identifier, type });
                     typeToIdentifier_.insert({ type, C::Identifier });
@@ -65,10 +66,10 @@ namespace Strife {
 
                 template <class C, class S>
                 S& initialize() {
-                    //Component::AssertBase<C>();
+                    Component::AssertBase<C>();
                     IStorage::AssertBase<S>();
                     std::type_index type = std::type_index(typeid(C));
-                    S* const storage = new S(&scene_);
+                    S* const storage = new S(scene_);
                     this->insert({ type, storage });
                     identifierToType_.insert({ C::Identifier, type });
                     typeToIdentifier_.insert({ type, C::Identifier });
@@ -125,7 +126,7 @@ namespace Strife {
                 
                 template <class C>
                 System<C>& initialize(Storage<C>& storage) {
-                    //Component::AssertBase<C>(); Component is forward declared... should Component hold a pointer to a Scene so that this can be asserted?
+                    Component::AssertBase<C>();
                     std::type_index type(typeid(C));
                     System<C>* const system = new System<C>(scene_, dispatcher_, storage);
                     this->insert({ type, system });
