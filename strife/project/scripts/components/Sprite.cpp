@@ -34,6 +34,7 @@ const Data Sprite::serialize() const {
 	data["dataFile"] = dataFile_;
 	data["currentFrame"] = currentFrame_;
 	data["frameTime"] = frameTime_;
+    data["currentAnimation"] = animation_->name;
 	return data;
 }
 

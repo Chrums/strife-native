@@ -32,6 +32,7 @@ void SpriteAnimation::loadSprite(string spritePath) {
 	}
 	for (auto animation : imageData["animations"].items()) {
 		Animation& anim = sprite.animations[animation.key()];
+        anim.name = animation.key();
 		for (auto frame : animation.value().at("frames")) {
 			anim.frames.push_back(&sprite.frames.at(frame["name"]));
 			anim.frameLengths.push_back(frame["length"]);

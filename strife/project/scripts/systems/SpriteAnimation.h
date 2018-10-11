@@ -22,6 +22,7 @@ struct Animation {
 	Animation* nextAnimation;
 	std::vector<Frame*> frames;
 	std::vector<Uint32> frameLengths;
+    std::string name;
 };
 
 struct SpriteData {

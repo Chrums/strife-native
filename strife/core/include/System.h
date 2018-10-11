@@ -39,15 +39,11 @@ namespace Strife {
 				auto iteratorTypeToCallback = callbacks_.find(type);
 				if (iteratorTypeToCallback != callbacks_.end()) {
 					std::function<void(C*, Event*)> callback = iteratorTypeToCallback->second;
-					if (event->entity.has_value()) {
-						try {
-							C* const component = event->entity.value().components.get<C>();
-							callback(component, event);
-						} catch (...) {
-							// TODO: Really though, this shouldn't be an exception
-							// Also, it's a bit odd that we have check all event handlers
-							// against an entity given we could know which are being handled
-						}
+                    if (event->entity.has_value()) {
+                        C* const component = event->entity.value().components.get<C>();
+                        if (component != nullptr) {
+                            callback(component, event);
+                        }
 					} else {
 						for (auto pairEntityToComponent : storage_) {
 							callback(static_cast<C* const>(pairEntityToComponent.second), event);

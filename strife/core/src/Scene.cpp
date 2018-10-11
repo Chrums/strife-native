@@ -47,12 +47,12 @@ const Data Scene::Components::serialize() const {
 };
 
 void Scene::Components::deserialize(const Data data) {
+    EntityMap entityMap(scene_);
 	for (Data::const_iterator iteratorStorageIdentifierToStorageData = data.begin(); iteratorStorageIdentifierToStorageData != data.end(); iteratorStorageIdentifierToStorageData++) {
 		const string storageIdentifier = iteratorStorageIdentifierToStorageData.key();
 		const Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);
-		IStorage* const storage = this->at(type);
-        EntityMap entityMap(scene_);
+        IStorage* const storage = this->at(type);
         storage->deserialize(storageData, entityMap);
 	}
 };

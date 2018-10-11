@@ -2,7 +2,7 @@
 #define STORAGE_H
 
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <boost/uuid/uuid.hpp>
@@ -23,10 +23,17 @@ namespace Strife {
 		template <class C>
 		class Storage : public IStorage {
 
+            // TODO: Figure out how to use std::hash
+            struct EntityHash {
+                std::size_t operator()(const Entity& key) const {
+                    return std::hash<Entity>{}(key);
+                }
+            };
+
 			class Iterator : public IIterator<std::pair<const Entity, Component* const>> {
 
 			public:
-				Iterator(typename std::map<Entity, C>::iterator iterator)
+                Iterator(typename std::unordered_map<Entity, C, EntityHash>::iterator iterator)
 				    : iterator_(iterator) {}
 
 				~Iterator() = default;
@@ -44,7 +51,7 @@ namespace Strife {
 				}
 
 			private:
-				typename std::map<Entity, C>::iterator iterator_;
+                typename std::unordered_map<Entity, C, EntityHash>::iterator iterator_;
 			};
 
 		public:
@@ -53,7 +60,7 @@ namespace Strife {
 
 			const Data serialize() const {
 				Data data;
-				for (const auto& pairEntityToComponent : components_) {
+                for (const auto& pairEntityToComponent : components_) {
 					const Entity entity = pairEntityToComponent.first;
 					const C component = pairEntityToComponent.second;
 					const std::string entityIdentifier = boost::lexical_cast<std::string>(entity.id);
@@ -75,31 +82,37 @@ namespace Strife {
 			}
 
 			C* const add(const Entity entity) {
-				return &components_.emplace(entity, entity).first->second;
+                return &components_.emplace(entity, entity).first->second;
 			}
 
 			C* const add(const boost::uuids::uuid id, const Entity entity) {
-				return &components_.try_emplace(entity, id, entity).first->second;
+                return &components_.try_emplace(entity, id, entity).first->second;
 			}
 
 			void remove(const Entity entity) {
-				components_.erase(entity);
-			}
+                components_.erase(entity);
+            }
 
-			C* const get(const Entity entity) const {
-				return const_cast<C* const>(&components_.at(entity));
+            C* const get(const Entity entity) const {
+                std::unordered_map<Entity, C, EntityHash> m;
+                //m[entity] = 3;
+                auto componentIt = components_.find(entity);
+                if (componentIt != components_.end()) {
+                    return const_cast<C* const>(&componentIt->second);
+                }
+                return nullptr;
 			}
 
 			IStorage::Iterator begin() {
-				return IStorage::Iterator(new Iterator(components_.begin()));
+                return IStorage::Iterator(new Iterator(components_.begin()));
 			}
 
 			IStorage::Iterator end() {
-				return IStorage::Iterator(new Iterator(components_.end()));
+                return IStorage::Iterator(new Iterator(components_.end()));
 			}
 
-		private:
-			std::map<Entity, C> components_;
+        private:
+            std::unordered_map<Entity, C, EntityHash> components_;
 		};
 
 	}  // namespace Core
