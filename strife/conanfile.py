@@ -8,7 +8,9 @@ class StrifeConan(ConanFile):
         "sdl2_image/2.0.3@bincrafters/stable", \
         "boost_uuid/1.66.0@bincrafters/stable", \
         "boost_filesystem/1.66.0@bincrafters/stable", \
-        "sdl2_ttf/2.0.14@currentproject/stable"#, "emsdk_installer/1.38.0@bincrafters/testing"
+        "sdl2_ttf/2.0.14@currentproject/stable", \
+        #"Qt/5.11.2@bincrafters/stable" \
+        #, "emsdk_installer/1.38.0@bincrafters/testing"
    generators = "cmake"
    #settings = {"compiler": "clang"}
 

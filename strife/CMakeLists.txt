@@ -26,12 +26,22 @@ conan_basic_setup()
 #set(CMAKE_CXX_COMPILER clang++)
 #set(CMAKE_CXX_FLAGS "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/project")
 
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+# Create code from a list of Qt designer ui files
+set(CMAKE_AUTOUIC ON)
+
+
 find_package(Threads REQUIRED)
+find_package(Qt5Widgets)
+find_package(Qt5Core)
 
 add_subdirectory(core)
 add_subdirectory(project)
 
-add_executable(main main.cpp)
+file(GLOB_RECURSE strife_QT_FORMS ${CMAKE_CURRENT_SOURCE_DIR}/project/scripts/forms/*)
+
+add_executable(main main.cpp ${strife_QT_FORMS})
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 
 include_directories(AFTER SYSTEM
@@ -41,6 +51,7 @@ include_directories(AFTER SYSTEM
 target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
     ${CONAN_LIBS_SDL2}
+    ${QT_LIBRARIES}
     core
     project
 )

@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <QApplication>
 #include "Component.h"
 #include "Dispatcher.h"
 #include "Engine.h"
@@ -22,6 +23,8 @@
 #include "events/RenderEvent.h"
 
 #include "systems/SpriteAnimation.h"
+#include "systems/WindowSystem.h"
+#include "systems/Editor.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -72,6 +75,7 @@ public:
 	static const unsigned int Priority;
 
 	SDL_Window* window;
+    SDL_Renderer* renderer;
 };
 
 const unsigned int FinishRenderEvent::Priority = 1100;
@@ -280,6 +284,7 @@ public:
 		FinishRenderEvent* e = dynamic_cast<FinishRenderEvent*>(event);
 
 		SDL_UpdateWindowSurface(e->window);
+        SDL_RenderPresent(e->renderer);
 	}
 
 private:
@@ -334,7 +339,7 @@ private:
 
 // };
 
-int main() {
+int main(int argc, char** argv) {
 
 	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
 	s->initialize<TestComponent>();
@@ -345,6 +350,8 @@ int main() {
 	s->systems.initialize<RenderSystem>();
 	s->systems.initialize<PhysicsSystem>();
 	s->systems.initialize<SpriteAnimation>();
+    s->systems.initialize<WindowSystem>();
+    s->systems.initialize<Editor>();
 
     //	Entity e0(*s);
     //	TestComponent* t0 = e0.components.add<TestComponent>();
@@ -380,18 +387,21 @@ int main() {
 	json data = s->serialize();
 	cout << data << endl;
 
-	SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	auto makeRenderEvent = [=](RenderEvent& event) {
 		event.renderer = renderer;
 		event.dt = 16;
 	};
 	auto makeBeginRenderEvent = [=](BeginRenderEvent& event) { event.renderer = renderer; };
-	auto makeFinishRenderEvent = [=](FinishRenderEvent& event) { event.window = window; };
+    auto makeFinishRenderEvent = [=](FinishRenderEvent& event) {
+        event.window = window;
+        event.renderer = renderer;
+    };
 
 	//Main loop flag
 	bool quit = false;
@@ -420,8 +430,8 @@ int main() {
 		if (runTime < 16) {
 			Uint32 delayTime = 16 - runTime;
 			SDL_Delay(delayTime);
-		}
-		startTime = SDL_GetTicks();
+        }
+        startTime = SDL_GetTicks();
 	}
 
 	SDL_DestroyRenderer(renderer);
