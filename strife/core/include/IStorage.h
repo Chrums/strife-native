@@ -2,6 +2,7 @@
 #define ISTORAGE_H
 
 #include <utility>
+#include <boost/uuid/uuid.hpp>
 
 #include "IIterator.h"
 #include "Component.h"
@@ -48,7 +49,9 @@ namespace Strife {
 			virtual Iterator begin() = 0;
 			virtual Iterator end() = 0;
 
-		protected:
+        protected:
+            Entity addEntity(boost::uuids::uuid id, EntityMap& entityMap);
+
 			Scene& scene_;
 		};
 

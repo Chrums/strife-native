@@ -18,9 +18,7 @@
 namespace Strife {
     namespace Core {
 
-		class Scene;
-
-        Entity addEntity(Scene& scene, boost::uuids::uuid, EntityMap& entityMap);
+        class Scene;
 
 		template <class C>
 		class Storage : public IStorage {
@@ -75,7 +73,7 @@ namespace Strife {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					const Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = addEntity(scene_, entityId, entityMap);
+                    const Entity entity = addEntity(entityId, entityMap);
 					C* const component = add(entity);
                     component->deserialize(componentData, entityMap);
 				}
