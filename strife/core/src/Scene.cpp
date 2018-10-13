@@ -28,14 +28,14 @@ Scene::Components::Components(Scene& scene)
     : scene_(scene){};
 
 Scene::Components::~Components() {
-	for (auto [ type, storage ] : *this) {
+    for (auto [type, storage] : *this) {
 		delete storage;
 	}
 };
 
 const Data Scene::Components::serialize() const {
 	Data data;
-	for (auto [ type, storage ] : *this) {
+    for (auto [type, storage] : *this) {
 		const string storageIdentifier = typeToIdentifier_.at(type);
 		const Data storageData = storage->serialize();
 		data[storageIdentifier] = storageData;
@@ -44,8 +44,8 @@ const Data Scene::Components::serialize() const {
 };
 
 void Scene::Components::deserialize(const Data data) {
-	for (auto& iteratorStorageIdentifierToStorageData : data.items()) {
-    	EntityMap entityMap(scene_);
+    EntityMap entityMap(scene_);
+    for (auto& iteratorStorageIdentifierToStorageData : data.items()) {
 		const string storageIdentifier = iteratorStorageIdentifierToStorageData.key();
 		const Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);

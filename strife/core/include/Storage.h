@@ -92,8 +92,6 @@ namespace Strife {
             }
 
             C* const get(const Entity entity) const {
-                std::unordered_map<Entity, C, EntityHash> m;
-                //m[entity] = 3;
                 auto componentIt = components_.find(entity);
                 if (componentIt != components_.end()) {
                     return const_cast<C* const>(&componentIt->second);

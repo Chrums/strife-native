@@ -58,13 +58,11 @@ void Sprite::render(const RenderEvent& event) {
 	destRect.w = curFrame->w;
 	destRect.h = curFrame->h;
 
-	try {
-		auto t = entity.components.get<Transform2f>();
-		destRect.x = static_cast<int>(t->translation().x());
-		destRect.y = static_cast<int>(t->translation().y());
-	} catch (...) {
-		// TODO: Should probably allow for requesting non existent Components w/o exception
-	}
+    auto t = entity.components.get<Transform2f>();
+    if (t != nullptr) {
+        destRect.x = static_cast<int>(t->translation().x());
+        destRect.y = static_cast<int>(t->translation().y());
+    }
 
 	SDL_RenderCopy(event.renderer, texture_, static_cast<SDL_Rect*>(curFrame), &destRect);
 
