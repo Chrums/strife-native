@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <imgui.h>
 #include "Component.h"
 #include "Dispatcher.h"
 #include "Engine.h"
@@ -22,6 +23,11 @@
 #include "events/RenderEvent.h"
 
 #include "systems/SpriteAnimation.h"
+#include "systems/ImguiSystem.h"
+
+#include "utility/imgui_impl_sdl.h"
+#include "utility/imgui_impl_opengl3.h"
+#include "utility/imgui_sdl.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -59,7 +65,7 @@ public:
 
 	static const unsigned int Priority;
 
-	SDL_Renderer* renderer;
+    SDL_Renderer* renderer;
 };
 
 const unsigned int BeginRenderEvent::Priority = 900;
@@ -71,7 +77,8 @@ public:
 
 	static const unsigned int Priority;
 
-	SDL_Window* window;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 };
 
 const unsigned int FinishRenderEvent::Priority = 1100;
@@ -271,15 +278,16 @@ public:
 
 	void beginRender(Event* event, std::type_index eventType) {
 		BeginRenderEvent* e = dynamic_cast<BeginRenderEvent*>(event);
-
 		SDL_SetRenderDrawColor(e->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(e->renderer);
+
+        scene_.systems.get<ImguiSystem>()->beginRender();
 	}
 
-	void finishRender(Event* event, std::type_index eventType) {
+    void finishRender(Event* event, std::type_index eventType) {
 		FinishRenderEvent* e = dynamic_cast<FinishRenderEvent*>(event);
-
-		SDL_UpdateWindowSurface(e->window);
+        scene_.systems.get<ImguiSystem>()->finishRender();
+        SDL_RenderPresent(e->renderer);
 	}
 
 private:
@@ -345,6 +353,7 @@ int main() {
 	s->systems.initialize<RenderSystem>();
 	s->systems.initialize<PhysicsSystem>();
 	s->systems.initialize<SpriteAnimation>();
+    ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
 
     //	Entity e0(*s);
     //	TestComponent* t0 = e0.components.add<TestComponent>();
@@ -380,53 +389,81 @@ int main() {
 	json data = s->serialize();
 	cout << data << endl;
 
-	SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO);
 
-	SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
 
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	auto makeRenderEvent = [=](RenderEvent& event) {
-		event.renderer = renderer;
-		event.dt = 16;
-	};
-	auto makeBeginRenderEvent = [=](BeginRenderEvent& event) { event.renderer = renderer; };
-	auto makeFinishRenderEvent = [=](FinishRenderEvent& event) { event.window = window; };
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
-	//Main loop flag
-	bool quit = false;
-	//Event handler
-	SDL_Event e;
+    auto makeRenderEvent = [=](RenderEvent& event) {
+        event.renderer = renderer;
+        event.dt = 16;
+    };
+    auto makeFinishRenderEvent = [=](FinishRenderEvent& event) {
+        event.window = window;
+        event.renderer = renderer;
+    };
 
-	Uint32 startTime = SDL_GetTicks();
+    IMGUI_CHECKVERSION();
+    imguiSystem.init(renderer);
 
-	while (!quit) {
-		while (SDL_PollEvent(&e) != 0) {
-			if (e.type == SDL_QUIT) {
-				quit = true;
-			}
-		}
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+    {
+        SDL_SetRenderTarget(renderer, texture);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+        SDL_RenderClear(renderer);
+        SDL_SetRenderTarget(renderer, nullptr);
+    }
 
-		//Engine::Instance()->dispatcher.trigger<TestEvent>(makeTestEvent);
-		Engine::Instance()->dispatcher.trigger<UpdateEvent>();
-		Engine::Instance()->dispatcher.trigger<FindCollisionsEvent>();
-		Engine::Instance()->dispatcher.trigger<RenderEvent>(makeRenderEvent);
-		Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
-		Engine::Instance()->dispatcher.trigger<FinishRenderEvent>(makeFinishRenderEvent);
-		Engine::Instance()->dispatcher.dispatch();
+    auto makeBeginRenderEvent = [=](BeginRenderEvent& event) { event.renderer = renderer; };
 
-		Uint32 runTime = SDL_GetTicks() - startTime;
+    ImGuiIO& io = ImGui::GetIO();
 
-		if (runTime < 16) {
-			Uint32 delayTime = 16 - runTime;
-			SDL_Delay(delayTime);
-		}
-		startTime = SDL_GetTicks();
-	}
+    // Setup style
 
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    //Main loop flag
+    bool quit = false;
+    //Event handler
+    SDL_Event e;
+
+    Uint32 startTime = SDL_GetTicks();
+
+    while (!quit) {
+        while (SDL_PollEvent(&e) != 0) {
+            ImGui_ImplSDL2_ProcessEvent(&e);  //TODO: Move to system
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
+        imguiSystem.handleMouse(window);
+
+        // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
+
+        io.DeltaTime = 1.0f / 60.0f;
+
+        Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
+        Engine::Instance()->dispatcher.trigger<UpdateEvent>();
+        Engine::Instance()->dispatcher.trigger<FindCollisionsEvent>();
+        Engine::Instance()->dispatcher.trigger<RenderEvent>(makeRenderEvent);
+        Engine::Instance()->dispatcher.trigger<FinishRenderEvent>(makeFinishRenderEvent);
+        Engine::Instance()->dispatcher.dispatch();
+
+        Uint32 runTime = SDL_GetTicks() - startTime;
+
+        if (runTime < 16) {
+            Uint32 delayTime = 16 - runTime;
+            SDL_Delay(delayTime);
+        }
+        startTime = SDL_GetTicks();
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
 	delete s;
 
