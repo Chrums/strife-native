@@ -3,7 +3,8 @@
 using namespace Strife::Core;
 using namespace std;
 
-const unsigned int Event::Synchronous = 0;
+Event::Event()
+    : entity(nullopt) {}
 
 Event::Event(const optional<Entity> entity)
-    : entity(entity){};
+    : entity(entity) {}

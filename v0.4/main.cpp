@@ -136,8 +136,7 @@ public:
 
     using Component::Component;
 
-    void render(Event* event) {
-        auto e = dynamic_cast<RenderEvent*>(event);
+    void render(const RenderEvent& event) {
         SDL_Rect rect;
         rect.x = 0;
         rect.y = 0;
@@ -152,8 +151,8 @@ public:
             // TODO: Should probably allow for requesting non existent Components w/o exception
         }
 
-        SDL_SetRenderDrawColor(e->renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(e->renderer, &rect);
+        SDL_SetRenderDrawColor(event.renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(event.renderer, &rect);
     }
 
 };

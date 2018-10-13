@@ -8,9 +8,9 @@
 #include <nlohmann/json.hpp>
 
 namespace Strife {
-    namespace Core {
-        typedef nlohmann::json Data;
-    }
+	namespace Core {
+		typedef nlohmann::json Data;
+	} // namespace Core
 }  // namespace Strife
 
 namespace nlohmann {

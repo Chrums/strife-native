@@ -11,6 +11,7 @@
 #include "Engine.h"
 #include "Entity.h"
 #include "Event.h"
+#include "Messenger.h"
 #include "Scene.h"
 #include "Storage.h"
 #include "IStorage.h"
@@ -61,9 +62,10 @@ const unsigned int UpdateEvent::Priority = 500;
 class BeginRenderEvent : public Event {
 
 public:
-	using Event::Event;
-
 	static const unsigned int Priority;
+
+	BeginRenderEvent(SDL_Renderer* renderer)
+        : renderer(renderer) {}
 
     SDL_Renderer* renderer;
 };
@@ -73,9 +75,11 @@ const unsigned int BeginRenderEvent::Priority = 900;
 class FinishRenderEvent : public Event {
 
 public:
-	using Event::Event;
-
 	static const unsigned int Priority;
+
+    FinishRenderEvent(SDL_Window* window, SDL_Renderer* renderer)
+        : window(window)
+        , renderer(renderer) {}
 
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -112,7 +116,6 @@ void makeTestEvent(TestEvent& event) {
 }
 
 class DrawSquare : public Component {
-
 public:
 	static void Initialize(System<DrawSquare>& system) {
 		system.on<RenderEvent>(&DrawSquare::render);
@@ -122,8 +125,7 @@ public:
 
 	using Component::Component;
 
-	void render(Event* event) {
-		auto e = dynamic_cast<RenderEvent*>(event);
+	void render(const RenderEvent& event) {
 		SDL_Rect rect;
 		rect.x = 0;
 		rect.y = 0;
@@ -136,8 +138,8 @@ public:
             rect.y = static_cast<int>(t->translation().y());
         }
 
-		SDL_SetRenderDrawColor(e->renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(e->renderer, &rect);
+		SDL_SetRenderDrawColor(event.renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderFillRect(event.renderer, &rect);
 	}
 };
 
@@ -169,7 +171,7 @@ public:
 		ySpeed = data["ySpeed"];
 	}
 
-	void update(Event* event) {
+	void update(const UpdateEvent& event) {
         auto t = entity.components.get<Transform2f>();
         if (t != nullptr) {
 			t->translation().x() += xSpeed;
@@ -205,13 +207,11 @@ public:
 		value = data["value"];
 	}
 
-	void handleEvent(Event* event) {
-		auto e = dynamic_cast<TestEvent*>(event);
-		cout << "data:" << e->data << " " << entity.id << " " << value << endl;
+	void handleEvent(const TestEvent& event) {
+		cout << "data:" << event.data << " " << entity.id << " " << value << endl;
 	}
 
-	void update(Event* event) {
-		auto e = dynamic_cast<UpdateEvent*>(event);
+	void update(const UpdateEvent& event) {
 
         auto v = entity.components.get<Velocity>();
         auto sprite = entity.components.get<Sprite>();
@@ -250,10 +250,7 @@ public:
         }
 	}
 
-	void collision(Event* event) {
-		auto e = dynamic_cast<CollisionEvent*>(event);
-        //cout << "collided!: " << e->other.id << endl;
-	}
+    void collision(const CollisionEvent& event) {}
 };
 
 const string TestComponent::Identifier = "Test";
@@ -268,26 +265,24 @@ public:
 		dispatcher_.initialize<BeginRenderEvent>();
 		dispatcher_.initialize<FinishRenderEvent>();
 
-		dispatcher_.on<BeginRenderEvent>([this](Event* event, std::type_index type) { beginRender(event, type); });
-		dispatcher_.on<FinishRenderEvent>([this](Event* event, std::type_index type) { finishRender(event, type); });
+		dispatcher_.on<BeginRenderEvent>([this](const BeginRenderEvent& event) { beginRender(event); });
+		dispatcher_.on<FinishRenderEvent>([this](const FinishRenderEvent& event) { finishRender(event); });
 	}
 
 	virtual void initialize() {}
 
 	~RenderSystem() {}
 
-	void beginRender(Event* event, std::type_index eventType) {
-		BeginRenderEvent* e = dynamic_cast<BeginRenderEvent*>(event);
-		SDL_SetRenderDrawColor(e->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(e->renderer);
+	void beginRender(const BeginRenderEvent& event) {
+		SDL_SetRenderDrawColor(event.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(event.renderer);
 
         scene_.systems.get<ImguiSystem>()->beginRender();
 	}
 
-    void finishRender(Event* event, std::type_index eventType) {
-		FinishRenderEvent* e = dynamic_cast<FinishRenderEvent*>(event);
+    void finishRender(const FinishRenderEvent& event) {
         scene_.systems.get<ImguiSystem>()->finishRender();
-        SDL_RenderPresent(e->renderer);
+        SDL_RenderPresent(event.renderer);
 	}
 
 private:
@@ -303,14 +298,14 @@ public:
 
 		dispatcher_.initialize<FindCollisionsEvent>();
 
-		dispatcher_.on<FindCollisionsEvent>([this](Event* event, std::type_index type) { findCollisions(event, type); });
+		dispatcher_.on<FindCollisionsEvent>([this](const FindCollisionsEvent& event) { findCollisions(event); });
 	}
 
 	virtual void initialize() {}
 
 	~PhysicsSystem() {}
 
-	void findCollisions(Event* event, std::type_index eventType) {
+	void findCollisions(const FindCollisionsEvent& event) {
 		auto transforms = this->scene_.components.get<Transform2f>();
 		for (auto tA : *transforms) {
 			auto transformA = static_cast<Transform2f*>(tA.second);
@@ -323,7 +318,7 @@ public:
 
 					if (transformA->entity.id != transformB->entity.id) {
 						CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
-						dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
+						dispatcher_.emit<CollisionEvent>(transformA->entity, transformB->entity);
 					}
 				}
 			}
@@ -343,6 +338,31 @@ private:
 // };
 
 int main() {
+
+	// Messenger m;
+
+	// auto test =
+	// 	[=](const TestEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
+
+	// auto update =
+	// 	[=](const UpdateEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
+
+	// m.on<TestEvent>(test);
+	// m.on<UpdateEvent>(update);
+
+	// TestEvent tester;
+	// tester.data = "Test!";
+
+	// UpdateEvent updater;
+	// updater.data = "Update!";
+
+	// m.emit(tester);
+	// m.emit(updater);
+	// m.emit(updater);
 
 	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
 	s->initialize<TestComponent>();
@@ -397,15 +417,6 @@ int main() {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
-    auto makeRenderEvent = [=](RenderEvent& event) {
-        event.renderer = renderer;
-        event.dt = 16;
-    };
-    auto makeFinishRenderEvent = [=](FinishRenderEvent& event) {
-        event.window = window;
-        event.renderer = renderer;
-    };
-
     IMGUI_CHECKVERSION();
     imguiSystem.init(renderer);
 
@@ -416,8 +427,6 @@ int main() {
         SDL_RenderClear(renderer);
         SDL_SetRenderTarget(renderer, nullptr);
     }
-
-    auto makeBeginRenderEvent = [=](BeginRenderEvent& event) { event.renderer = renderer; };
 
     ImGuiIO& io = ImGui::GetIO();
 
@@ -445,11 +454,11 @@ int main() {
 
         io.DeltaTime = 1.0f / 60.0f;
 
-        Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
-        Engine::Instance()->dispatcher.trigger<UpdateEvent>();
-        Engine::Instance()->dispatcher.trigger<FindCollisionsEvent>();
-        Engine::Instance()->dispatcher.trigger<RenderEvent>(makeRenderEvent);
-        Engine::Instance()->dispatcher.trigger<FinishRenderEvent>(makeFinishRenderEvent);
+        Engine::Instance()->dispatcher.emit<UpdateEvent>();
+        Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
+        Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
+        Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
+        Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
         Engine::Instance()->dispatcher.dispatch();
 
         Uint32 runTime = SDL_GetTicks() - startTime;

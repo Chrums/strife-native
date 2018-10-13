@@ -35,13 +35,18 @@ namespace Strife {
 	}  // namespace Core
 }  // namespace Strife
 
-namespace std {
-    template <>
-    struct hash<Strife::Core::Unique> {
-        size_t operator()(const Strife::Core::Unique& unique) {
-            return boost::hash<boost::uuids::uuid>{}(unique.id);
-        }
-    };
-}  // namespace std
+
+namespace std
+{
+
+	template<>
+	struct hash<Strife::Core::Unique>
+	{
+	    size_t operator()(const Strife::Core::Unique& unique) {
+	        return boost::hash<boost::uuids::uuid>()(unique.id);
+	    }
+	};
+
+}
 
 #endif

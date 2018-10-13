@@ -34,7 +34,7 @@ namespace Strife {
 				Scene& scene_;
 			};
 
-			class Components : private std::map<std::type_index, IStorage* const> {
+			class Components : private std::map<const std::type_index, IStorage* const> {
 
 			public:
 				Components(Scene& scene);
@@ -59,7 +59,7 @@ namespace Strife {
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
-				};
+				}
 
 				template <class C, class S>
 				S& initialize() {
@@ -71,40 +71,40 @@ namespace Strife {
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
-				};
+				}
 
 				template <class C>
 				C* const add(const Entity& entity) {
 					std::type_index type(typeid(C));
 					Component* const component = add(type, entity);
 					return static_cast<C* const>(component);
-				};
+				}
 
 				template <class C>
 				C* const add(const boost::uuids::uuid id, const Entity& entity) {
 					std::type_index type(typeid(C));
 					Component* const component = add(type, id, entity);
 					return static_cast<C* const>(component);
-				};
+				}
 
 				template <class C>
 				void remove(const Entity& entity) {
 					std::type_index type(typeid(C));
 					remove(type, entity);
-				};
+				}
 
 				template <class C>
 				IStorage* const get() const {
 					std::type_index type(typeid(C));
 					return this->at(type);
-				};
+				}
 
 				template <class C>
 				C* const get(const Entity& entity) {
 					std::type_index type(typeid(C));
 					Component* const component = get(type, entity);
 					return static_cast<C* const>(component);
-				};
+				}
 
 			private:
 				Scene& scene_;

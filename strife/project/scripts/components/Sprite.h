@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "System.h"
 #include "Event.h"
+#include "events/RenderEvent.h"
 #include "EntityMap.h"
 #include "systems/SpriteAnimation.h"
 
@@ -30,7 +31,7 @@ public:
 
     void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
 
-	void render(Strife::Core::Event* event);
+	void render(const RenderEvent& event);
 
 	void setAnimation(std::string path);
 

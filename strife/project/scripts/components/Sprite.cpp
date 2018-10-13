@@ -6,7 +6,6 @@
 #include "Data.h"
 #include "Sprite.h"
 #include "Transform.h"
-#include "events/RenderEvent.h"
 #include "systems/SpriteAnimation.h"
 #include "Scene.h"
 #include "EntityMap.h"
@@ -46,11 +45,10 @@ void Sprite::deserialize(Data data, EntityMap& entityMap) {
 	frameTime_ = data["frameTime"];
 }
 
-void Sprite::render(Event* event) {
-	auto e = dynamic_cast<RenderEvent*>(event);
+void Sprite::render(const RenderEvent& event) {
 	if (texture_ == nullptr) {
 		auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
-		texture_ = spriteSystem->getTexture(dataFile_, e->renderer);
+		texture_ = spriteSystem->getTexture(dataFile_, event.renderer);
 	}
 	Frame* curFrame = animation_->frames[currentFrame_];
 
@@ -60,17 +58,15 @@ void Sprite::render(Event* event) {
 	destRect.w = curFrame->w;
 	destRect.h = curFrame->h;
 
-	try {
-		auto t = entity.components.get<Transform2f>();
-		destRect.x = static_cast<int>(t->translation().x());
-		destRect.y = static_cast<int>(t->translation().y());
-	} catch (...) {
-		// TODO: Should probably allow for requesting non existent Components w/o exception
-	}
+    auto t = entity.components.get<Transform2f>();
+    if (t != nullptr) {
+        destRect.x = static_cast<int>(t->translation().x());
+        destRect.y = static_cast<int>(t->translation().y());
+    }
 
-	SDL_RenderCopy(e->renderer, texture_, static_cast<SDL_Rect*>(curFrame), &destRect);
+	SDL_RenderCopy(event.renderer, texture_, static_cast<SDL_Rect*>(curFrame), &destRect);
 
-	frameTime_ += e->dt;
+	frameTime_ += event.dt;
 	if (frameTime_ >= animation_->frameLengths[currentFrame_]) {
 		frameTime_ = 0;
 		currentFrame_++;

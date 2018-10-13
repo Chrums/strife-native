@@ -16,8 +16,29 @@ namespace Strife {
 
 		template <class C>
 		class System : public ISystem {
+			
+			template <class E>
+			using Callback = std::function<void(C* const, const E&)>;
+			
+			template <class E>
+			class Binding {
+			public:
+				
+				Binding(Callback<E> callback)
+					: callback_(callback) {}
+					
+				void operator()(C* const component, const Event& event) {
+					callback_(component, static_cast<const E&>(event));
+				}
+				
+			private:
+			
+				Callback<E> callback_;
+				
+			};
 
 		public:
+		
 			System(Scene& scene, Dispatcher& dispatcher, IStorage& storage)
 			    : ISystem(scene)
 			    , dispatcher_(dispatcher)
@@ -28,32 +49,32 @@ namespace Strife {
 			~System() = default;
 
 			template <class E>
-			void on(std::function<void(C* const, Event*)> callback) {
+			void on(Callback<E> callback) {
 				const std::type_index type = std::type_index(typeid(E));
-				callbacks_.insert({type, callback});
+				Binding<E> binding(callback);
+				callbacks_.insert({type, binding});
 				dispatcher_.initialize<E>();  // TODO: Do this elsewhere... probably wherever the Event class is declared... (Engine::Instance()->dispatcher.initialize<E>())
-				dispatcher_.on<E>(std::bind(&System<C>::dispatch, this, std::placeholders::_1, std::placeholders::_2));
+				dispatcher_.on<E>(std::bind(&System<C>::dispatch<E>, this, std::placeholders::_1));
 			};
 
-			void dispatch(Event* event, std::type_index type) {
-				auto iteratorTypeToCallback = callbacks_.find(type);
-				if (iteratorTypeToCallback != callbacks_.end()) {
-					std::function<void(C*, Event*)> callback = iteratorTypeToCallback->second;
-                    if (event->entity.has_value()) {
-                        C* const component = event->entity.value().components.get<C>();
-                        if (component != nullptr) {
-                            callback(component, event);
-                        }
-					} else {
-						for (auto pairEntityToComponent : storage_) {
-							callback(static_cast<C* const>(pairEntityToComponent.second), event);
-						}
+			template <class E>
+			void dispatch(const Event& event) {
+				const std::type_index type = std::type_index(typeid(E));
+				auto& callback = callbacks_[type];
+				if (event.entity.has_value()) {
+					C* const component = event.entity.value().components.get<C>();
+                    if (component != nullptr) {
+                        callback(component, event);
+                    }
+				} else {
+					for (auto [ entity, component ] : storage_) {
+						callback(static_cast<C* const>(component), event);
 					}
 				}
 			};
 
 		private:
-			std::map<const std::type_index, std::function<void(C* const, Event*)>> callbacks_;
+			std::map<const std::type_index, Callback<Event>> callbacks_;
 			Dispatcher& dispatcher_;
 			IStorage& storage_;
         };
