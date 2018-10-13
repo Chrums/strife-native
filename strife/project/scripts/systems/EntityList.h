@@ -12,8 +12,6 @@ class EntityList : public Strife::Core::ISystem {
 public:
     EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher);
 
-    virtual void initialize();
-
     ~EntityList();
 
     void render(const RenderEvent& event);

@@ -20,8 +20,6 @@ EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dis
     dispatcher.on<RenderEvent>([this](const RenderEvent& event) { render(event); });
 }
 
-void EntityList::initialize() {}
-
 EntityList::~EntityList() {}
 
 void EntityList::render(const RenderEvent& event) {
@@ -43,6 +41,10 @@ void EntityList::render(const RenderEvent& event) {
 
         // Display contents in a scrolling region
         ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities: %d", numEntities);
+        if (ImGui::BeginPopupContextItem("item context menu")) {
+            ImGui::Selectable("Add new entity");
+            ImGui::EndPopup();
+        }
         ImGui::BeginChild("Scrolling");
         for (auto entity : scene_.entities.get()) {
             string entityId = boost::lexical_cast<string>(entity.id);

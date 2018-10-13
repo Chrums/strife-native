@@ -38,9 +38,7 @@ class SpriteAnimation : public Strife::Core::ISystem {
 
 public:
 	SpriteAnimation(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher)
-	    : ISystem(scene) {}
-
-	virtual void initialize() {}
+        : ISystem(scene) {}
 
 	~SpriteAnimation() = default;
 

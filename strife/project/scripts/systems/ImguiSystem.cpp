@@ -15,10 +15,8 @@ ImguiSystem::ImguiSystem(Strife::Core::Scene &scene, Strife::Core::Dispatcher &d
     mousePressed_[2] = false;
 }
 
-void ImguiSystem::initialize() {}
-
-void ImguiSystem::handleMouse(SDL_Window* window) {
-    ImGuiIO& io = ImGui::GetIO();
+void ImguiSystem::handleMouse(SDL_Window *window) {
+    ImGuiIO &io = ImGui::GetIO();
 
     // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
     if (io.WantSetMousePos) {
@@ -29,9 +27,8 @@ void ImguiSystem::handleMouse(SDL_Window* window) {
 
     int mx, my;
     Uint32 mouse_buttons = SDL_GetMouseState(&mx, &my);
-    io.MouseDown[0] =
-        mousePressed_[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) !=
-                                 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+    io.MouseDown[0] = mousePressed_[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) !=
+                                              0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
     io.MouseDown[1] = mousePressed_[1] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
     io.MouseDown[2] = mousePressed_[2] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
     mousePressed_[0] = mousePressed_[1] = mousePressed_[2] = false;
@@ -52,7 +49,8 @@ void ImguiSystem::finishRender() {
     ImGuiSDL::Render(ImGui::GetDrawData());
 }
 
-void ImguiSystem::beginRender(/*SDL_Texture *texture*/) {
+void ImguiSystem::beginRender() {
+
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 

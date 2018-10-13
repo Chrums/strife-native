@@ -422,6 +422,8 @@ int main() {
     IMGUI_CHECKVERSION();
     imguiSystem.init(renderer);
 
+    ImGui_ImplSDL2_InitForOpenGL(window);
+
     SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
     {
         SDL_SetRenderTarget(renderer, texture);
