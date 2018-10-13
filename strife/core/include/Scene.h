@@ -109,6 +109,10 @@ namespace Strife {
 					return static_cast<C* const>(component);
 				}
 
+                const std::map<const std::type_index, IStorage* const>& get() const;
+
+                std::string identifier(std::type_index type);
+
 			private:
 				Scene& scene_;
 				std::map<std::string, std::type_index> identifierToType_;

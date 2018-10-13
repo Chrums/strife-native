@@ -88,7 +88,15 @@ IStorage* const Scene::Components::get(const type_index type) const {
 
 Component* const Scene::Components::get(const type_index type, const Entity& entity) const {
 	return this->at(type)->get(entity);
-};
+}
+
+const std::map<const type_index, IStorage* const>& Scene::Components::get() const {
+    return *this;
+}
+
+string Scene::Components::identifier(type_index type) {
+    return typeToIdentifier_.at(type);
+}
 
 Scene::Systems::Systems(Scene& scene, Dispatcher& dispatcher)
     : scene_(scene)

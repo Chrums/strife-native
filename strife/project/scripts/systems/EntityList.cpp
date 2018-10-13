@@ -12,19 +12,19 @@
 using namespace Strife::Core;
 using namespace std;
 
-EntityList::EntityList(Strife::Core::Scene &scene, Strife::Core::Dispatcher &dispatcher)
+EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher)
     : ISystem(scene)
     , active_(true) {
 
     dispatcher.initialize<RenderEvent>();
-    dispatcher.on<RenderEvent>([this](const RenderEvent &event) { render(event); });
+    dispatcher.on<RenderEvent>([this](const RenderEvent& event) { render(event); });
 }
 
 void EntityList::initialize() {}
 
 EntityList::~EntityList() {}
 
-void EntityList::render(const RenderEvent &event) {
+void EntityList::render(const RenderEvent& event) {
     // Create a window called "My First Tool", with a menu bar.
     ImGui::Begin("My First Tool", &active_, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMenuBar()) {
@@ -42,10 +42,25 @@ void EntityList::render(const RenderEvent &event) {
     }
 
     // Display contents in a scrolling region
-    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities");
     ImGui::BeginChild("Scrolling");
     for (auto entity : scene_.entities.get()) {
-        ImGui::Text(boost::lexical_cast<string>(entity.id).c_str());
+        string entityId = boost::lexical_cast<string>(entity.id);
+        if (ImGui::TreeNode(entityId.c_str())) {
+            for (auto& [type, storage] : scene_.components.get()) {
+                auto component = storage->get(entity);
+                if (component != nullptr) {
+                    if (ImGui::TreeNode(scene_.components.identifier(type).c_str())) {
+                        string componentData = component->serialize().dump();
+                        ImGui::Text("%s", componentData.c_str());
+                        ImGui::TreePop();
+                        ImGui::Separator();
+                    }
+                }
+            }
+            ImGui::TreePop();
+            ImGui::Separator();
+        }
     }
     ImGui::EndChild();
     ImGui::End();
