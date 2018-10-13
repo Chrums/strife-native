@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "utility/Serialization.h"
 #include "System.h"
+#include "EntityMap.h"
 
 template <typename T, int D>
 class Transform : public Strife::Core::Component, public Eigen::Transform<T, D, Eigen::Affine> {
@@ -39,7 +40,7 @@ public:
 		return data;
 	}
 
-	void deserialize(nlohmann::json data) {
+    void deserialize(nlohmann::json data, Strife::Core::EntityMap& entityMap) {
 		this->matrix() = Serialization::DeserializeMatrix<T, D + 1, D + 1>(data["data"]);
 	}
 };

@@ -10,6 +10,12 @@ endif()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
+find_program(CONAN_CMD conan)
+if(NOT CONAN_CMD AND CONAN_REQUIRED)
+    message(FATAL_ERROR "Conan executable not found!")
+endif()
+execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/sdl2_ttf currentproject/stable)
+
 conan_cmake_run(CONANFILE conanfile.py
                 BASIC_SETUP CMAKE_TARGETS
                 BUILD missing)

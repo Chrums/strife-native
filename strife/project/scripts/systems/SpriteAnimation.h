@@ -9,18 +9,20 @@
 #include "Data.h"
 #include "System.h"
 #include "Dispatcher.h"
+#include "EntityMap.h"
 
 class Scene;
 
 struct Frame : public SDL_Rect {
 	const Strife::Core::Data serialize() const;
-	void deserialize(Strife::Core::Data data);
+    void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
 };
 
 struct Animation {
 	Animation* nextAnimation;
 	std::vector<Frame*> frames;
 	std::vector<Uint32> frameLengths;
+    std::string name;
 };
 
 struct SpriteData {

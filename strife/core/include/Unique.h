@@ -1,6 +1,8 @@
 #ifndef UNIQUE_H
 #define UNIQUE_H
 
+#include <functional>
+
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/nil_generator.hpp>
@@ -27,7 +29,7 @@ namespace Strife {
 			Unique(const boost::uuids::uuid id);
 
 			bool operator==(const Unique& unique) const;
-			bool operator<(const Unique& unique) const;
+            bool operator<(const Unique& unique) const;
 		};
 
 	}  // namespace Core

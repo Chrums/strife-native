@@ -62,14 +62,10 @@ namespace Strife {
 				const std::type_index type = std::type_index(typeid(E));
 				auto& callback = callbacks_[type];
 				if (event.entity.has_value()) {
-					try {
-						C* const component = event.entity.value().components.get<C>();
-						callback(component, event);
-					} catch (...) {
-						// TODO: Really though, this shouldn't be an exception
-						// Also, it's a bit odd that we have check all event handlers
-						// against an entity given we could know which are being handled
-					}
+					C* const component = event.entity.value().components.get<C>();
+                    if (component != nullptr) {
+                        callback(component, event);
+                    }
 				} else {
 					for (auto [ entity, component ] : storage_) {
 						callback(static_cast<C* const>(component), event);

@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "systems/SpriteAnimation.h"
 #include "Scene.h"
+#include "EntityMap.h"
 
 using namespace std;
 using namespace Strife::Core;
@@ -32,10 +33,11 @@ const Data Sprite::serialize() const {
 	data["dataFile"] = dataFile_;
 	data["currentFrame"] = currentFrame_;
 	data["frameTime"] = frameTime_;
+    data["currentAnimation"] = animation_->name;
 	return data;
 }
 
-void Sprite::deserialize(Data data) {
+void Sprite::deserialize(Data data, EntityMap& entityMap) {
 	auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
 	dataFile_ = data["dataFile"];
 	currentFrame_ = data["currentFrame"];

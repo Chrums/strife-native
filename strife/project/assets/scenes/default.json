@@ -1,19 +1,42 @@
 {
     "components": {
         "DrawSquare": {
-            "e96feb8b-04be-4d88-bf12-5f1518f79599": null,
-            "f7948c1e-72f4-4127-a5c7-3e51c0f8c4fc": null
+            "b1da8f28-67e9-4a48-a92b-884f2dbaff94": null
         },
         "Sprite": {
-            "e96feb8b-04be-4d88-bf12-5f1518f79599": null
+            "b1da8f28-67e9-4a48-a92b-884f2dbaff94": {
+                "currentAnimation": "count",
+                "currentFrame": 0,
+                "dataFile": "assets/images/numbers.json",
+                "frameTime": 0
+            },
+            "ec204e2b-434d-432d-9dcc-f6eb45d213be": {
+                "currentAnimation": "bounce",
+                "currentFrame": 0,
+                "dataFile": "assets/images/ball.json",
+                "frameTime": 0
+            }
         },
         "Test": {
-            "e96feb8b-04be-4d88-bf12-5f1518f79599": {
+            "ec204e2b-434d-432d-9dcc-f6eb45d213be": {
                 "value": "0"
             }
         },
         "Transform2f": {
-            "e96feb8b-04be-4d88-bf12-5f1518f79599": {
+            "b1da8f28-67e9-4a48-a92b-884f2dbaff94": {
+                "data": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1
+                ]
+            },
+            "ec204e2b-434d-432d-9dcc-f6eb45d213be": {
                 "data": [
                     1,
                     0,
@@ -25,27 +48,14 @@
                     0,
                     1
                 ]
-            },
-            "f7948c1e-72f4-4127-a5c7-3e51c0f8c4fc": {
-                "data": [
-                    1,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                    0,
-                    1
-                ]
             }
         },
         "Velocity": {
-            "e96feb8b-04be-4d88-bf12-5f1518f79599": {
+            "b1da8f28-67e9-4a48-a92b-884f2dbaff94": {
                 "xSpeed": 0,
-                "ySpeed": 0
+                "ySpeed": 0.25
             },
-            "f7948c1e-72f4-4127-a5c7-3e51c0f8c4fc": {
+            "ec204e2b-434d-432d-9dcc-f6eb45d213be": {
                 "xSpeed": 0,
                 "ySpeed": 0
             }

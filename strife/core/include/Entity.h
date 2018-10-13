@@ -2,6 +2,7 @@
 #define ENTITY_H
 
 #include <typeindex>
+#include <functional>
 #include <boost/uuid/uuid.hpp>
 #include "Unique.h"
 
@@ -62,10 +63,19 @@ namespace Strife {
 			Entity(Scene& scene);
 			Entity(const boost::uuids::uuid id, Scene& scene);
 
-			void destroy();
+            void destroy();
 		};
 
 	}  // namespace Core
 }  // namespace Strife
+
+namespace std {
+    template <>
+    struct hash<Strife::Core::Entity> {
+        size_t operator()(const Strife::Core::Entity& entity) {
+            return hash<Strife::Core::Unique>{}(entity);
+        }
+    };
+}  // namespace std
 
 #endif

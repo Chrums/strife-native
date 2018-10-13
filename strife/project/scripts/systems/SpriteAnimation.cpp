@@ -4,6 +4,8 @@
 #include <iostream>
 #include <boost/filesystem/path.hpp>
 
+#include "EntityMap.h"
+
 using namespace std;
 using namespace Strife::Core;
 using namespace boost::filesystem;
@@ -25,10 +27,12 @@ void SpriteAnimation::loadSprite(string spritePath) {
 	}
 
 	for (auto frame : imageData["frames"].items()) {
-		sprite.frames[frame.key()].deserialize(frame.value()["frame"]);
+        EntityMap entityMap(scene_);
+        sprite.frames[frame.key()].deserialize(frame.value()["frame"], entityMap);
 	}
 	for (auto animation : imageData["animations"].items()) {
 		Animation& anim = sprite.animations[animation.key()];
+        anim.name = animation.key();
 		for (auto frame : animation.value().at("frames")) {
 			anim.frames.push_back(&sprite.frames.at(frame["name"]));
 			anim.frameLengths.push_back(frame["length"]);
@@ -93,7 +97,7 @@ const Data Frame::serialize() const {
 	return data;
 }
 
-void Frame::deserialize(Data data) {
+void Frame::deserialize(Data data, EntityMap& entityMap) {
 	x = data["x"];
 	y = data["y"];
 	w = data["w"];

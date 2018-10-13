@@ -4,6 +4,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <nlohmann/json.hpp>
 #include <SDL.h>
+//#include <SDL_ttf.h>
 #include "Component.h"
 #include "Dispatcher.h"
 #include "Engine.h"
@@ -14,6 +15,7 @@
 #include "Storage.h"
 #include "IStorage.h"
 #include "System.h"
+#include "EntityMap.h"
 
 #include "components/Transform.h"
 #include "components/Sprite.h"
@@ -126,13 +128,11 @@ public:
 		rect.w = 32;
 		rect.h = 32;
 
-		try {
-			auto t = entity.components.get<Transform2f>();
-			rect.x = t->translation().x();
-			rect.y = t->translation().y();
-		} catch (const std::exception& e) {
-			// TODO: Should probably allow for requesting non existent Components w/o exception
-		}
+        auto t = entity.components.get<Transform2f>();
+        if (t != nullptr) {
+            rect.x = static_cast<int>(t->translation().x());
+            rect.y = static_cast<int>(t->translation().y());
+        }
 
 		SDL_SetRenderDrawColor(event.renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(event.renderer, &rect);
@@ -162,19 +162,17 @@ public:
 		return data;
 	}
 
-	void deserialize(json data) {
+    void deserialize(json data, EntityMap& entityMap) {
 		xSpeed = data["xSpeed"];
 		ySpeed = data["ySpeed"];
 	}
 
 	void update(const UpdateEvent& event) {
-		try {
-			auto t = entity.components.get<Transform2f>();
+        auto t = entity.components.get<Transform2f>();
+        if (t != nullptr) {
 			t->translation().x() += xSpeed;
-			t->translation().y() += ySpeed;
-		} catch (const std::exception& e) {
-			// TODO: Should probably allow for requesting non existent Components w/o exception
-		}
+            t->translation().y() += ySpeed;
+        }
 	}
 };
 
@@ -201,7 +199,7 @@ public:
 		return data;
 	}
 
-	void deserialize(json data) {
+    void deserialize(json data, EntityMap& entityMap) {
 		value = data["value"];
 	}
 
@@ -211,9 +209,9 @@ public:
 
 	void update(const UpdateEvent& event) {
 
-		try {
-			auto v = entity.components.get<Velocity>();
-			auto sprite = entity.components.get<Sprite>();
+        auto v = entity.components.get<Velocity>();
+        auto sprite = entity.components.get<Sprite>();
+        if (v != nullptr && sprite != nullptr) {
 			v->xSpeed = 0;
 			v->ySpeed = 0;
 			const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -227,19 +225,29 @@ public:
 			}
 			if (state[SDL_SCANCODE_UP]) {
 				v->ySpeed = -1;
-				sprite->setAnimation("bounce");
+                sprite->setAnimation("bounce");
 			}
 			if (state[SDL_SCANCODE_DOWN]) {
 				v->ySpeed = 1;
 				sprite->setAnimation("bounce");
 			}
-		} catch (const std::exception& e) {
-			// TODO: Should probably allow for requesting non existent Components w/o exception
-		}
+            if (state[SDL_SCANCODE_SPACE]) {
+                cout << "sp" << endl;
+                try {
+                    std::ifstream file;
+                    file.open("assets/scenes/default.json");
+                    json j;
+                    file >> j;
+                    scene.deserialize(j);
+                } catch (exception& e) {
+                    cout << e.what() << endl;
+                }
+            }
+        }
 	}
 
 	void collision(const CollisionEvent& event) {
-		cout << "collided!: " << event.other.id << endl;
+		
 	}
 };
 
@@ -361,35 +369,36 @@ int main() {
 	s->systems.initialize<PhysicsSystem>();
 	s->systems.initialize<SpriteAnimation>();
 
-	Entity e0(*s);
-	TestComponent* t0 = e0.components.add<TestComponent>();
-	Transform2f* tr0 = e0.components.add<Transform2f>();
-	Sprite* sp0 = e0.components.add<Sprite>();
-	sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json);
-	e0.components.add<Velocity>();
-	tr0->translation().x() = 60;
-	cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
-	t0->value = "0";
+    //	Entity e0(*s);
+    //	TestComponent* t0 = e0.components.add<TestComponent>();
+    //	Transform2f* tr0 = e0.components.add<Transform2f>();
+    //	Sprite* sp0 = e0.components.add<Sprite>();
+    //    EntityMap entityMap(*s);
+    //    sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json, entityMap);
+    //	e0.components.add<Velocity>();
+    //	tr0->translation().x() = 60;
+    //	cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
+    //	t0->value = "0";
 
-	Entity e1(*s);
-	Transform2f* tr1 = e1.components.add<Transform2f>();
-	auto v1 = e1.components.add<Velocity>();
-	e1.components.add<DrawSquare>();
-	Sprite* sp1 = e1.components.add<Sprite>();
-	sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json);
-	v1->ySpeed = 0.25f;
+    //	Entity e1(*s);
+    //	Transform2f* tr1 = e1.components.add<Transform2f>();
+    //	auto v1 = e1.components.add<Velocity>();
+    //	e1.components.add<DrawSquare>();
+    //	Sprite* sp1 = e1.components.add<Sprite>();
+    //    sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json, entityMap);
+    //	v1->ySpeed = 0.25f;
 
-	//    try {
-	//        std::ifstream file;
-	//        file.open("strife/project/scenes/default.json");
-	//        json j;
-	//        file >> j;
-	//        s->deserialize(j);
-	//    } catch (exception& e) {
-	//        cout << e.what() << endl;
-	//    }
+    try {
+        std::ifstream file;
+        file.open("assets/scenes/default.json");
+        json j;
+        file >> j;
+        s->deserialize(j);
+    } catch (exception& e) {
+        cout << e.what() << endl;
+    }
 
-	s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
+    // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 
 	json data = s->serialize();
 	cout << data << endl;
