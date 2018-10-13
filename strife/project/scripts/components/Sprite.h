@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "System.h"
 #include "Event.h"
+#include "events/RenderEvent.h"
 #include "systems/SpriteAnimation.h"
 
 class Sprite : public Strife::Core::Component {
@@ -29,7 +30,7 @@ public:
 
 	void deserialize(Strife::Core::Data data);
 
-	void render(Strife::Core::Event* event);
+	void render(const RenderEvent& event);
 
 	void setAnimation(std::string path);
 

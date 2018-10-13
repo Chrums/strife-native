@@ -11,9 +11,8 @@ namespace Strife {
 	namespace Core {
 
 		class Engine {
-
-			class Scenes : std::map<std::string, Scene> {
-
+			
+			class Scenes : private std::map<std::string, Scene> {
 			public:
 				Scene* active;
 
@@ -26,22 +25,7 @@ namespace Strife {
 			private:
 				Engine& engine_;
 			};
-
-			class Components {
-
-			public:
-				template <class T>
-				void initialize(std::string identifier) {
-					std::type_index type = std::type_index(typeid(T));
-					identifierToType_.insert({identifier, type});
-					typeToIdentifier_.insert({type, identifier});
-				};
-
-			private:
-				std::map<std::string, std::type_index> identifierToType_;
-				std::map<std::type_index, std::string> typeToIdentifier_;
-			};
-
+			
 		public:
 			static Engine* Instance();
 
@@ -55,7 +39,7 @@ namespace Strife {
 
 			Engine();
 
-			virtual void initialize();
+			virtual void initialize(Scene& scene);
 		};
 
 	}  // namespace Core

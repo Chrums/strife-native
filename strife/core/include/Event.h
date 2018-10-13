@@ -2,21 +2,30 @@
 #define EVENT_H
 
 #include "Entity.h"
+#include "Message.h"
 #include <optional>
 
 namespace Strife {
 	namespace Core {
 
-		class Event {
+		class Event : public Message {
 
 		public:
-			static const unsigned int Synchronous;
+
+			template <class E>
+			static void AssertBase();
 
 			const std::optional<Entity> entity;
 
+			Event();
 			Event(const std::optional<Entity> entity);
-
 			virtual ~Event() = default;
+			
+		};
+
+		template <class E>
+		void Event::AssertBase() {
+			static_assert(std::is_base_of<Event, E>::value, "Type not derived from Event");
 		};
 
 	}  // namespace Core

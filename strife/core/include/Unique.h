@@ -6,6 +6,7 @@
 #include <boost/uuid/nil_generator.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/functional/hash.hpp>
 
 namespace Strife {
 	namespace Core {
@@ -31,5 +32,19 @@ namespace Strife {
 
 	}  // namespace Core
 }  // namespace Strife
+
+
+namespace std
+{
+
+	template<>
+	struct hash<Strife::Core::Unique>
+	{
+	    size_t operator()(const Strife::Core::Unique& unique) {
+	        return boost::hash<boost::uuids::uuid>()(unique.id);
+	    }
+	};
+
+}
 
 #endif

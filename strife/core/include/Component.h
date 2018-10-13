@@ -12,7 +12,6 @@ namespace Strife {
 		class Scene;
 
 		class Component : public Unique {
-
 		public:
 			template <class C>
 			static void AssertBase();

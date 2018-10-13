@@ -9,6 +9,7 @@
 #include "Engine.h"
 #include "Entity.h"
 #include "Event.h"
+#include "Messenger.h"
 #include "Scene.h"
 #include "Storage.h"
 #include "IStorage.h"
@@ -53,11 +54,14 @@ const unsigned int UpdateEvent::Priority = 500;
 class BeginRenderEvent : public Event {
 
 public:
-	using Event::Event;
 
 	static const unsigned int Priority;
+	
+	BeginRenderEvent(SDL_Renderer* renderer)
+		: renderer(renderer) {}
 
 	SDL_Renderer* renderer;
+	
 };
 
 const unsigned int BeginRenderEvent::Priority = 900;
@@ -65,11 +69,14 @@ const unsigned int BeginRenderEvent::Priority = 900;
 class FinishRenderEvent : public Event {
 
 public:
-	using Event::Event;
 
 	static const unsigned int Priority;
+	
+	FinishRenderEvent(SDL_Window* window)
+		: window(window) {}
 
 	SDL_Window* window;
+	
 };
 
 const unsigned int FinishRenderEvent::Priority = 1100;
@@ -103,7 +110,6 @@ void makeTestEvent(TestEvent& event) {
 }
 
 class DrawSquare : public Component {
-
 public:
 	static void Initialize(System<DrawSquare>& system) {
 		system.on<RenderEvent>(&DrawSquare::render);
@@ -113,8 +119,7 @@ public:
 
 	using Component::Component;
 
-	void render(Event* event) {
-		auto e = dynamic_cast<RenderEvent*>(event);
+	void render(const RenderEvent& event) {
 		SDL_Rect rect;
 		rect.x = 0;
 		rect.y = 0;
@@ -129,8 +134,8 @@ public:
 			// TODO: Should probably allow for requesting non existent Components w/o exception
 		}
 
-		SDL_SetRenderDrawColor(e->renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(e->renderer, &rect);
+		SDL_SetRenderDrawColor(event.renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderFillRect(event.renderer, &rect);
 	}
 };
 
@@ -162,7 +167,7 @@ public:
 		ySpeed = data["ySpeed"];
 	}
 
-	void update(Event* event) {
+	void update(const UpdateEvent& event) {
 		try {
 			auto t = entity.components.get<Transform2f>();
 			t->translation().x() += xSpeed;
@@ -200,13 +205,11 @@ public:
 		value = data["value"];
 	}
 
-	void handleEvent(Event* event) {
-		auto e = dynamic_cast<TestEvent*>(event);
-		cout << "data:" << e->data << " " << entity.id << " " << value << endl;
+	void handleEvent(const TestEvent& event) {
+		cout << "data:" << event.data << " " << entity.id << " " << value << endl;
 	}
 
-	void update(Event* event) {
-		auto e = dynamic_cast<UpdateEvent*>(event);
+	void update(const UpdateEvent& event) {
 
 		try {
 			auto v = entity.components.get<Velocity>();
@@ -235,9 +238,8 @@ public:
 		}
 	}
 
-	void collision(Event* event) {
-		auto e = dynamic_cast<CollisionEvent*>(event);
-		cout << "collided!: " << e->other.id << endl;
+	void collision(const CollisionEvent& event) {
+		cout << "collided!: " << event.other.id << endl;
 	}
 };
 
@@ -253,25 +255,21 @@ public:
 		dispatcher_.initialize<BeginRenderEvent>();
 		dispatcher_.initialize<FinishRenderEvent>();
 
-		dispatcher_.on<BeginRenderEvent>([this](Event* event, std::type_index type) { beginRender(event, type); });
-		dispatcher_.on<FinishRenderEvent>([this](Event* event, std::type_index type) { finishRender(event, type); });
+		dispatcher_.on<BeginRenderEvent>([this](const BeginRenderEvent& event) { beginRender(event); });
+		dispatcher_.on<FinishRenderEvent>([this](const FinishRenderEvent& event) { finishRender(event); });
 	}
 
 	virtual void initialize() {}
 
 	~RenderSystem() {}
 
-	void beginRender(Event* event, std::type_index eventType) {
-		BeginRenderEvent* e = dynamic_cast<BeginRenderEvent*>(event);
-
-		SDL_SetRenderDrawColor(e->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(e->renderer);
+	void beginRender(const BeginRenderEvent& event) {
+		SDL_SetRenderDrawColor(event.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(event.renderer);
 	}
 
-	void finishRender(Event* event, std::type_index eventType) {
-		FinishRenderEvent* e = dynamic_cast<FinishRenderEvent*>(event);
-
-		SDL_UpdateWindowSurface(e->window);
+	void finishRender(const FinishRenderEvent& event) {
+		SDL_UpdateWindowSurface(event.window);
 	}
 
 private:
@@ -287,14 +285,14 @@ public:
 
 		dispatcher_.initialize<FindCollisionsEvent>();
 
-		dispatcher_.on<FindCollisionsEvent>([this](Event* event, std::type_index type) { findCollisions(event, type); });
+		dispatcher_.on<FindCollisionsEvent>([this](const FindCollisionsEvent& event) { findCollisions(event); });
 	}
 
 	virtual void initialize() {}
 
 	~PhysicsSystem() {}
 
-	void findCollisions(Event* event, std::type_index eventType) {
+	void findCollisions(const FindCollisionsEvent& event) {
 		auto transforms = this->scene_.components.get<Transform2f>();
 		for (auto tA : *transforms) {
 			auto transformA = static_cast<Transform2f*>(tA.second);
@@ -307,7 +305,7 @@ public:
 
 					if (transformA->entity.id != transformB->entity.id) {
 						CollisionEvent* ev = new CollisionEvent(transformA->entity, transformB->entity);
-						dispatcher_.trigger(std::type_index(typeid(CollisionEvent)), ev, CollisionEvent::Priority);
+						dispatcher_.emit<CollisionEvent>(transformA->entity, transformB->entity);
 					}
 				}
 			}
@@ -327,6 +325,31 @@ private:
 // };
 
 int main() {
+
+	// Messenger m;
+	
+	// auto test =
+	// 	[=](const TestEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
+	
+	// auto update =
+	// 	[=](const UpdateEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
+	
+	// m.on<TestEvent>(test);
+	// m.on<UpdateEvent>(update);
+	
+	// TestEvent tester;
+	// tester.data = "Test!";
+	
+	// UpdateEvent updater;
+	// updater.data = "Update!";
+	
+	// m.emit(tester);
+	// m.emit(updater);
+	// m.emit(updater);
 
 	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
 	s->initialize<TestComponent>();
@@ -366,7 +389,7 @@ int main() {
 	//        cout << e.what() << endl;
 	//    }
 
-	// s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
+	s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 
 	json data = s->serialize();
 	cout << data << endl;
@@ -376,13 +399,6 @@ int main() {
 	SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-
-	auto makeRenderEvent = [=](RenderEvent& event) {
-		event.renderer = renderer;
-		event.dt = 16;
-	};
-	auto makeBeginRenderEvent = [=](BeginRenderEvent& event) { event.renderer = renderer; };
-	auto makeFinishRenderEvent = [=](FinishRenderEvent& event) { event.window = window; };
 
 	//Main loop flag
 	bool quit = false;
@@ -397,13 +413,12 @@ int main() {
 				quit = true;
 			}
 		}
-
-		//Engine::Instance()->dispatcher.trigger<TestEvent>(makeTestEvent);
-		Engine::Instance()->dispatcher.trigger<UpdateEvent>();
-		Engine::Instance()->dispatcher.trigger<FindCollisionsEvent>();
-		Engine::Instance()->dispatcher.trigger<RenderEvent>(makeRenderEvent);
-		Engine::Instance()->dispatcher.trigger<BeginRenderEvent>(makeBeginRenderEvent);
-		Engine::Instance()->dispatcher.trigger<FinishRenderEvent>(makeFinishRenderEvent);
+		
+		Engine::Instance()->dispatcher.emit<UpdateEvent>();
+		Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
+		Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
+		Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
+		Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window);
 		Engine::Instance()->dispatcher.dispatch();
 
 		Uint32 runTime = SDL_GetTicks() - startTime;

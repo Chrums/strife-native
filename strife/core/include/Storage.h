@@ -52,9 +52,7 @@ namespace Strife {
 
 			const Data serialize() const {
 				Data data;
-				for (const auto& pairEntityToComponent : components_) {
-					const Entity entity = pairEntityToComponent.first;
-					const C component = pairEntityToComponent.second;
+				for (const auto& [ entity, component ] : components_) {
 					const std::string entityIdentifier = boost::lexical_cast<std::string>(entity.id);
 					const Data componentData = component.serialize();
 					data[entityIdentifier] = componentData;
@@ -63,7 +61,7 @@ namespace Strife {
 			}
 
 			void deserialize(const Data data) {
-				for (Data::const_iterator iteratorEntityIdentifierToComponentData = data.begin(); iteratorEntityIdentifierToComponentData != data.end(); iteratorEntityIdentifierToComponentData++) {
+				for (auto& iteratorEntityIdentifierToComponentData : data.items()) {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					const Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
