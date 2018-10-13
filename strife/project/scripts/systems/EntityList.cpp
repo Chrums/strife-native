@@ -25,43 +25,44 @@ void EntityList::initialize() {}
 EntityList::~EntityList() {}
 
 void EntityList::render(const RenderEvent& event) {
-    // Create a window called "My First Tool", with a menu bar.
-    ImGui::Begin("My First Tool", &active_, ImGuiWindowFlags_MenuBar);
-    if (ImGui::BeginMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */
+    size_t numEntities = scene_.entities.get().size();
+    if (ImGui::Begin("Entities", &active_, ImGuiWindowFlags_MenuBar)) {
+        if (ImGui::BeginMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */
+                }
+                if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */
+                }
+                if (ImGui::MenuItem("Close", "Ctrl+W")) {
+                    active_ = false;
+                }
+                ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */
-            }
-            if (ImGui::MenuItem("Close", "Ctrl+W")) {
-                active_ = false;
-            }
-            ImGui::EndMenu();
+            ImGui::EndMenuBar();
         }
-        ImGui::EndMenuBar();
-    }
 
-    // Display contents in a scrolling region
-    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities");
-    ImGui::BeginChild("Scrolling");
-    for (auto entity : scene_.entities.get()) {
-        string entityId = boost::lexical_cast<string>(entity.id);
-        if (ImGui::TreeNode(entityId.c_str())) {
-            for (auto& [type, storage] : scene_.components.get()) {
-                auto component = storage->get(entity);
-                if (component != nullptr) {
-                    if (ImGui::TreeNode(scene_.components.identifier(type).c_str())) {
-                        string componentData = component->serialize().dump();
-                        ImGui::Text("%s", componentData.c_str());
-                        ImGui::TreePop();
-                        ImGui::Separator();
+        // Display contents in a scrolling region
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities: %d", numEntities);
+        ImGui::BeginChild("Scrolling");
+        for (auto entity : scene_.entities.get()) {
+            string entityId = boost::lexical_cast<string>(entity.id);
+            if (ImGui::TreeNode(entityId.c_str())) {
+                for (auto& [type, storage] : scene_.components.get()) {
+                    auto component = storage->get(entity);
+                    if (component != nullptr) {
+                        if (ImGui::TreeNode(scene_.components.identifier(type).c_str())) {
+                            string componentData = component->serialize().dump();
+                            ImGui::Text("%s", componentData.c_str());
+                            ImGui::TreePop();
+                            ImGui::Separator();
+                        }
                     }
                 }
+                ImGui::TreePop();
+                ImGui::Separator();
             }
-            ImGui::TreePop();
-            ImGui::Separator();
         }
+        ImGui::EndChild();
     }
-    ImGui::EndChild();
     ImGui::End();
 }
