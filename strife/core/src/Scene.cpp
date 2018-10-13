@@ -12,17 +12,26 @@ using boost::uuids::uuid;
 Scene::Entities::Entities(Scene& scene)
     : scene_(scene){};
 
-const Entity Scene::Entities::add() const {
-	return Entity(scene_);
+const Entity Scene::Entities::add(uuid id, EntityMap& entityMap) {
+    return *entities_.insert(entityMap.getEntity(id)).first;
 };
 
-void Scene::Entities::remove(const Entity& entity) const {
+const Entity Scene::Entities::add() {
+    return *entities_.insert(Entity(scene_)).first;
+};
+
+void Scene::Entities::remove(const Entity& entity) {
 	scene_.components.remove(entity);
+    remove(entity);
 };
 
 const Entity Scene::Entities::get(const uuid id) const {
 	return Entity(id, scene_);
-};
+}
+
+const std::set<Entity>& Scene::Entities::get() const {
+    return entities_;
+}
 
 Scene::Components::Components(Scene& scene)
     : scene_(scene){};

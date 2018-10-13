@@ -4,14 +4,14 @@
 #include <map>
 #include <string>
 #include <typeindex>
-#include "Scene.h"
 #include "Dispatcher.h"
 
 namespace Strife {
 	namespace Core {
+        class Scene;
 
 		class Engine {
-			
+
 			class Scenes : private std::map<std::string, Scene> {
 			public:
 				Scene* active;
@@ -25,7 +25,7 @@ namespace Strife {
 			private:
 				Engine& engine_;
 			};
-			
+
 		public:
 			static Engine* Instance();
 

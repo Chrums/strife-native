@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include "Data.h"
+#include "Scene.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -9,7 +10,7 @@ using namespace std;
 Engine::Scenes::Scenes(Engine& engine)
     : active(nullptr)
     , engine_(engine) {}
-    
+
 void Engine::Scenes::load(const std::string identifier, const std::string path) {
     std::ifstream file;
     file.open(path);
@@ -23,7 +24,7 @@ void Engine::Scenes::unload(const std::string identifier) {
 }
 
 void Engine::Scenes::swap(const std::string identifier) {
-    auto& [ ignore, scene ] = *this->find(identifier);
+    auto& [ignore, scene] = *this->find(identifier);
     active = &scene;
 }
 

@@ -16,9 +16,11 @@
 #include "EntityMap.h"
 
 namespace Strife {
-	namespace Core {
+    namespace Core {
 
 		class Scene;
+
+        Entity addEntity(Scene& scene, boost::uuids::uuid, EntityMap& entityMap);
 
 		template <class C>
 		class Storage : public IStorage {
@@ -73,7 +75,7 @@ namespace Strife {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					const Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = entityMap.getEntity(entityId);
+                    const Entity entity = addEntity(scene_, entityId, entityMap);
 					C* const component = add(entity);
                     component->deserialize(componentData, entityMap);
 				}

@@ -25,6 +25,7 @@
 
 #include "systems/SpriteAnimation.h"
 #include "systems/ImguiSystem.h"
+#include "systems/EntityList.h"
 
 #include "utility/imgui_impl_sdl.h"
 #include "utility/imgui_impl_opengl3.h"
@@ -374,6 +375,7 @@ int main() {
 	s->systems.initialize<PhysicsSystem>();
 	s->systems.initialize<SpriteAnimation>();
     ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
+    s->systems.initialize<EntityList>();
 
     //	Entity e0(*s);
     //	TestComponent* t0 = e0.components.add<TestComponent>();

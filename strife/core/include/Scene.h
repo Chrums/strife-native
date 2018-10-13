@@ -21,17 +21,20 @@ namespace Strife {
 
 		class Scene {
 
-			class Entities {
+            class Entities {
 
 			public:
 				Entities(Scene& scene);
 
-				const Entity add() const;
-				void remove(const Entity& entity) const;
+                const Entity add();
+                const Entity add(boost::uuids::uuid id, EntityMap& entityMap);
+                void remove(const Entity& entity);
 				const Entity get(const boost::uuids::uuid id) const;
+                const std::set<Entity>& get() const;
 
-			private:
-				Scene& scene_;
+            private:
+                Scene& scene_;
+                std::set<Entity> entities_;
 			};
 
 			class Components : private std::map<const std::type_index, IStorage* const> {
@@ -148,7 +151,7 @@ namespace Strife {
 			};
 
 		public:
-			const Entities entities;
+            Entities entities;
 			Components components;
 			Systems systems;
 
