@@ -10,7 +10,8 @@ class StrifeConan(ConanFile):
         "boost_filesystem/1.66.0@bincrafters/stable", \
         "imgui/1.62@bincrafters/stable", \
         "glad/0.1.24@bincrafters/stable", \
-        "sdl2_ttf/2.0.14@currentproject/stable"#, "emsdk_installer/1.38.0@bincrafters/testing"
+        "sdl2_ttf/2.0.14@currentproject/stable", \
+        "metastuff/cmake@currentproject/stable"#, "emsdk_installer/1.38.0@bincrafters/testing"
    generators = "cmake"
    #settings = {"compiler": "clang"}
 
