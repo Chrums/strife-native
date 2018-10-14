@@ -34,7 +34,7 @@ Data renderData(Data item, string key = "") {
         case Data::value_t::number_integer: {
             int value = static_cast<int>(item.get<Data::number_integer_t>());
             if (ImGui::InputInt(key.c_str(), &value)) {
-                *item.get<Data::number_integer_t*>() = value;
+                return Data(value);
             }
             break;
         }
@@ -42,7 +42,7 @@ Data renderData(Data item, string key = "") {
             int value = static_cast<int>(item.get<Data::number_unsigned_t>());
             if (ImGui::InputInt(key.c_str(), &value)) {
                 if (value >= 0) {
-                    *item.get<Data::number_integer_t*>() = value;
+                    return Data(value);
                 }
             }
             break;
