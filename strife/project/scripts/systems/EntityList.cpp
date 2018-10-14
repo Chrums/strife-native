@@ -55,7 +55,6 @@ Data renderData(Data item, string key = "") {
             break;
         }
         case Data::value_t::string: {
-
             string value = item.get<Data::string_t>();
 
             std::string clipText = (ImGui::GetClipboardText() != nullptr) ? ImGui::GetClipboardText() : "";
@@ -70,8 +69,6 @@ Data renderData(Data item, string key = "") {
             delete newText;
             break;
         }
-        case Data::value_t::boolean:
-        case Data::value_t::null:
         case Data::value_t::array: {
             size_t index = 0;
             for (auto arrayItem : item) {
@@ -82,6 +79,13 @@ Data renderData(Data item, string key = "") {
             }
             break;
         }
+        case Data::value_t::boolean: {
+            bool* value = item.get<Data::boolean_t*>();
+            if (ImGui::Checkbox(key.c_str(), value)) {
+            }
+            break;
+        }
+        case Data::value_t::null:
         default:
             ImGui::Text("%s", key.c_str());
             ImGui::Text("%s", item.dump().c_str());
