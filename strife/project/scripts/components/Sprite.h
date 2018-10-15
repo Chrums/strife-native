@@ -30,10 +30,13 @@ public:
 	const Strife::Core::Data serialize() const;
 
     void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
+    void deserializer(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
 
 	void render(const RenderEvent& event);
 
 	void setAnimation(std::string path);
+
+    const Strife::Core::Data serializer() const;
 
 private:
 	SDL_Texture* loadTexture(std::string path, SDL_Renderer* renderer);
@@ -43,7 +46,10 @@ private:
 
 	std::string dataFile_;
 	Uint32 currentFrame_;
-	Uint32 frameTime_;
+    Uint32 frameTime_;
 };
+
+void from_json(const nlohmann::json& j, Sprite& obj);
+void to_json(nlohmann::json& j, const Sprite& obj);
 
 #endif  // SPRITE_H

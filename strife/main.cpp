@@ -160,14 +160,14 @@ public:
 	float xSpeed = 0;
 	float ySpeed = 0;
 
-	const json serialize() const {
+    const Data serialize() const {
 		json data;
 		data["xSpeed"] = xSpeed;
 		data["ySpeed"] = ySpeed;
 		return data;
 	}
 
-    void deserialize(json data, EntityMap& entityMap) {
+    void deserialize(Data data, EntityMap& entityMap) {
 		xSpeed = data["xSpeed"];
 		ySpeed = data["ySpeed"];
 	}
@@ -199,14 +199,14 @@ public:
 
 	using Component::Component;
 
-	const json serialize() const {
+    const Data serialize() const {
 		json data;
 		data["value"] = value;
         data["isTrue"] = isTrue;
 		return data;
 	}
 
-    void deserialize(json data, EntityMap& entityMap) {
+    void deserialize(Data data, EntityMap& entityMap) {
 		value = data["value"];
         isTrue = data["isTrue"];
 	}

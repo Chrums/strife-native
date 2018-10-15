@@ -80,6 +80,7 @@ namespace Strife {
 			}
 
 			C* const add(const Entity entity) {
+                // TODO: Pass deserialize function to each created component
                 return &components_.emplace(entity, entity).first->second;
 			}
 

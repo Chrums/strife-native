@@ -29,15 +29,24 @@ Sprite::Sprite(const boost::uuids::uuid id, const Strife::Core::Entity& entity)
     , texture_(nullptr) {}
 
 const Data Sprite::serialize() const {
-	Data data;
-	data["dataFile"] = dataFile_;
-	data["currentFrame"] = currentFrame_;
-	data["frameTime"] = frameTime_;
-    data["currentAnimation"] = animation_->name;
+    Data data = *this;
 	return data;
 }
 
+const Data Sprite::serializer() const {
+    Data data;
+    data["dataFile"] = dataFile_;
+    data["currentFrame"] = currentFrame_;
+    data["frameTime"] = frameTime_;
+    data["currentAnimation"] = animation_->name;
+    return data;
+}
+
 void Sprite::deserialize(Data data, EntityMap& entityMap) {
+    nlohmann::from_json(data, *this);
+}
+
+void Sprite::deserializer(Data data, EntityMap& entityMap) {
 	auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
 	dataFile_ = data["dataFile"];
 	currentFrame_ = data["currentFrame"];
@@ -106,3 +115,16 @@ SDL_Texture* Sprite::loadTexture(string path, SDL_Renderer* renderer) {
 	}
 	return newTexture;
 }
+
+namespace Strife {
+    namespace Core {
+        void from_json(const Data& j, Sprite& obj) {
+            Strife::Core::EntityMap m(obj.scene);
+            obj.deserializer(j, m);
+        }
+
+        void to_json(Data& j, const Sprite& obj) {
+            j = obj.serializer();
+        }
+    }  // namespace Core
+}  // namespace Strife
