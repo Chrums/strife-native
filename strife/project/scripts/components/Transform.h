@@ -2,13 +2,10 @@
 #define TRANSFORM_H
 
 #include <string>
-
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-
-#include <nlohmann/json.hpp>
-
 #include "Component.h"
+#include "Data.h"
 #include "Entity.h"
 #include "utility/Serialization.h"
 #include "System.h"
@@ -34,13 +31,13 @@ public:
 	    : Component(id, entity)
 	    , Eigen::Transform<T, D, Eigen::Affine>(Eigen::Transform<T, D, Eigen::Affine>::Identity()) {}
 
-	const nlohmann::json serialize() const {
-		nlohmann::json data;
+	const Strife::Core::Data serialize() const {
+		Strife::Core::Data data;
 		data["data"] = Serialization::SerializeMatrix<T, D + 1, D + 1>(this->matrix());
 		return data;
 	}
 
-    void deserialize(nlohmann::json data, Strife::Core::EntityMap& entityMap) {
+    void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap) {
 		this->matrix() = Serialization::DeserializeMatrix<T, D + 1, D + 1>(data["data"]);
 	}
 };
