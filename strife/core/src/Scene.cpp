@@ -111,7 +111,7 @@ Scene::Systems::Systems(Scene& scene, Dispatcher& dispatcher)
     , dispatcher_(dispatcher) {}
 
 Scene::Systems::~Systems() {
-	for (const auto& pairTypeToSystem : *this) {
+	for (const auto& pairTypeToSystem : systems_) {
 		ISystem* const system = pairTypeToSystem.second;
 		delete system;
 	}

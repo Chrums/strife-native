@@ -22,6 +22,22 @@ namespace Strife {
 
 		class Scene {
 
+		public:
+            
+            class EntityAdded : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+            
+        	class EntityRemoved : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+        	
+        private:
+
             class Entities {
 
 			public:
@@ -54,6 +70,7 @@ namespace Strife {
 				void remove(const Entity& entity);
 				IStorage* const get(const std::type_index type) const;
 				Component* const get(const std::type_index type, const Entity& entity) const;
+                const std::map<const std::type_index, IStorage* const>& get() const;
 
 				template <class C>
 				Storage<C>& initialize() {
@@ -111,8 +128,6 @@ namespace Strife {
 					return static_cast<C* const>(component);
 				}
 
-                const std::map<const std::type_index, IStorage* const>& get() const;
-
                 std::string identifier(std::type_index type);
                 std::type_index type(std::string identifier);
 
@@ -123,7 +138,7 @@ namespace Strife {
 				std::map<std::type_index, std::string> typeToIdentifier_;
 			};
 
-			class Systems : private std::map<std::type_index, ISystem* const> {
+			class Systems {
 
 			public:
 				Systems(Scene& scene, Dispatcher& dispatcher);
@@ -134,7 +149,7 @@ namespace Strife {
 					Component::AssertBase<C>();
 					std::type_index type(typeid(C));
 					System<C>* const system = new System<C>(scene_, dispatcher_, storage);
-					this->insert({type, system});
+					systems_.insert({type, system});
 					return *system;
 				}
 
@@ -143,34 +158,23 @@ namespace Strife {
 					ISystem::AssertBase<S>();
 					std::type_index type(typeid(S));
 					S* const system = new S(scene_, dispatcher_);
-					this->insert({type, system});
+					systems_.insert({type, system});
 					return *system;
 				}
 
 				template <class C>
 				C* const get() const {
 					std::type_index type(typeid(C));
-					return static_cast<C*>(this->at(type));
+					return static_cast<C*>(systems_.at(type));
 				}
 
 			private:
 				Scene& scene_;
 				Dispatcher& dispatcher_;
+				std::map<std::type_index, ISystem* const> systems_;
 			};
-
-		public:
-            
-            class EntityAdded : public Event {
-        	public:
-        		using Event::Event;
-				static const unsigned int Priority;
-        	};
-            
-        	class EntityRemoved : public Event {
-        	public:
-        		using Event::Event;
-				static const unsigned int Priority;
-        	};
+        	
+        public:
         	
             Entities entities;
 			Components components;
