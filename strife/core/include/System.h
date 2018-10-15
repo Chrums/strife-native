@@ -53,7 +53,6 @@ namespace Strife {
 				const std::type_index type = std::type_index(typeid(E));
 				Binding<E> binding(callback);
 				callbacks_.insert({type, binding});
-				dispatcher_.initialize<E>();  // TODO: Do this elsewhere... probably wherever the Event class is declared... (Engine::Instance()->dispatcher.initialize<E>())
 				dispatcher_.on<E>(std::bind(&System<C>::dispatch<E>, this, std::placeholders::_1));
 			};
 

@@ -10,6 +10,7 @@
 #include "Component.h"
 #include "Data.h"
 #include "Entity.h"
+#include "Event.h"
 #include "Storage.h"
 #include "System.h"
 #include "EntityMap.h"
@@ -24,20 +25,21 @@ namespace Strife {
             class Entities {
 
 			public:
-				Entities(Scene& scene);
+            	
+				Entities(Scene& scene, Dispatcher& dispatcher);
 
                 const Entity add();
-                const Entity add(boost::uuids::uuid id, EntityMap& entityMap);
+                const Entity add(const boost::uuids::uuid id, EntityMap& entityMap);
                 void remove(const Entity& entity);
-				const Entity get(const boost::uuids::uuid id) const;
                 const std::set<Entity>& get() const;
 
             private:
                 Scene& scene_;
                 std::set<Entity> entities_;
+				Dispatcher& dispatcher_;
 			};
 
-			class Components : private std::map<const std::type_index, IStorage* const> {
+			class Components {
 
 			public:
 				Components(Scene& scene);
@@ -58,7 +60,7 @@ namespace Strife {
 					Component::AssertBase<C>();
 					std::type_index type = std::type_index(typeid(C));
 					Storage<C>* const storage = new Storage<C>(scene_);
-					this->insert({type, storage});
+					components_.insert({type, storage});
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
@@ -70,7 +72,7 @@ namespace Strife {
 					IStorage::AssertBase<S>();
 					std::type_index type = std::type_index(typeid(C));
 					S* const storage = new S(scene_);
-					this->insert({type, storage});
+					components_.insert({type, storage});
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
@@ -99,7 +101,7 @@ namespace Strife {
 				template <class C>
 				IStorage* const get() const {
 					std::type_index type(typeid(C));
-					return this->at(type);
+					return components_.at(type);
 				}
 
 				template <class C>
@@ -112,9 +114,11 @@ namespace Strife {
                 const std::map<const std::type_index, IStorage* const>& get() const;
 
                 std::string identifier(std::type_index type);
+                std::type_index type(std::string identifier);
 
 			private:
 				Scene& scene_;
+				std::map<const std::type_index, IStorage* const> components_;
 				std::map<std::string, std::type_index> identifierToType_;
 				std::map<std::type_index, std::string> typeToIdentifier_;
 			};
@@ -155,6 +159,19 @@ namespace Strife {
 			};
 
 		public:
+            
+            class EntityAdded : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+            
+        	class EntityRemoved : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+        	
             Entities entities;
 			Components components;
 			Systems systems;

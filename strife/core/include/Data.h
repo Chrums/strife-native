@@ -9,7 +9,7 @@
 
 namespace Strife {
 	namespace Core {
-		typedef nlohmann::json Data;
+		using Data = nlohmann::json;
 	} // namespace Core
 }  // namespace Strife
 

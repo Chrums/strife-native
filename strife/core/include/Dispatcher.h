@@ -18,20 +18,13 @@ namespace Strife {
 		public:
 		
 			static const unsigned int Synchronous;
+			static const unsigned int Final;
 		
 			void emit(const std::type_index type, const unsigned int priority, Event* const event);
 			
 			void dispatch();
 			void dispatch(const std::type_index type);
 			void dispatch(const std::type_index type, Event* const event);
-			
-			template <class E>
-            void initialize() {
-			    Event::AssertBase<E>();
-                const std::type_index type = std::type_index(typeid(E));
-                events_.try_emplace(type);
-                priorities_[E::Priority].insert(type);
-            }
 			
 			template <class E>
 			void on(Messenger::Callback<E> callback) {

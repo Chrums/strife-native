@@ -17,7 +17,6 @@ EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dis
     : ISystem(scene)
     , active_(true) {
 
-    dispatcher.initialize<RenderEvent>();
     dispatcher.on<RenderEvent>([this](const RenderEvent& event) { render(event); });
 }
 

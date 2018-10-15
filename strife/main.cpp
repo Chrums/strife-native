@@ -262,10 +262,7 @@ public:
 	RenderSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher)
 	    : ISystem(scene)
 	    , dispatcher_(dispatcher) {
-
-		dispatcher_.initialize<BeginRenderEvent>();
-		dispatcher_.initialize<FinishRenderEvent>();
-
+	    	
 		dispatcher_.on<BeginRenderEvent>([this](const BeginRenderEvent& event) { beginRender(event); });
 		dispatcher_.on<FinishRenderEvent>([this](const FinishRenderEvent& event) { finishRender(event); });
 	}
@@ -296,8 +293,6 @@ public:
 	PhysicsSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher)
 	    : ISystem(scene)
 	    , dispatcher_(dispatcher) {
-
-		dispatcher_.initialize<FindCollisionsEvent>();
 
 		dispatcher_.on<FindCollisionsEvent>([this](const FindCollisionsEvent& event) { findCollisions(event); });
 	}

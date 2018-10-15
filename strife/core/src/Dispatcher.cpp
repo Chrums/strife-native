@@ -1,14 +1,18 @@
 #include "Dispatcher.h"
 
+#include <limits>
+
 using namespace Strife::Core;
 using namespace std;
 
 const unsigned int Dispatcher::Synchronous = 0;
+const unsigned int Dispatcher::Final = numeric_limits<unsigned int>::max();
 
 void Dispatcher::emit(const type_index type, const unsigned int priority, Event* const event) {
 	if (priority == Dispatcher::Synchronous) {
 		dispatch(type, event);
 	} else {
+		priorities_[priority].insert(type);
 		events_[type].push(event);
 	}
 }
