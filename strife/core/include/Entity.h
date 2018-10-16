@@ -7,9 +7,9 @@
 #include "Unique.h"
 
 namespace Strife {
-	namespace Core {
+    namespace Core {
 
-		class Scene;
+	    class Scene;
 		class Component;
 
 		class Entity : public Unique {
@@ -52,18 +52,18 @@ namespace Strife {
 				};
 
 			private:
-				Entity& entity_;
+				Entity* entity_;
 			};
 
 		public:
-			Scene& scene;
+			Scene* scene;
 			Components components;
 
 			Entity(const Entity& entity);
 			Entity(Scene& scene);
 			Entity(const boost::uuids::uuid id, Scene& scene);
 
-            void destroy();
+			void destroy();
 		};
 
 	}  // namespace Core
@@ -72,10 +72,10 @@ namespace Strife {
 namespace std {
     template <>
     struct hash<Strife::Core::Entity> {
-        size_t operator()(const Strife::Core::Entity& entity) {
-            return hash<Strife::Core::Unique>{}(entity);
-        }
-    };
+		size_t operator()(const Strife::Core::Entity& entity) {
+			return hash<Strife::Core::Unique>{}(entity);
+		}
+	};
 }  // namespace std
 
 #endif
