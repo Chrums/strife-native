@@ -18,7 +18,7 @@ namespace Strife {
 			const std::optional<Entity> entity;
 
 			Event();
-			Event(const std::optional<Entity> entity);
+			Event(const Entity entity);
 			virtual ~Event() = default;
 			
 		};

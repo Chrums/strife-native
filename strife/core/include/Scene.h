@@ -10,6 +10,7 @@
 #include "Component.h"
 #include "Data.h"
 #include "Entity.h"
+#include "Event.h"
 #include "Storage.h"
 #include "System.h"
 #include "EntityMap.h"
@@ -21,23 +22,40 @@ namespace Strife {
 
 		class Scene {
 
+		public:
+            
+            class EntityAdded : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+            
+        	class EntityRemoved : public Event {
+        	public:
+        		using Event::Event;
+				static const unsigned int Priority;
+        	};
+        	
+        private:
+
             class Entities {
 
 			public:
-				Entities(Scene& scene);
+            	
+				Entities(Scene& scene, Dispatcher& dispatcher);
 
                 const Entity add();
-                const Entity add(boost::uuids::uuid id, EntityMap& entityMap);
+                const Entity add(const boost::uuids::uuid id, EntityMap& entityMap);
                 void remove(const Entity& entity);
-				const Entity get(const boost::uuids::uuid id) const;
                 const std::set<Entity>& get() const;
 
             private:
                 Scene& scene_;
                 std::set<Entity> entities_;
+				Dispatcher& dispatcher_;
 			};
 
-			class Components : private std::map<const std::type_index, IStorage* const> {
+			class Components {
 
 			public:
 				Components(Scene& scene);
@@ -52,13 +70,14 @@ namespace Strife {
 				void remove(const Entity& entity);
 				IStorage* const get(const std::type_index type) const;
 				Component* const get(const std::type_index type, const Entity& entity) const;
+                const std::map<const std::type_index, IStorage* const>& get() const;
 
 				template <class C>
 				Storage<C>& initialize() {
 					Component::AssertBase<C>();
 					std::type_index type = std::type_index(typeid(C));
 					Storage<C>* const storage = new Storage<C>(scene_);
-					this->insert({type, storage});
+					components_.insert({type, storage});
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
@@ -70,7 +89,7 @@ namespace Strife {
 					IStorage::AssertBase<S>();
 					std::type_index type = std::type_index(typeid(C));
 					S* const storage = new S(scene_);
-					this->insert({type, storage});
+					components_.insert({type, storage});
 					identifierToType_.insert({C::Identifier, type});
 					typeToIdentifier_.insert({type, C::Identifier});
 					return *storage;
@@ -99,7 +118,7 @@ namespace Strife {
 				template <class C>
 				IStorage* const get() const {
 					std::type_index type(typeid(C));
-					return this->at(type);
+					return components_.at(type);
 				}
 
 				template <class C>
@@ -109,17 +128,17 @@ namespace Strife {
 					return static_cast<C* const>(component);
 				}
 
-                const std::map<const std::type_index, IStorage* const>& get() const;
-
                 std::string identifier(std::type_index type);
+                std::type_index type(std::string identifier);
 
 			private:
 				Scene& scene_;
+				std::map<const std::type_index, IStorage* const> components_;
 				std::map<std::string, std::type_index> identifierToType_;
 				std::map<std::type_index, std::string> typeToIdentifier_;
 			};
 
-			class Systems : private std::map<std::type_index, ISystem* const> {
+			class Systems {
 
 			public:
 				Systems(Scene& scene, Dispatcher& dispatcher);
@@ -130,7 +149,7 @@ namespace Strife {
 					Component::AssertBase<C>();
 					std::type_index type(typeid(C));
 					System<C>* const system = new System<C>(scene_, dispatcher_, storage);
-					this->insert({type, system});
+					systems_.insert({type, system});
 					return *system;
 				}
 
@@ -139,22 +158,24 @@ namespace Strife {
 					ISystem::AssertBase<S>();
 					std::type_index type(typeid(S));
 					S* const system = new S(scene_, dispatcher_);
-					this->insert({type, system});
+					systems_.insert({type, system});
 					return *system;
 				}
 
 				template <class C>
 				C* const get() const {
 					std::type_index type(typeid(C));
-					return static_cast<C*>(this->at(type));
+					return static_cast<C*>(systems_.at(type));
 				}
 
 			private:
 				Scene& scene_;
 				Dispatcher& dispatcher_;
+				std::map<std::type_index, ISystem* const> systems_;
 			};
-
-		public:
+        	
+        public:
+        	
             Entities entities;
 			Components components;
 			Systems systems;

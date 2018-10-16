@@ -9,24 +9,28 @@ using namespace Strife::Core;
 using namespace std;
 using boost::uuids::uuid;
 
-Scene::Entities::Entities(Scene& scene)
-    : scene_(scene){};
+const unsigned int Scene::EntityAdded::Priority = Dispatcher::Final;
+const unsigned int Scene::EntityRemoved::Priority = Dispatcher::Final;
 
-const Entity Scene::Entities::add(uuid id, EntityMap& entityMap) {
-    return *entities_.insert(entityMap.getEntity(id)).first;
-};
+Scene::Entities::Entities(Scene& scene, Dispatcher& dispatcher)
+    : scene_(scene)
+    , dispatcher_(dispatcher) {}
 
 const Entity Scene::Entities::add() {
-    return *entities_.insert(Entity(scene_)).first;
-};
+    const Entity entity = *entities_.insert(Entity(scene_)).first;
+	dispatcher_.emit<EntityAdded>(entity);
+	return entity;
+}
+
+const Entity Scene::Entities::add(const uuid id, EntityMap& entityMap) {
+    const Entity entity = *entities_.insert(entityMap.getEntity(id)).first;
+	dispatcher_.emit<EntityAdded>(entity);
+	return entity;
+}
 
 void Scene::Entities::remove(const Entity& entity) {
 	scene_.components.remove(entity);
-    remove(entity);
-};
-
-const Entity Scene::Entities::get(const uuid id) const {
-	return Entity(id, scene_);
+	dispatcher_.emit<EntityRemoved>(entity);
 }
 
 const std::set<Entity>& Scene::Entities::get() const {
@@ -34,23 +38,23 @@ const std::set<Entity>& Scene::Entities::get() const {
 }
 
 Scene::Components::Components(Scene& scene)
-    : scene_(scene){};
+    : scene_(scene) {}
 
 Scene::Components::~Components() {
-    for (auto [type, storage] : *this) {
+    for (auto [type, storage] : components_) {
 		delete storage;
 	}
-};
+}
 
 const Data Scene::Components::serialize() const {
 	Data data;
-    for (auto [type, storage] : *this) {
+    for (auto [type, storage] : components_) {
 		const string storageIdentifier = typeToIdentifier_.at(type);
 		const Data storageData = storage->serialize();
 		data[storageIdentifier] = storageData;
 	}
 	return data;
-};
+}
 
 void Scene::Components::deserialize(const Data data) {
     EntityMap entityMap(scene_);
@@ -58,69 +62,73 @@ void Scene::Components::deserialize(const Data data) {
 		const string storageIdentifier = iteratorStorageIdentifierToStorageData.key();
 		const Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);
-        IStorage* const storage = this->at(type);
+        IStorage* const storage = components_.at(type);
         storage->deserialize(storageData, entityMap);
 	}
-};
+}
 
 Component* const Scene::Components::add(const type_index type, const Entity& entity) {
-	return this->at(type)->add(entity);
-};
+	return components_.at(type)->add(entity);
+}
 
 Component* const Scene::Components::add(const type_index type, const uuid id, const Entity& entity) {
-	return this->at(type)->add(id, entity);
-};
+	return components_.at(type)->add(id, entity);
+}
 
 void Scene::Components::remove(const type_index type, const Entity& entity) {
-	return this->at(type)->remove(entity);
-};
+	return components_.at(type)->remove(entity);
+}
 
 void Scene::Components::remove(const Entity& entity) {
-	for (const auto& pairTypeToStorage : *this) {
+	for (const auto& pairTypeToStorage : components_) {
 		IStorage* const storage = pairTypeToStorage.second;
 		storage->remove(entity);
 	}
-};
+}
 
 IStorage* const Scene::Components::get(const type_index type) const {
-	return this->at(type);
-};
+	return components_.at(type);
+}
 
 Component* const Scene::Components::get(const type_index type, const Entity& entity) const {
-	return this->at(type)->get(entity);
+	return components_.at(type)->get(entity);
 }
 
 const std::map<const type_index, IStorage* const>& Scene::Components::get() const {
-    return *this;
+    return components_;
 }
 
 string Scene::Components::identifier(type_index type) {
     return typeToIdentifier_.at(type);
 }
 
+type_index Scene::Components::type(string type) {
+    return identifierToType_.at(type);
+}
+
 Scene::Systems::Systems(Scene& scene, Dispatcher& dispatcher)
     : scene_(scene)
-    , dispatcher_(dispatcher){};
+    , dispatcher_(dispatcher) {}
 
 Scene::Systems::~Systems() {
-	for (const auto& pairTypeToSystem : *this) {
+	for (const auto& pairTypeToSystem : systems_) {
 		ISystem* const system = pairTypeToSystem.second;
 		delete system;
 	}
-};
+}
 
 Scene::Scene(Dispatcher& dispatcher)
-    : entities(*this)
+    : entities(*this, dispatcher)
     , components(*this)
     , systems(*this, dispatcher)
-    , dispatcher_(dispatcher){};
+    , dispatcher_(dispatcher) {}
 
 const Data Scene::serialize() const {
 	Data data;
 	data["components"] = components.serialize();
 	return data;
-};
+}
 
 void Scene::deserialize(const Data data) {
     components.deserialize(data["components"]);
-};
+}

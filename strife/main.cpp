@@ -160,8 +160,8 @@ public:
 	float xSpeed = 0;
 	float ySpeed = 0;
 
-    const Data serialize() const {
-		json data;
+	const Data serialize() const {
+        Data data;
 		data["xSpeed"] = xSpeed;
 		data["ySpeed"] = ySpeed;
 		return data;
@@ -199,8 +199,8 @@ public:
 
 	using Component::Component;
 
-    const Data serialize() const {
-		json data;
+	const Data serialize() const {
+        Data data;
 		data["value"] = value;
         data["isTrue"] = isTrue;
 		return data;
@@ -266,9 +266,6 @@ public:
 	    : ISystem(scene)
 	    , dispatcher_(dispatcher) {
 
-		dispatcher_.initialize<BeginRenderEvent>();
-		dispatcher_.initialize<FinishRenderEvent>();
-
 		dispatcher_.on<BeginRenderEvent>([this](const BeginRenderEvent& event) { beginRender(event); });
 		dispatcher_.on<FinishRenderEvent>([this](const FinishRenderEvent& event) { finishRender(event); });
 	}
@@ -299,8 +296,6 @@ public:
 	PhysicsSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher)
 	    : ISystem(scene)
 	    , dispatcher_(dispatcher) {
-
-		dispatcher_.initialize<FindCollisionsEvent>();
 
 		dispatcher_.on<FindCollisionsEvent>([this](const FindCollisionsEvent& event) { findCollisions(event); });
 	}

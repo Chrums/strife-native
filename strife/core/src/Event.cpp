@@ -6,5 +6,5 @@ using namespace std;
 Event::Event()
     : entity(nullopt) {}
 
-Event::Event(const optional<Entity> entity)
+Event::Event(const Entity entity)
     : entity(entity) {}

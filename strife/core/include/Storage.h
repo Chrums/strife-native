@@ -73,7 +73,7 @@ namespace Strife {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					const Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = addEntity(entityId, entityMap);
+                    const Entity entity = entities_.add(entityId, entityMap);
 					C* const component = add(entity);
                     component->deserialize(componentData, entityMap);
 				}
