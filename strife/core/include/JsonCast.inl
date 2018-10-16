@@ -1,4 +1,5 @@
 #include "JsonCast.h"
+#include "EntityMap.h"
 
 template <typename T>
 void to_json(json& j, const T& obj)
@@ -6,11 +7,11 @@ void to_json(json& j, const T& obj)
     j = meta::serialize(obj);
 }
 
-template <typename T>
-void from_json(const json& j, T& obj)
-{
-    meta::deserialize(obj, j);
-}
+//template <typename T>
+//void from_json(const json& j, T& obj)
+//{
+//    meta::deserialize(obj, j);
+//}
 
 namespace meta
 {
@@ -76,28 +77,28 @@ json serialize_basic(const std::unordered_map<K, V>& obj)
 /////////////////// DESERIALIZATION
 
 template <typename Class>
-Class deserialize(const json& obj)
+Class deserialize(const json& obj, Strife::Core::EntityMap& entityMap)
 {
     Class c;
-    deserialize(c, obj);
+    deserialize(c, obj, entityMap);
     return c;
 }
 
 template <typename Class,
     typename>
-void deserialize(Class& obj, const json& object)
+void deserialize(Class& obj, const json& object, Strife::Core::EntityMap& entityMap)
 {
     if (object.is_object()) {
         meta::doForAllMembers<Class>(
-            [&obj, &object](auto& member)
+            [&obj, &object, &entityMap](auto& member)
             {
                 auto& objName = object[member.getName()];
                 if (!objName.is_null()) {
                     using MemberT = meta::get_member_type<decltype(member)>;
                     if (member.hasSetter()) {
-                        member.set(obj, objName.template get<MemberT>());
+                        member.set(obj, deserialize<MemberT>(objName, entityMap));
                     } else if (member.canGetRef()) {
-                        member.getRef(obj) = objName.template get<MemberT>();
+                        deserialize<MemberT>(member.getRef(obj), objName, entityMap);
                     } else {
                         throw std::runtime_error("Error: can't deserialize member because it's read only");
                     }
@@ -111,15 +112,16 @@ void deserialize(Class& obj, const json& object)
 
 template <typename Class,
     typename, typename>
-void deserialize(Class& obj, const json& object)
+void deserialize(Class& obj, const json& object, Strife::Core::EntityMap& entityMap)
 {
     obj = object.get<Class>();
 }
 
 // specialization for std::vector
 template <typename T>
-void deserialize(std::vector<T>& obj, const json& object)
+void deserialize(std::vector<T>& obj, const json& object, Strife::Core::EntityMap& entityMap)
 {
+    // TODO: Handle entityMap
     obj.reserve(object.size()); // vector.resize() works only for default constructible types
     for (auto& elem : object) {
         obj.push_back(elem); // push rvalue
@@ -128,8 +130,9 @@ void deserialize(std::vector<T>& obj, const json& object)
 
 // specialization for std::unodered_map
 template <typename K, typename V>
-void deserialize(std::unordered_map<K, V>& obj, const json& object)
+void deserialize(std::unordered_map<K, V>& obj, const json& object, Strife::Core::EntityMap& entityMap)
 {
+    // TODO: Handle entityMap
     for (auto it = object.begin(); it != object.end(); ++it) {
         obj.emplace(fromString<K>(it.key()), it.value());
     }

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <MetaStuff/Meta.h>
 
 #include "Component.h"
 #include "Data.h"
@@ -17,6 +18,7 @@
 #include "systems/SpriteAnimation.h"
 
 class Sprite : public Strife::Core::Component {
+    friend auto meta::registerMembers<Sprite>();
 
 public:
 	static void Initialize(Strife::Core::System<Sprite>& system);
@@ -30,11 +32,11 @@ public:
 	const Strife::Core::Data serialize() const;
 
     void deserialize(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
-    void deserializer(Strife::Core::Data data, Strife::Core::EntityMap& entityMap);
 
 	void render(const RenderEvent& event);
 
 	void setAnimation(std::string path);
+    std::string getAnimation() const;
 
     const Strife::Core::Data serializer() const;
 
@@ -49,7 +51,14 @@ private:
     Uint32 frameTime_;
 };
 
-void from_json(const nlohmann::json& j, Sprite& obj);
-void to_json(nlohmann::json& j, const Sprite& obj);
+namespace meta {
+    template <>
+    inline auto registerMembers<Sprite>() {
+        return members(member("dataFile", &Sprite::dataFile_),          //
+                       member("currentFrame", &Sprite::currentFrame_),  //
+                       member("frameTime", &Sprite::frameTime_),        //
+                       member("currentAnimation", &Sprite::getAnimation, &Sprite::setAnimation));
+    }
+}  // namespace meta
 
 #endif  // SPRITE_H
