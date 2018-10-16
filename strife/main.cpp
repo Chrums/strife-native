@@ -195,17 +195,20 @@ public:
 	static const string Identifier;
 
 	string value;
+    bool isTrue;
 
 	using Component::Component;
 
 	const Data serialize() const {
 		Data data;
 		data["value"] = value;
+        data["isTrue"] = isTrue;
 		return data;
 	}
 
     void deserialize(Data data, EntityMap& entityMap) {
 		value = data["value"];
+        isTrue = data["isTrue"];
 	}
 
 	void handleEvent(const TestEvent& event) {

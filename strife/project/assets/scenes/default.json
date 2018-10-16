@@ -19,7 +19,8 @@
         },
         "Test": {
             "ec204e2b-434d-432d-9dcc-f6eb45d213be": {
-                "value": "0"
+                "value": "0",
+                "isTrue": false
             }
         },
         "Transform2f": {
