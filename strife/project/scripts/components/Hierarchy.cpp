@@ -9,6 +9,8 @@
 #include "systems/SpriteAnimation.h"
 #include "Scene.h"
 #include "EntityMap.h"
+#include "events/ParentChanged.h"
+#include "Engine.h"
 
 using namespace std;
 using namespace Strife::Core;
@@ -47,7 +49,11 @@ void Hierarchy::deserialize(Data data, EntityMap& entityMap) {
 }
 
 void Hierarchy::setParent(optional<Entity> parent) {
-	parent_.swap(parent);
+	if (parent_ != parent) {
+		optional<Entity> oldParent = parent_;
+		parent_ = parent;
+		Engine::Instance()->dispatcher.emit<ParentChanged>(entity, oldParent, parent);
+	}
 }
 
 std::optional<Entity> Hierarchy::getParent() {

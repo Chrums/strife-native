@@ -63,6 +63,9 @@ namespace Strife {
 			Entity(Scene& scene);
 			Entity(const boost::uuids::uuid id, Scene& scene);
 
+			bool operator==(const Entity& rhs) const;
+			bool operator!=(const Entity& rhs) const;
+
 			void destroy();
 		};
 
@@ -72,7 +75,7 @@ namespace Strife {
 namespace std {
     template <>
     struct hash<Strife::Core::Entity> {
-		size_t operator()(const Strife::Core::Entity& entity) {
+		size_t operator()(const Strife::Core::Entity& entity) const {
 			return hash<Strife::Core::Unique>{}(entity);
 		}
 	};
