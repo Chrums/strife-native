@@ -49,7 +49,7 @@ void Hierarchy::deserialize(Data data, EntityMap& entityMap) {
 }
 
 void Hierarchy::setParent(optional<Entity> parent) {
-	if (parent_ != parent) {
+	if (parent_ != parent || parent == nullopt) { // TODO: Find a better way to send the initial event
 		optional<Entity> oldParent = parent_;
 		parent_ = parent;
 		Engine::Instance()->dispatcher.emit<ParentChanged>(entity, oldParent, parent);

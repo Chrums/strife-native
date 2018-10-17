@@ -32,6 +32,7 @@
 #include "systems/ImguiSystem.h"
 #include "systems/EntityList.h"
 #include "systems/ComponentList.h"
+#include "systems/HierarchySystem.h"
 
 #include "utility/imgui_impl_sdl.h"
 #include "utility/imgui_impl_opengl3.h"
@@ -367,6 +368,7 @@ int main() {
 	ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
 	s->systems.initialize<EntityList>();
 	s->systems.initialize<ComponentList>();
+	s->systems.initialize<HierarchySystem>();
 
 	//	Entity e0(*s);
 	//	TestComponent* t0 = e0.components.add<TestComponent>();
@@ -404,7 +406,7 @@ int main() {
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("Strife", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
 
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 

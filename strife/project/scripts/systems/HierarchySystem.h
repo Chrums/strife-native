@@ -18,6 +18,13 @@ public:
 
 	~HierarchySystem();
 
+	/**
+	 * @brief getChildren
+	 * @param root The entity whose chilren to find. nullopt for no parent
+	 * @return Set of entities with the given root as parent
+	 */
+	const std::unordered_set<Strife::Core::Entity>& getChildren(std::optional<Strife::Core::Entity> root);
+
 private:
 	Strife::Core::Dispatcher& dispatcher_;
 

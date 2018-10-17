@@ -13,11 +13,13 @@ HierarchySystem::HierarchySystem(Strife::Core::Scene &scene, Strife::Core::Dispa
 
 HierarchySystem::~HierarchySystem() {}
 
+const std::unordered_set<Strife::Core::Entity>& HierarchySystem::getChildren(std::optional<Strife::Core::Entity> root) {
+	return children_[root];
+}
+
 void HierarchySystem::parentChanged(const ParentChanged &event) {
 	if (children_.find(event.previousParent) != children_.end()) {
 		children_[event.previousParent].erase(event.changedEntity);
 	}
-	if (event.newParent.has_value() && children_.find(event.newParent.value()) != children_.end()) {
-		children_[event.newParent].insert(event.changedEntity);
-	}
+	children_[event.newParent].insert(event.changedEntity);
 }

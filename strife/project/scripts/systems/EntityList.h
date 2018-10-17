@@ -26,6 +26,9 @@ private:
 	std::type_index addComponentType_;
 
 	Strife::Core::Dispatcher& dispatcher_;
+
+	std::optional<Strife::Core::Entity> renderEntity(std::optional<Strife::Core::Entity> entity);
+	bool renderEntityContextMenu(std::optional<Strife::Core::Entity> entity);
 };
 
 #endif

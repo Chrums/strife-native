@@ -10,6 +10,8 @@
 #include "Data.h"
 #include "events/OnGui.h"
 #include "events/SelectEntity.h"
+#include "systems/HierarchySystem.h"
+#include "components/Hierarchy.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -24,6 +26,79 @@ EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dis
 }
 
 EntityList::~EntityList() {}
+
+optional<Entity> EntityList::renderEntity(optional<Entity> root) {
+	auto hierarchies = scene_.systems.get<HierarchySystem>();
+	auto& children = hierarchies->getChildren(root);
+	optional<Entity> clickedEntity = nullopt;
+	for (auto entity : children) {
+		string entityId = boost::lexical_cast<string>(entity.id);
+		bool selected = selectedEntities_.find(entity) != selectedEntities_.end();
+		ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selected ? ImGuiTreeNodeFlags_Selected : 0);
+
+		bool entityOpen = ImGui::TreeNodeEx(entityId.c_str(), node_flags);
+		if (ImGui::IsItemClicked()) {
+			clickedEntity = entity;
+		}
+		ImGui::PushID(entityId.c_str());
+
+		bool openAddComponent = false;
+		if (ImGui::BeginPopupContextItem("Entity context menu")) {
+			if(ImGui::MenuItem("Add Component...")) {
+				openAddComponent = true;
+			}
+			ImGui::EndPopup();
+		}
+		if (openAddComponent) {
+			ImGui::OpenPopup("Add Component");
+		}
+		if (ImGui::BeginPopupModal("Add Component")) {
+
+			if (ImGui::BeginCombo("Component Type", scene_.components.identifier(addComponentType_).c_str())) {
+				for (auto& [type, storage] : scene_.components.get()) {
+					string componentTypeName = scene_.components.identifier(type);
+					if (ImGui::Selectable(componentTypeName.c_str(), type == addComponentType_)) {
+						addComponentType_ = type;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			if (ImGui::Button("Add")) {
+				entity.components.add(addComponentType_);
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Cancel")) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopID();
+		renderEntityContextMenu(entity);
+		if (entityOpen) {
+			auto subClick = renderEntity(entity);
+			if (subClick != nullopt) {
+				clickedEntity = subClick;
+			}
+			ImGui::TreePop();
+		}
+	}
+	return clickedEntity;
+}
+
+bool EntityList::renderEntityContextMenu(optional<Entity> entity) {
+	bool open = ImGui::BeginPopupContextItem(entity.has_value() ? boost::lexical_cast<string>(entity->id).c_str() : "entity context menu");
+	if (open) {
+		if(ImGui::Selectable("Add new entity")) {
+			Entity newEntity = scene_.entities.add();
+			auto hierarchy = newEntity.components.add<Hierarchy>();
+			hierarchy->setParent(entity);
+		}
+		ImGui::EndPopup();
+	}
+	return open;
+}
 
 void EntityList::render(const OnGui& event) {
 	size_t numEntities = scene_.entities.get().size();
@@ -44,62 +119,9 @@ void EntityList::render(const OnGui& event) {
 
 		// Display contents in a scrolling region
 		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities: %d", numEntities);
-		if (ImGui::BeginPopupContextItem("item context menu")) {
-			if(ImGui::Selectable("Add new entity")) {
-				scene_.entities.add();
-			}
-			ImGui::EndPopup();
-		}
+		renderEntityContextMenu(nullopt);
 		ImGui::BeginChild("Scrolling");
-		optional<Entity> clickedEntity = nullopt;
-		for (auto entity : scene_.entities.get()) {
-			string entityId = boost::lexical_cast<string>(entity.id);
-			bool selected = selectedEntities_.find(entity) != selectedEntities_.end();
-			ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selected ? ImGuiTreeNodeFlags_Selected : 0);
-
-			bool entityOpen = ImGui::TreeNodeEx(entityId.c_str(), node_flags);
-			if (ImGui::IsItemClicked()) {
-				clickedEntity = entity;
-			}
-			ImGui::PushID(entityId.c_str());
-
-			bool openAddComponent = false;
-			if (ImGui::BeginPopupContextItem("Entity context menu")) {
-				if(ImGui::MenuItem("Add Component...")) {
-					openAddComponent = true;
-				}
-				ImGui::EndPopup();
-			}
-			if (openAddComponent) {
-				ImGui::OpenPopup("Add Component");
-			}
-			if (ImGui::BeginPopupModal("Add Component")) {
-
-				if (ImGui::BeginCombo("Component Type", scene_.components.identifier(addComponentType_).c_str())) {
-					for (auto& [type, storage] : scene_.components.get()) {
-						string componentTypeName = scene_.components.identifier(type);
-						if (ImGui::Selectable(componentTypeName.c_str(), type == addComponentType_)) {
-							addComponentType_ = type;
-						}
-					}
-					ImGui::EndCombo();
-				}
-
-				if (ImGui::Button("Add")) {
-					entity.components.add(addComponentType_);
-					ImGui::CloseCurrentPopup();
-				}
-
-				if (ImGui::Button("Cancel")) {
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-			ImGui::PopID();
-			if (entityOpen) {
-				ImGui::TreePop();
-			}
-		}
+		optional<Entity> clickedEntity = renderEntity(nullopt);
 		ImGui::EndChild();
 		if (clickedEntity.has_value()) {
 			if (!ImGui::GetIO().KeyCtrl) {
