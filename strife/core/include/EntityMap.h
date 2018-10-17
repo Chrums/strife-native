@@ -6,21 +6,23 @@
 
 namespace Strife {
     namespace Core {
-        class Scene;
-        class Entity;
+	    class Scene;
+		class Entity;
 
-        class EntityMap {
+		class EntityMap {
 
-            Scene& scene_;
+			Scene& scene_;
 
-            std::map<boost::uuids::uuid, Entity> uuidMap;
+			std::map<boost::uuids::uuid, Entity> uuidMap;
 
-        public:
-            EntityMap(Scene& scene);
+			const bool preserveIds_;
 
-            Entity getEntity(const boost::uuids::uuid id);
-        };
-    }  // namespace Core
+		public:
+			EntityMap(Scene& scene, bool preserveIds = false);
+
+			Entity getEntity(const boost::uuids::uuid id);
+		};
+	}  // namespace Core
 }  // namespace Strife
 
 #endif  // ENTITYMAP_H
