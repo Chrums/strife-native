@@ -3,7 +3,7 @@
 
 #include "ISystem.h"
 #include "Dispatcher.h"
-#include "events/RenderEvent.h"
+#include "events/OnGui.h"
 #include <SDL.h>
 #include <typeindex>
 
@@ -15,7 +15,7 @@ public:
 
 	~EntityList();
 
-	void render(const RenderEvent& event);
+	void render(const OnGui& event);
 
 private:
 	bool active_;

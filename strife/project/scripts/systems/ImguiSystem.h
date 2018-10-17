@@ -8,21 +8,23 @@ class Scene;
 class SDL_Window;
 class SDL_Texture;
 class SDL_Renderer;
+class FinishGui;
+class BeginGui;
 
 class ImguiSystem : public Strife::Core::ISystem {
 public:
-    ImguiSystem(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher);
+	ImguiSystem(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher);
 
-    void handleMouse(SDL_Window* window);
-    void init(SDL_Renderer* renderer);
-    void finishRender();
-    void beginRender();
+	void handleMouse(SDL_Window* window);
+	void init(SDL_Renderer* renderer);
+	void finishRender(const FinishGui& event);
+	void beginRender(const BeginGui& event);
 
-    ~ImguiSystem();
+	~ImguiSystem();
 
 private:
-    bool mousePressed_[3];
-    Strife::Core::Dispatcher& dispatcher_;
+	bool mousePressed_[3];
+	Strife::Core::Dispatcher& dispatcher_;
 };
 
 #endif  // IMGUI_H

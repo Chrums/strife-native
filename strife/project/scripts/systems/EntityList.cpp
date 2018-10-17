@@ -8,7 +8,7 @@
 #include "Scene.h"
 #include "Dispatcher.h"
 #include "Data.h"
-#include "events/RenderEvent.h"
+#include "events/OnGui.h"
 
 using namespace Strife::Core;
 using namespace std;
@@ -18,7 +18,7 @@ EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dis
     , active_(true)
     , addComponentType_(scene_.components.get().begin()->first) {
 
-	dispatcher.on<RenderEvent>([this](const RenderEvent& event) { render(event); });
+	dispatcher.on<OnGui>([this](const OnGui& event) { render(event); });
 }
 
 EntityList::~EntityList() {}
@@ -101,7 +101,7 @@ Data renderData(Data item, string key = "") {
 	return item;
 }
 
-void EntityList::render(const RenderEvent& event) {
+void EntityList::render(const OnGui& event) {
 	size_t numEntities = scene_.entities.get().size();
 	if (ImGui::Begin("Entities", &active_, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
