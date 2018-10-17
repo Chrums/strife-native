@@ -5,19 +5,22 @@
 #include "Dispatcher.h"
 #include "events/RenderEvent.h"
 #include <SDL.h>
+#include <typeindex>
 
 class Scene;
 
 class EntityList : public Strife::Core::ISystem {
 public:
-    EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher);
+	EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher);
 
-    ~EntityList();
+	~EntityList();
 
-    void render(const RenderEvent& event);
+	void render(const RenderEvent& event);
 
 private:
-    bool active_;
+	bool active_;
+
+	std::type_index addComponentType_;
 };
 
 #endif
