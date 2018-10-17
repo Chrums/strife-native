@@ -270,12 +270,9 @@ public:
 	void beginRender(const BeginRenderEvent& event) {
 		SDL_SetRenderDrawColor(event.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(event.renderer);
-
-		scene_.systems.get<ImguiSystem>()->beginRender();
 	}
 
 	void finishRender(const FinishRenderEvent& event) {
-		scene_.systems.get<ImguiSystem>()->finishRender();
 		SDL_RenderPresent(event.renderer);
 	}
 
