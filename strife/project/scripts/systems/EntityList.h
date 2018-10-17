@@ -4,8 +4,9 @@
 #include "ISystem.h"
 #include "Dispatcher.h"
 #include "events/OnGui.h"
-#include <SDL.h>
+#include "Entity.h"
 #include <typeindex>
+#include <unordered_set>
 
 class Scene;
 
@@ -20,7 +21,11 @@ public:
 private:
 	bool active_;
 
+	std::unordered_set<Strife::Core::Entity> selectedEntities_;
+
 	std::type_index addComponentType_;
+
+	Strife::Core::Dispatcher& dispatcher_;
 };
 
 #endif
