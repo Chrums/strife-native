@@ -37,7 +37,15 @@ Entity::Entity(Scene& scene)
 Entity::Entity(const boost::uuids::uuid id, Scene& scene)
     : Unique(id)
     , scene(&scene)
-    , components(*this){};
+    , components(*this){}
+
+bool Entity::operator==(const Entity &rhs) const {
+	return id == rhs.id;
+}
+
+bool Entity::operator!=(const Entity &rhs) const {
+	return !(*this == rhs);
+};
 
 void Entity::destroy() {
 	scene->entities.remove(*this);

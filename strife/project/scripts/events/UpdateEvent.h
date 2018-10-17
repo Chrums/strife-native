@@ -14,6 +14,10 @@ public:
 	UpdateEvent(Uint32 dt)
 	    : dt(dt) {}
 
+	UpdateEvent(const Strife::Core::Event target, Uint32 dt)
+	    : Event(target)
+	    , dt(dt) {}
+
 	Uint32 dt;
 
 };

@@ -10,35 +10,35 @@
 #include "Storage.h"
 
 namespace Strife {
-	namespace Core {
+    namespace Core {
 
-		class Scene;
+	    class Scene;
 
 		template <class C>
 		class System : public ISystem {
-			
+
 			template <class E>
 			using Callback = std::function<void(C* const, const E&)>;
-			
+
 			template <class E>
 			class Binding {
 			public:
-				
+
 				Binding(Callback<E> callback)
-					: callback_(callback) {}
-					
+				    : callback_(callback) {}
+
 				void operator()(C* const component, const Event& event) {
 					callback_(component, static_cast<const E&>(event));
 				}
-				
+
 			private:
-			
+
 				Callback<E> callback_;
-				
+
 			};
 
 		public:
-		
+
 			System(Scene& scene, Dispatcher& dispatcher, IStorage& storage)
 			    : ISystem(scene)
 			    , dispatcher_(dispatcher)
@@ -60,11 +60,11 @@ namespace Strife {
 			void dispatch(const Event& event) {
 				const std::type_index type = std::type_index(typeid(E));
 				auto& callback = callbacks_[type];
-				if (event.entity.has_value()) {
-					C* const component = event.entity.value().components.get<C>();
-                    if (component != nullptr) {
-                        callback(component, event);
-                    }
+				if (event.target.has_value()) {
+					C* const component = event.target.value().components.get<C>();
+					if (component != nullptr) {
+						callback(component, event);
+					}
 				} else {
 					for (auto [ entity, component ] : storage_) {
 						callback(static_cast<C* const>(component), event);
@@ -76,7 +76,7 @@ namespace Strife {
 			std::map<const std::type_index, Callback<Event>> callbacks_;
 			Dispatcher& dispatcher_;
 			IStorage& storage_;
-        };
+		};
 
 	}  // namespace Core
 }  // namespace Strife
