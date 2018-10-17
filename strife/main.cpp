@@ -23,6 +23,10 @@
 #include "components/Hierarchy.h"
 
 #include "events/RenderEvent.h"
+#include "events/UpdateEvent.h"
+#include "events/BeginGui.h"
+#include "events/OnGui.h"
+#include "events/FinishGui.h"
 
 #include "systems/SpriteAnimation.h"
 #include "systems/ImguiSystem.h"
@@ -48,18 +52,6 @@ public:
 };
 
 const unsigned int TestEvent::Priority = 10;
-
-class UpdateEvent : public Event {
-
-public:
-	using Event::Event;
-
-	static const unsigned int Priority;
-
-	string data;
-};
-
-const unsigned int UpdateEvent::Priority = 500;
 
 class BeginRenderEvent : public Event {
 
@@ -458,10 +450,13 @@ int main() {
 
 		io.DeltaTime = 1.0f / 60.0f;
 
-		Engine::Instance()->dispatcher.emit<UpdateEvent>();
+		Engine::Instance()->dispatcher.emit<UpdateEvent>(16);
 		Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
-		Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
 		Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
+		Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
+		Engine::Instance()->dispatcher.emit<BeginGui>();
+		Engine::Instance()->dispatcher.emit<OnGui>();
+		Engine::Instance()->dispatcher.emit<FinishGui>();
 		Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
 		Engine::Instance()->dispatcher.dispatch();
 
