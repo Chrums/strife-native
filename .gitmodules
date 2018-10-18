@@ -1,0 +1,3 @@
+[submodule "strife/conan/imgui"]
+	path = strife/conan/imgui
+	url = https://github.com/thormme/conan-imgui.git

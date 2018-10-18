@@ -16,6 +16,7 @@ if(NOT CONAN_CMD AND CONAN_REQUIRED)
 endif()
 execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/sdl2_ttf currentproject/stable)
 execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/metastuff currentproject/stable)
+execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/imgui currentproject/stable)
 
 conan_cmake_run(CONANFILE conanfile.py
                 BASIC_SETUP CMAKE_TARGETS
