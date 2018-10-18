@@ -36,11 +36,11 @@ optional<Entity> EntityList::renderEntity(optional<Entity> root) {
 		bool selected = selectedEntities_.find(entity) != selectedEntities_.end();
 		ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selected ? ImGuiTreeNodeFlags_Selected : 0);
 
+		ImGui::PushID(entityId.c_str());
 		bool entityOpen = ImGui::TreeNodeEx(entityId.c_str(), node_flags);
 		if (ImGui::IsItemClicked()) {
 			clickedEntity = entity;
 		}
-		ImGui::PushID(entityId.c_str());
 
 		bool openAddComponent = false;
 		if (ImGui::BeginPopupContextItem("Entity context menu")) {
@@ -74,6 +74,23 @@ optional<Entity> EntityList::renderEntity(optional<Entity> root) {
 			}
 			ImGui::EndPopup();
 		}
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+			ImGui::SetDragDropPayload("Entity Drag", &entity, sizeof(Entity));        // Set payload to carry the index of our item (could be anything)
+			ImGui::Text("%s", entityId.c_str());
+			ImGui::EndDragDropSource();
+		}
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity Drag")) {
+				IM_ASSERT(payload->DataSize == sizeof(Entity));
+				Entity entityPayload = *(const Entity*)payload->Data;
+				Hierarchy* hierarchy = entityPayload.components.get<Hierarchy>();
+				if (hierarchy != nullptr) {
+					hierarchy->setParent(entity);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		ImGui::PopID();
 		renderEntityContextMenu(entity);
 		if (entityOpen) {
