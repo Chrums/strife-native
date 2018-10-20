@@ -38,11 +38,17 @@ set_property(TARGET main PROPERTY CXX_STANDARD 17)
 
 include_directories(AFTER SYSTEM
     ${CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES}
+    /home/michael/projects/v8/include
 )
+
+link_directories(/home/michael/projects/v8/out.gn/x64.release.sample/obj/)
 
 target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
     ${CONAN_LIBS_SDL2}
     core
     project
+    /home/michael/projects/v8/out.gn/x64.release.sample/obj/libv8_monolith.a
 )
+
+
