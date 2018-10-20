@@ -1,10 +1,10 @@
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*)
 file(GLOB_RECURSE ASSETS ${CMAKE_CURRENT_SOURCE_DIR}/assets/*)
 
-add_library(project ${SOURCE_FILES})
+add_library(project SHARED ${SOURCE_FILES})
 set_property(TARGET project PROPERTY CXX_STANDARD 17)
 
-target_include_directories(project PUBLIC 
+target_include_directories(project PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/scripts
     ${Boost_INCLUDE_DIRS}
 )

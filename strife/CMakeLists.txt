@@ -33,12 +33,19 @@ find_package(Threads REQUIRED)
 add_subdirectory(core)
 add_subdirectory(project)
 
-add_executable(main main.cpp)
+add_library(main SHARED main.cpp)
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
+
+set_target_properties(main PROPERTIES PREFIX "" SUFFIX ".node")
+
+message("JS LIB ${CMAKE_JS_LIB}")
 
 include_directories(AFTER SYSTEM
     ${CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES}
-    /home/michael/projects/v8/include
+    #/home/michael/projects/v8/include
+    /home/michael/projects/strife/strife/node_modules/nan
+    /home/michael/.cmake-js/node-x64/v10.11.0/include/node
+    ${CMAKE_CURRENT_SOURCE_DIR}/node_modules/nan
 )
 
 link_directories(/home/michael/projects/v8/out.gn/x64.release.sample/obj/)
@@ -48,7 +55,9 @@ target_link_libraries(main LINK_PUBLIC
     ${CONAN_LIBS_SDL2}
     core
     project
-    /home/michael/projects/v8/out.gn/x64.release.sample/obj/libv8_monolith.a
+    ${CMAKE_JS_LIB}
+    #/home/michael/projects/v8/out.gn/x64.release.sample/obj/libv8_monolith.a
 )
+
 
 
