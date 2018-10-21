@@ -41,6 +41,7 @@
 #include <libplatform/libplatform.h>
 #include <v8.h>
 #include <nan.h>
+#include <nbind/nbind.h>
 
 using namespace Strife::Core;
 using namespace std;
@@ -569,3 +570,5 @@ NAN_MODULE_INIT(InitAll) {
 }
 
 NODE_MODULE(main, InitAll)
+
+
