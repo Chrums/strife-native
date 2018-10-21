@@ -48,7 +48,7 @@ include_directories(AFTER SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/node_modules/nan
 )
 
-link_directories(/home/michael/projects/v8/out.gn/x64.release.sample/obj/)
+#link_directories(/home/michael/projects/v8/out.gn/x64.release.sample/obj/)
 
 target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}

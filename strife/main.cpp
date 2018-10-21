@@ -332,132 +332,110 @@ private:
 
 // };
 
+void print(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	bool first = true;
+	for (int i = 0; i < args.Length(); i++) {
+		v8::HandleScope handle_scope(args.GetIsolate());
+		if (first) {
+			first = false;
+		} else {
+			printf(" ");
+		}
+		v8::String::Utf8Value str(args.GetIsolate(), args[i]);
+		const char* cstr = *str ? *str : "<string conversion failed>";
+		printf("%s", cstr);
+	}
+	printf("\n");
+	fflush(stdout);
+}
+
+
+// Creates a new execution environment containing the built-in
+// functions.
+v8::Local<v8::Context> setupContext(v8::Isolate* isolate) {
+  // Create a template for the global object.
+  v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
+  v8::Local<v8::ObjectTemplate> strife = v8::ObjectTemplate::New(isolate);
+  // Bind the global 'print' function to the C++ Print callback.
+  strife->Set(
+      v8::String::NewFromUtf8(isolate, "print", v8::NewStringType::kNormal).ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, print));
+
+  global->Set(
+      v8::String::NewFromUtf8(isolate, "strife", v8::NewStringType::kNormal).ToLocalChecked(),
+      strife);
+
+  return v8::Context::New(isolate, NULL, global);
+}
+
 NAN_METHOD(Main) {
-	string dir = "/home/michael/projects/strife/strife/build/lib/";
-
-//	v8::V8::InitializeICUDefaultLocation(dir.c_str());
-//	  v8::V8::InitializeExternalStartupData(dir.c_str());
-//	  std::unique_ptr<v8::Platform> platform = v8::platform::NewDefaultPlatform();
-//	  v8::V8::InitializePlatform(platform.get());
-//	  v8::V8::Initialize();
-
-//	  // Create a new Isolate and make it the current one.
-//	  v8::Isolate::CreateParams create_params;
-//	  create_params.array_buffer_allocator =
-//	      v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-//	  v8::Isolate* isolate = v8::Isolate::New(create_params);
-//	  {
-//		v8::Isolate::Scope isolate_scope(isolate);
-
-//		// Create a stack-allocated handle scope.
-//		v8::HandleScope handle_scope(isolate);
-
-//		// Create a new context.
-//		v8::Local<v8::Context> context = v8::Context::New(isolate);
-
-//		// Enter the context for compiling and running the hello world script.
-//		v8::Context::Scope context_scope(context);
-
-//		{
-//			// Create a string containing the JavaScript source code.
-//			v8::Local<v8::String> source =
-//			  v8::String::NewFromUtf8(isolate, "'Hello' + ', World!'",
-//			                          v8::NewStringType::kNormal)
-//			      .ToLocalChecked();
-
-//			v8::Local<v8::String> originName =
-//			  v8::String::NewFromUtf8(isolate, "heyScript",
-//			                          v8::NewStringType::kNormal)
-//			      .ToLocalChecked();
-
-//			v8::ScriptOrigin origin(originName);
-//			auto nanscript = Nan::CompileScript(source, origin);
-
-//			Nan::RunScript(nanscript.ToLocalChecked());
 
 
-//		  // Compile the source code.
-//		  v8::Local<v8::Script> script =
-//		      v8::Script::Compile(context, source).ToLocalChecked();
+	// Create a stack-allocated handle scope.
+	v8::HandleScope handle_scope(info.GetIsolate());
 
-//		  // Run the script to get the result.
-//		  v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
+	// Create a new context.
+	v8::Local<v8::Context> context = setupContext(info.GetIsolate());
 
-//		  // Convert the result to an UTF8 string and print it.
-//		  v8::String::Utf8Value utf8(isolate, result);
-//		  printf("%s\n", *utf8);
-//		}
+	// Enter the context for compiling and running the hello world script.
+	v8::Context::Scope context_scope(context);
 
-//		{
-//			// Use the JavaScript API to generate a WebAssembly module.
-//			//
-//			// |bytes| contains the binary format for the following module:
-//			//
-//			//     (func (export "add") (param i32 i32) (result i32)
-//			//       get_local 0
-//			//       get_local 1
-//			//       i32.add)
-//			//
-//			const char* csource = R"(
-//			let bytes = new Uint8Array([
-//			  0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x07, 0x01,
-//			  0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f, 0x03, 0x02, 0x01, 0x00, 0x07,
-//			  0x07, 0x01, 0x03, 0x61, 0x64, 0x64, 0x00, 0x00, 0x0a, 0x09, 0x01,
-//			  0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6a, 0x0b
-//			]);
-//			let module = new WebAssembly.Module(bytes);
-//			let instance = new WebAssembly.Instance(module);
-//			instance.exports.add(3, 4);
-//		  )";
+	{
+		// Create a string containing the JavaScript source code.
+		v8::Local<v8::String> source =
+		  v8::String::NewFromUtf8(info.GetIsolate(), "strife.print(\"hi\")",
+		                          v8::NewStringType::kNormal)
+		      .ToLocalChecked();
 
-//		  // Create a string containing the JavaScript source code.
-//		  v8::Local<v8::String> source =
-//		      v8::String::NewFromUtf8(isolate, csource, v8::NewStringType::kNormal)
-//		          .ToLocalChecked();
+		v8::Local<v8::String> originName =
+		  v8::String::NewFromUtf8(info.GetIsolate(), "heyScript",
+		                          v8::NewStringType::kNormal)
+		      .ToLocalChecked();
 
-//		  // Compile the source code.
-//		  v8::Local<v8::Script> script =
-//		      v8::Script::Compile(context, source).ToLocalChecked();
+		v8::ScriptOrigin origin(originName);
+		auto nanscript = Nan::CompileScript(source, origin);
 
-//		  // Run the script to get the result.
-//		  v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
+		Nan::MaybeLocal<v8::Value> nanresult = Nan::RunScript(nanscript.ToLocalChecked());
+		v8::String::Utf8Value nanutf8(info.GetIsolate(), nanresult.ToLocalChecked());
+		cout << *nanutf8 << endl;
 
-//		  // Convert the result to a uint32 and print it.
-//		  uint32_t number = result->Uint32Value(context).ToChecked();
-//		  printf("3 + 4 = %u\n", number);
-//		}
-//	  }
 
-//	  // Dispose the isolate and tear down V8.
-//	  isolate->Dispose();
-//	  v8::V8::Dispose();
-//	  v8::V8::ShutdownPlatform();
-//	  delete create_params.array_buffer_allocator;
+	  // Compile the source code.
+	  v8::Local<v8::Script> script =
+	      v8::Script::Compile(context, source).ToLocalChecked();
 
-//	// Messenger m;
+	  // Run the script to get the result.
+	  v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
 
-//	// auto test =
-//	// 	[=](const TestEvent& event) {
-//	// 		cout << event.data << endl;
-//	// 	};
+	  // Convert the result to an UTF8 string and print it.
+	  v8::String::Utf8Value utf8(info.GetIsolate(), result);
+	  printf("%s\n", *utf8);
+	}
 
-//	// auto update =
-//	// 	[=](const UpdateEvent& event) {
-//	// 		cout << event.data << endl;
-//	// 	};
+	// Messenger m;
 
-//	// m.on<TestEvent>(test);
-//	// m.on<UpdateEvent>(update);
+	// auto test =
+	// 	[=](const TestEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
 
-//	// TestEvent tester;
-//	// tester.data = "Test!";
+	// auto update =
+	// 	[=](const UpdateEvent& event) {
+	// 		cout << event.data << endl;
+	// 	};
 
-//	// UpdateEvent updater;
-//	// updater.data = "Update!";
+	// m.on<TestEvent>(test);
+	// m.on<UpdateEvent>(update);
 
-//	// m.emit(tester);
-//	// m.emit(updater);
-//	// m.emit(updater);
+	// TestEvent tester;
+	// tester.data = "Test!";
+
+	// UpdateEvent updater;
+	// updater.data = "Update!";
+
+	// m.emit(tester);
+	// m.emit(updater);
+	// m.emit(updater);
 
 	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
 	s->initialize<TestComponent>();
