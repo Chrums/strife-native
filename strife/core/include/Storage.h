@@ -9,6 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include "Component.h"
+#include "Context.h"
 #include "Data.h"
 #include "Entity.h"
 #include "IIterator.h"
@@ -24,7 +25,7 @@ namespace Strife {
 		class Storage : public IStorage {
 
             // TODO: Figure out how to use std::hash
-            struct EntityHash {
+            struct Hash {
                 std::size_t operator()(const Entity& key) const {
                     return std::hash<Entity>{}(key);
                 }
@@ -33,7 +34,7 @@ namespace Strife {
 			class Iterator : public IIterator<std::pair<const Entity, Component* const>> {
 
 			public:
-                Iterator(typename std::unordered_map<Entity, C, EntityHash>::iterator iterator)
+                Iterator(typename std::unordered_map<Entity, C, Hash>::iterator iterator)
 				    : iterator_(iterator) {}
 
 				~Iterator() = default;
@@ -51,7 +52,7 @@ namespace Strife {
 				}
 
 			private:
-                typename std::unordered_map<Entity, C, EntityHash>::iterator iterator_;
+                typename std::unordered_map<Entity, C, Hash>::iterator iterator_;
 			};
 
 		public:
@@ -68,14 +69,14 @@ namespace Strife {
 				return data;
 			}
 
-            void deserialize(const Data data, EntityMap& entityMap) {
-				for (auto& iteratorEntityIdentifierToComponentData : data.items()) {
+            void deserialize(Context context) {
+				for (auto& iteratorEntityIdentifierToComponentData : context.data.items()) {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
-					const Data componentData = iteratorEntityIdentifierToComponentData.value();
+					Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = entities_.add(entityId, entityMap);
+                    const Entity entity = entities_.add(entityId, data);
 					C* const component = add(entity);
-                    component->deserialize(componentData, entityMap);
+                    component->deserialize(context.bind(componentData));
 				}
 			}
 
@@ -92,9 +93,9 @@ namespace Strife {
             }
 
             C* const get(const Entity entity) const {
-                auto componentIt = components_.find(entity);
-                if (componentIt != components_.end()) {
-                    return const_cast<C* const>(&componentIt->second);
+                auto& iteratorEntityToComponent = components_.find(entity);
+                if (iteratorEntityToComponent != components_.end()) {
+                    return const_cast<C* const>(&iteratorEntityToComponent->second);
                 }
                 return nullptr;
 			}
@@ -108,7 +109,7 @@ namespace Strife {
 			}
 
         private:
-            std::unordered_map<Entity, C, EntityHash> components_;
+            std::unordered_map<Entity, C, Hash> components_;
 		};
 
 	}  // namespace Core

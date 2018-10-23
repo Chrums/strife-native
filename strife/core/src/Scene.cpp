@@ -22,9 +22,10 @@ const Entity Scene::Entities::add() {
 	return entity;
 }
 
-const Entity Scene::Entities::add(const uuid id, EntityMap& entityMap) {
-    const Entity entity = *entities_.insert(entityMap.getEntity(id)).first;
-	dispatcher_.emit<EntityAdded>(entity);
+const Entity Scene::Entities::add(const uuid id, Data& data) {
+ //   const Entity entity = *entities_.insert(entityMap.getEntity(id)).first;
+	// dispatcher_.emit<EntityAdded>(entity);
+    const Entity entity = *entities_.insert(Entity(scene_)).first;
 	return entity;
 }
 
@@ -56,14 +57,13 @@ const Data Scene::Components::serialize() const {
 	return data;
 }
 
-void Scene::Components::deserialize(const Data data) {
-    EntityMap entityMap(scene_);
-    for (auto& iteratorStorageIdentifierToStorageData : data.items()) {
+void Scene::Components::deserialize(Context context) {
+    for (auto& iteratorStorageIdentifierToStorageData : context.data.items()) {
 		const string storageIdentifier = iteratorStorageIdentifierToStorageData.key();
-		const Data storageData = iteratorStorageIdentifierToStorageData.value();
+		Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);
         IStorage* const storage = components_.at(type);
-        storage->deserialize(storageData, entityMap);
+        storage->deserialize(context.bind(storageData));
 	}
 }
 
@@ -129,6 +129,8 @@ const Data Scene::serialize() const {
 	return data;
 }
 
-void Scene::deserialize(const Data data) {
-    components.deserialize(data["components"]);
+void Scene::deserialize(Data data) {
+	Context context(*this);
+	Data componentsData = data["components"];
+    components.deserialize(context.bind(componentsData));
 }

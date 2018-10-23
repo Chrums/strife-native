@@ -7,6 +7,7 @@
 #include <SDL_ttf.h>
 #include <imgui.h>
 #include "Component.h"
+#include "Data.h"
 #include "Dispatcher.h"
 #include "Engine.h"
 #include "Entity.h"
@@ -337,6 +338,18 @@ private:
 // };
 
 int main() {
+	
+	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
+	
+	Data data;
+	
+	Data::Context* const context = new Data::Context(*s);
+	data.bind(context);
+	
+	Data sub = "{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json;
+	sub.bind(data);
+
+	delete context;
 
 	// Messenger m;
 
@@ -363,17 +376,17 @@ int main() {
 	// m.emit(updater);
 	// m.emit(updater);
 
-	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
-	s->initialize<TestComponent>();
-	s->initialize<Transform2f>();
-	s->initialize<DrawSquare>();
-	s->initialize<Velocity>();
-	s->initialize<Sprite>();
-	s->systems.initialize<RenderSystem>();
-	s->systems.initialize<PhysicsSystem>();
-	s->systems.initialize<SpriteAnimation>();
-    ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
-    s->systems.initialize<EntityList>();
+	// Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
+	// s->initialize<TestComponent>();
+	// s->initialize<Transform2f>();
+	// s->initialize<DrawSquare>();
+	// s->initialize<Velocity>();
+	// s->initialize<Sprite>();
+	// s->systems.initialize<RenderSystem>();
+	// s->systems.initialize<PhysicsSystem>();
+	// s->systems.initialize<SpriteAnimation>();
+ //   ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
+ //   s->systems.initialize<EntityList>();
 
     //	Entity e0(*s);
     //	TestComponent* t0 = e0.components.add<TestComponent>();
@@ -394,89 +407,89 @@ int main() {
     //    sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json, entityMap);
     //	v1->ySpeed = 0.25f;
 
-    try {
-        std::ifstream file;
-        file.open("assets/scenes/default.json");
-        json j;
-        file >> j;
-        s->deserialize(j);
-    } catch (exception& e) {
-        cout << e.what() << endl;
-    }
+ //   try {
+ //       std::ifstream file;
+ //       file.open("assets/scenes/default.json");
+ //       json j;
+ //       file >> j;
+ //       s->deserialize(j);
+ //   } catch (exception& e) {
+ //       cout << e.what() << endl;
+ //   }
 
-    // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
+ //   // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
 
-	json data = s->serialize();
-	cout << data << endl;
+	// json data = s->serialize();
+	// cout << data << endl;
 
-    SDL_Init(SDL_INIT_VIDEO);
+ //   SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+ //   SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
 
-    SDL_GLContext glContext = SDL_GL_CreateContext(window);
+ //   SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+ //   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
-    IMGUI_CHECKVERSION();
-    imguiSystem.init(renderer);
+ //   IMGUI_CHECKVERSION();
+ //   imguiSystem.init(renderer);
 
-    ImGui_ImplSDL2_InitForOpenGL(window);
+ //   ImGui_ImplSDL2_InitForOpenGL(window);
 
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
-    {
-        SDL_SetRenderTarget(renderer, texture);
-        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-        SDL_RenderClear(renderer);
-        SDL_SetRenderTarget(renderer, nullptr);
-    }
+ //   SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+ //   {
+ //       SDL_SetRenderTarget(renderer, texture);
+ //       SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+ //       SDL_RenderClear(renderer);
+ //       SDL_SetRenderTarget(renderer, nullptr);
+ //   }
 
-    ImGuiIO& io = ImGui::GetIO();
+ //   ImGuiIO& io = ImGui::GetIO();
 
-    // Setup style
+ //   // Setup style
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+ //   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    //Main loop flag
-    bool quit = false;
-    //Event handler
-    SDL_Event e;
+ //   //Main loop flag
+ //   bool quit = false;
+ //   //Event handler
+ //   SDL_Event e;
 
-    Uint32 startTime = SDL_GetTicks();
+ //   Uint32 startTime = SDL_GetTicks();
 
-    while (!quit) {
-        while (SDL_PollEvent(&e) != 0) {
-            ImGui_ImplSDL2_ProcessEvent(&e);  //TODO: Move to system
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            }
-        }
-        imguiSystem.handleMouse(window);
+ //   while (!quit) {
+ //       while (SDL_PollEvent(&e) != 0) {
+ //           ImGui_ImplSDL2_ProcessEvent(&e);  //TODO: Move to system
+ //           if (e.type == SDL_QUIT) {
+ //               quit = true;
+ //           }
+ //       }
+ //       imguiSystem.handleMouse(window);
 
-        // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
+ //       // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
 
-        io.DeltaTime = 1.0f / 60.0f;
+ //       io.DeltaTime = 1.0f / 60.0f;
 
-        Engine::Instance()->dispatcher.emit<UpdateEvent>();
-        Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
-        Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
-        Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
-        Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
-        Engine::Instance()->dispatcher.dispatch();
+ //       Engine::Instance()->dispatcher.emit<UpdateEvent>();
+ //       Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
+ //       Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
+ //       Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
+ //       Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
+ //       Engine::Instance()->dispatcher.dispatch();
 
-        Uint32 runTime = SDL_GetTicks() - startTime;
+ //       Uint32 runTime = SDL_GetTicks() - startTime;
 
-        if (runTime < 16) {
-            Uint32 delayTime = 16 - runTime;
-            SDL_Delay(delayTime);
-        }
-        startTime = SDL_GetTicks();
-    }
+ //       if (runTime < 16) {
+ //           Uint32 delayTime = 16 - runTime;
+ //           SDL_Delay(delayTime);
+ //       }
+ //       startTime = SDL_GetTicks();
+ //   }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+ //   SDL_DestroyRenderer(renderer);
+ //   SDL_DestroyWindow(window);
+ //   SDL_Quit();
 
-	delete s;
+	// delete s;
 
 	return 0;
 }

@@ -37,8 +37,8 @@ bool IStorage::Iterator::operator!=(const IStorage::Iterator& iterator) const {
 IStorage::Entities::Entities(Scene& scene) 
 	: scene_(scene) {}
 	
-const Entity IStorage::Entities::add(uuid id, EntityMap& entityMap) {
-    return scene_.entities.add(id, entityMap);
+const Entity IStorage::Entities::add(uuid id, Data& data) {
+    return scene_.entities.add(id, data);
 }
 
 void IStorage::Entities::remove(const Entity entity) {

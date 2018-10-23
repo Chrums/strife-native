@@ -5,14 +5,32 @@
 #include <string>
 #include <typeindex>
 #include "Dispatcher.h"
+#include "Event.h"
+#include "Timer.h"
 
 namespace Strife {
 	namespace Core {
         class Scene;
 
 		class Engine {
+			
+		public:
+		
+			class TickEvent : public Event {
+			
+			public:
+			
+				static const unsigned int Priority;
+				
+				const Timer::Time time;
+				
+				TickEvent(const Timer::Time time);
+				
+			};
 
-			class Scenes : private std::map<std::string, Scene> {
+		private:
+
+			class Scenes {
 			public:
 				Scene* active;
 
@@ -24,6 +42,7 @@ namespace Strife {
 
 			private:
 				Engine& engine_;
+				std::map<std::string, Scene> scenes_;
 			};
 
 		public:
@@ -31,8 +50,11 @@ namespace Strife {
 
 			Scenes scenes;
 			Dispatcher dispatcher;
+			Timer timer;
 
 			virtual ~Engine() = default;
+			
+			virtual void loop();
 
 		protected:
 			static Engine* instance_;

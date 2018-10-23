@@ -6,6 +6,7 @@
 
 #include "IIterator.h"
 #include "Component.h"
+#include "Context.h"
 #include "Data.h"
 #include "Entity.h"
 #include "EntityMap.h"
@@ -39,7 +40,7 @@ namespace Strife {
 			virtual ~IStorage() = default;
 
 			virtual const Data serialize() const = 0;
-            virtual void deserialize(const Data data, EntityMap& entityMap) = 0;
+            virtual void deserialize(Context context) = 0;
 
 			virtual Component* const add(const Entity entity) = 0;
 			virtual Component* const add(const boost::uuids::uuid id, const Entity entity) = 0;
@@ -53,7 +54,7 @@ namespace Strife {
         	class Entities {
         		public:
         			Entities(Scene& scene);
-        			const Entity add(boost::uuids::uuid id, EntityMap& entityMap);
+        			const Entity add(boost::uuids::uuid id, Data& data);
         			void remove(const Entity entity);
         		private:
         			Scene& scene_;

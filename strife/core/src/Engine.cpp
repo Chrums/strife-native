@@ -1,11 +1,17 @@
 #include "Engine.h"
 
+#include <iostream>
 #include <fstream>
 #include "Data.h"
 #include "Scene.h"
 
 using namespace Strife::Core;
 using namespace std;
+
+const unsigned int Engine::TickEvent::Priority = 0;
+
+Engine::TickEvent::TickEvent(const Timer::Time time)
+    : time(time) {}
 
 Engine::Scenes::Scenes(Engine& engine)
     : active(nullptr)
@@ -16,15 +22,17 @@ void Engine::Scenes::load(const std::string identifier, const std::string path) 
     file.open(path);
     Data data;
     file >> data;
-    this->try_emplace(identifier, engine_.dispatcher);
+    auto& [ignore, scene] = *scenes_.try_emplace(identifier, engine_.dispatcher).first;
+    engine_.initialize(scene);
+    scene.deserialize(data);
 }
 
 void Engine::Scenes::unload(const std::string identifier) {
-    this->erase(identifier);
+    scenes_.erase(identifier);
 }
 
 void Engine::Scenes::swap(const std::string identifier) {
-    auto& [ignore, scene] = *this->find(identifier);
+    auto& [ignore, scene] = *scenes_.find(identifier);
     active = &scene;
 }
 
@@ -41,3 +49,9 @@ Engine::Engine()
     : scenes(*this) {}
 
 void Engine::initialize(Scene& scene) {}
+
+void Engine::loop() {
+    Timer::Time time = timer.update();
+    dispatcher.emit<TickEvent>(time);
+    loop();
+}

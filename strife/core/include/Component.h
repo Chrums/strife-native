@@ -25,7 +25,7 @@ namespace Strife {
 			virtual ~Component() = default;
 
 			virtual const Data serialize() const;
-            virtual void deserialize(const Data data, EntityMap& entityMap);
+            virtual void deserialize(Data data);
 		};
 
 		template <class C>
