@@ -33,12 +33,12 @@ const Data Sprite::serialize() const {
 	data["dataFile"] = dataFile_;
 	data["currentFrame"] = currentFrame_;
 	data["frameTime"] = frameTime_;
-    data["currentAnimation"] = animation_->name;
+	data["currentAnimation"] = animation_->name;
 	return data;
 }
 
 void Sprite::deserialize(Data data, EntityMap& entityMap) {
-	auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
+	auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
 	dataFile_ = data["dataFile"];
 	currentFrame_ = data["currentFrame"];
 	animation_ = &spriteSystem->getAnimation(dataFile_, data["currentAnimation"]);
@@ -47,7 +47,7 @@ void Sprite::deserialize(Data data, EntityMap& entityMap) {
 
 void Sprite::render(const RenderEvent& event) {
 	if (texture_ == nullptr) {
-		auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
+		auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
 		texture_ = spriteSystem->getTexture(dataFile_, event.renderer);
 	}
 	Frame* curFrame = animation_->frames[currentFrame_];
@@ -58,11 +58,11 @@ void Sprite::render(const RenderEvent& event) {
 	destRect.w = curFrame->w;
 	destRect.h = curFrame->h;
 
-    auto t = entity.components.get<Transform2f>();
-    if (t != nullptr) {
-        destRect.x = static_cast<int>(t->translation().x());
-        destRect.y = static_cast<int>(t->translation().y());
-    }
+	auto t = entity.components.get<Transform2f>();
+	if (t != nullptr) {
+		destRect.x = static_cast<int>(t->translation().x());
+		destRect.y = static_cast<int>(t->translation().y());
+	}
 
 	SDL_RenderCopy(event.renderer, texture_, static_cast<SDL_Rect*>(curFrame), &destRect);
 
@@ -78,7 +78,7 @@ void Sprite::render(const RenderEvent& event) {
 }
 
 void Sprite::setAnimation(string animationName) {
-	auto spriteSystem = entity.scene.systems.get<SpriteAnimation>();
+	auto spriteSystem = entity.scene->systems.get<SpriteAnimation>();
 	Animation* animation = &spriteSystem->getAnimation(dataFile_, animationName);
 	if (animation != animation_) {
 		animation_ = animation;

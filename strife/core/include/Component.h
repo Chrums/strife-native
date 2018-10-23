@@ -2,6 +2,7 @@
 #define COMPONENT_H
 
 #include <boost/uuid/uuid.hpp>
+#include "Context.h"
 #include "Data.h"
 #include "Entity.h"
 #include "Unique.h"
@@ -25,7 +26,7 @@ namespace Strife {
 			virtual ~Component() = default;
 
 			virtual const Data serialize() const;
-            virtual void deserialize(Data data);
+            virtual void deserialize(Context context);
 		};
 
 		template <class C>

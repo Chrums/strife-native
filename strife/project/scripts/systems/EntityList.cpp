@@ -8,134 +8,150 @@
 #include "Scene.h"
 #include "Dispatcher.h"
 #include "Data.h"
-#include "events/RenderEvent.h"
+#include "events/OnGui.h"
+#include "events/SelectEntity.h"
+#include "systems/HierarchySystem.h"
+#include "components/Hierarchy.h"
 
 using namespace Strife::Core;
 using namespace std;
 
 EntityList::EntityList(Strife::Core::Scene& scene, Strife::Core::Dispatcher& dispatcher)
     : ISystem(scene)
-    , active_(true) {
+    , active_(true)
+    , addComponentType_(scene_.components.get().begin()->first)
+    , dispatcher_(dispatcher) {
 
-    dispatcher.on<RenderEvent>([this](const RenderEvent& event) { render(event); });
+	dispatcher.on<OnGui>([this](const OnGui& event) { render(event); });
 }
 
 EntityList::~EntityList() {}
 
-Data renderData(Data item, string key = "") {
-    switch (item.type()) {
-        case Data::value_t::object: {
-            for (auto pair : item.items()) {
-                item[pair.key()] = renderData(pair.value(), pair.key());
-            }
-            break;
-        }
-        case Data::value_t::number_integer: {
-            int value = static_cast<int>(item.get<Data::number_integer_t>());
-            if (ImGui::InputInt(key.c_str(), &value)) {
-                return Data(value);
-            }
-            break;
-        }
-        case Data::value_t::number_unsigned: {
-            int value = static_cast<int>(item.get<Data::number_unsigned_t>());
-            if (ImGui::InputInt(key.c_str(), &value)) {
-                if (value >= 0) {
-                    return Data(value);
-                }
-            }
-            break;
-        }
-        case Data::value_t::number_float: {
-            double* value = item.get<Data::number_float_t*>();
-            if (ImGui::InputDouble(key.c_str(), value)) {
-                //*item.value().get<Data::number_integer_t*>() = value;
-            }
-            break;
-        }
-        case Data::value_t::string: {
-            string value = item.get<Data::string_t>();
+optional<Entity> EntityList::renderEntity(optional<Entity> root) {
+	auto hierarchies = scene_.systems.get<HierarchySystem>();
+	auto& children = hierarchies->getChildren(root);
+	optional<Entity> clickedEntity = nullopt;
+	for (auto entity : children) {
+		string entityId = boost::lexical_cast<string>(entity.id);
+		bool selected = selectedEntities_.find(entity) != selectedEntities_.end();
+		ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (selected ? ImGuiTreeNodeFlags_Selected : 0);
 
-            std::string clipText = (ImGui::GetClipboardText() != nullptr) ? ImGui::GetClipboardText() : "";
-            size_t clipSize = clipText.length();
-            size_t size = value.length() + clipSize + 5;
-            char* newText = static_cast<char*>(malloc(sizeof(char) * size));
-            strncpy(newText, value.c_str(), size);
+		ImGui::PushID(entityId.c_str());
+		bool entityOpen = ImGui::TreeNodeEx(entityId.c_str(), node_flags);
+		if (ImGui::IsItemClicked()) {
+			clickedEntity = entity;
+		}
 
-            if (ImGui::InputText(key.c_str(), newText, size)) {
-                item = Data(string(newText));
-            }
-            delete newText;
-            break;
-        }
-        case Data::value_t::array: {
-            size_t index = 0;
-            for (auto arrayItem : item) {
-                stringstream indexString;
-                indexString << index;
-                item[index] = renderData(arrayItem, indexString.str());
-                index++;
-            }
-            break;
-        }
-        case Data::value_t::boolean: {
-            bool* value = item.get<Data::boolean_t*>();
-            if (ImGui::Checkbox(key.c_str(), value)) {
-            }
-            break;
-        }
-        case Data::value_t::null:
-        default:
-            ImGui::Text("%s", key.c_str());
-            ImGui::Text("%s", item.dump().c_str());
-    }
-    return item;
+		bool openAddComponent = false;
+		if (ImGui::BeginPopupContextItem("Entity context menu")) {
+			if(ImGui::MenuItem("Add Component...")) {
+				openAddComponent = true;
+			}
+			ImGui::EndPopup();
+		}
+		if (openAddComponent) {
+			ImGui::OpenPopup("Add Component");
+		}
+		if (ImGui::BeginPopupModal("Add Component")) {
+
+			if (ImGui::BeginCombo("Component Type", scene_.components.identifier(addComponentType_).c_str())) {
+				for (auto& [type, storage] : scene_.components.get()) {
+					string componentTypeName = scene_.components.identifier(type);
+					if (ImGui::Selectable(componentTypeName.c_str(), type == addComponentType_)) {
+						addComponentType_ = type;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			if (ImGui::Button("Add")) {
+				entity.components.add(addComponentType_);
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Cancel")) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+			ImGui::SetDragDropPayload("Entity Drag", &entity, sizeof(Entity));        // Set payload to carry the index of our item (could be anything)
+			ImGui::Text("%s", entityId.c_str());
+			ImGui::EndDragDropSource();
+		}
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity Drag")) {
+				IM_ASSERT(payload->DataSize == sizeof(Entity));
+				Entity entityPayload = *(const Entity*)payload->Data;
+				Hierarchy* hierarchy = entityPayload.components.get<Hierarchy>();
+				if (hierarchy != nullptr) {
+					hierarchy->setParent(entity);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::PopID();
+		renderEntityContextMenu(entity);
+		if (entityOpen) {
+			auto subClick = renderEntity(entity);
+			if (subClick != nullopt) {
+				clickedEntity = subClick;
+			}
+			ImGui::TreePop();
+		}
+	}
+	return clickedEntity;
 }
 
-void EntityList::render(const RenderEvent& event) {
-    size_t numEntities = scene_.entities.get().size();
-    if (ImGui::Begin("Entities", &active_, ImGuiWindowFlags_MenuBar)) {
-        if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */
-                }
-                if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */
-                }
-                if (ImGui::MenuItem("Close", "Ctrl+W")) {
-                    active_ = false;
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
+bool EntityList::renderEntityContextMenu(optional<Entity> entity) {
+	bool open = ImGui::BeginPopupContextItem(entity.has_value() ? boost::lexical_cast<string>(entity->id).c_str() : "entity context menu");
+	if (open) {
+		if(ImGui::Selectable("Add new entity")) {
+			Entity newEntity = scene_.entities.add();
+			auto hierarchy = newEntity.components.add<Hierarchy>();
+			hierarchy->setParent(entity);
+		}
+		ImGui::EndPopup();
+	}
+	return open;
+}
 
-        // Display contents in a scrolling region
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities: %d", numEntities);
-        if (ImGui::BeginPopupContextItem("item context menu")) {
-            ImGui::Selectable("Add new entity");
-            ImGui::EndPopup();
-        }
-        ImGui::BeginChild("Scrolling");
-        for (auto entity : scene_.entities.get()) {
-            string entityId = boost::lexical_cast<string>(entity.id);
-            if (ImGui::TreeNode(entityId.c_str())) {
-                for (auto& [type, storage] : scene_.components.get()) {
-                    auto component = storage->get(entity);
-                    if (component != nullptr) {
-                        if (ImGui::TreeNode(scene_.components.identifier(type).c_str())) {
-                            Data componentData = component->serialize();
-                            Data modifiedData = renderData(componentData);
-                            EntityMap emap(scene_);  // TODO: Need to add option to avoid reassigning uuids
-                            component->deserialize(modifiedData, emap);
-                            ImGui::TreePop();
-                        }
-                    }
-                }
-                ImGui::TreePop();
-                ImGui::Separator();
-            }
-        }
-        ImGui::EndChild();
-    }
-    ImGui::End();
+void EntityList::render(const OnGui& event) {
+	size_t numEntities = scene_.entities.get().size();
+	if (ImGui::Begin("Entities", &active_, ImGuiWindowFlags_MenuBar)) {
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */
+				}
+				if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */
+				}
+				if (ImGui::MenuItem("Close", "Ctrl+W")) {
+					active_ = false;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		// Display contents in a scrolling region
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entities: %d", numEntities);
+		renderEntityContextMenu(nullopt);
+		ImGui::BeginChild("Scrolling");
+		optional<Entity> clickedEntity = renderEntity(nullopt);
+		ImGui::EndChild();
+		if (clickedEntity.has_value()) {
+			if (!ImGui::GetIO().KeyCtrl) {
+				selectedEntities_.clear();
+				dispatcher_.emit<SelectEntity>(nullopt);
+			}
+			if (selectedEntities_.find(clickedEntity.value()) != selectedEntities_.end()) {
+				selectedEntities_.erase(clickedEntity.value());
+			} else {
+				selectedEntities_.insert(clickedEntity.value());
+				dispatcher_.emit<SelectEntity>(clickedEntity);
+			}
+		}
+	}
+	ImGui::End();
 }

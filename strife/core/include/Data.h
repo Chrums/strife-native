@@ -13,27 +13,6 @@ namespace Strife {
 		
 		using Data = nlohmann::json;
 		
-		// class Scene;
-		
-		// class Data : public nlohmann::json {
-			
-		// public:
-			
-		// 	Data();
-		// 	Data(const Data& data);
-		// 	Data(const nlohmann::json& j);
-			
-		// 	Data& operator=(const nlohmann::json& j);
-			
-		// 	Data& bind(Context* const context);
-		// 	Data& bind(Data& data);
-			
-		// private:
-		
-		// 	Context* context_;
-			
-		};
-		
 	} // namespace Core
 }  // namespace Strife
 

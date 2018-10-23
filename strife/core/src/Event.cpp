@@ -4,7 +4,7 @@ using namespace Strife::Core;
 using namespace std;
 
 Event::Event()
-    : entity(nullopt) {}
+    : target(nullopt) {}
 
-Event::Event(const Entity entity)
-    : entity(entity) {}
+Event::Event(const Entity target)
+    : target(target) {}

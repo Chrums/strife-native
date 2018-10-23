@@ -11,9 +11,9 @@
 #include <boost/functional/hash.hpp>
 
 namespace Strife {
-	namespace Core {
+    namespace Core {
 
-		class Unique {
+	    class Unique {
 
 		public:
 			static boost::uuids::nil_generator NilGenerator;
@@ -29,7 +29,7 @@ namespace Strife {
 			Unique(const boost::uuids::uuid id);
 
 			bool operator==(const Unique& unique) const;
-            bool operator<(const Unique& unique) const;
+			bool operator<(const Unique& unique) const;
 		};
 
 	}  // namespace Core
@@ -39,12 +39,12 @@ namespace Strife {
 namespace std
 {
 
-	template<>
-	struct hash<Strife::Core::Unique>
+    template<>
+    struct hash<Strife::Core::Unique>
 	{
-	    size_t operator()(const Strife::Core::Unique& unique) {
-	        return boost::hash<boost::uuids::uuid>()(unique.id);
-	    }
+		size_t operator()(const Strife::Core::Unique& unique) const {
+			return boost::hash<boost::uuids::uuid>()(unique.id);
+		}
 	};
 
 }

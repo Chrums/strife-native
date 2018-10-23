@@ -21,12 +21,19 @@
 
 #include "components/Transform.h"
 #include "components/Sprite.h"
+#include "components/Hierarchy.h"
 
 #include "events/RenderEvent.h"
+#include "events/UpdateEvent.h"
+#include "events/BeginGui.h"
+#include "events/OnGui.h"
+#include "events/FinishGui.h"
 
 #include "systems/SpriteAnimation.h"
 #include "systems/ImguiSystem.h"
 #include "systems/EntityList.h"
+#include "systems/ComponentList.h"
+#include "systems/HierarchySystem.h"
 
 #include "utility/imgui_impl_sdl.h"
 #include "utility/imgui_impl_opengl3.h"
@@ -49,27 +56,15 @@ public:
 
 const unsigned int TestEvent::Priority = 10;
 
-class UpdateEvent : public Event {
-
-public:
-	using Event::Event;
-
-	static const unsigned int Priority;
-
-	string data;
-};
-
-const unsigned int UpdateEvent::Priority = 500;
-
 class BeginRenderEvent : public Event {
 
 public:
 	static const unsigned int Priority;
 
 	BeginRenderEvent(SDL_Renderer* renderer)
-        : renderer(renderer) {}
+	    : renderer(renderer) {}
 
-    SDL_Renderer* renderer;
+	SDL_Renderer* renderer;
 };
 
 const unsigned int BeginRenderEvent::Priority = 900;
@@ -79,12 +74,12 @@ class FinishRenderEvent : public Event {
 public:
 	static const unsigned int Priority;
 
-    FinishRenderEvent(SDL_Window* window, SDL_Renderer* renderer)
-        : window(window)
-        , renderer(renderer) {}
+	FinishRenderEvent(SDL_Window* window, SDL_Renderer* renderer)
+	    : window(window)
+	    , renderer(renderer) {}
 
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+	SDL_Window* window;
+	SDL_Renderer* renderer;
 };
 
 const unsigned int FinishRenderEvent::Priority = 1100;
@@ -134,11 +129,11 @@ public:
 		rect.w = 32;
 		rect.h = 32;
 
-        auto t = entity.components.get<Transform2f>();
-        if (t != nullptr) {
-            rect.x = static_cast<int>(t->translation().x());
-            rect.y = static_cast<int>(t->translation().y());
-        }
+		auto t = entity.components.get<Transform2f>();
+		if (t != nullptr) {
+			rect.x = static_cast<int>(t->translation().x());
+			rect.y = static_cast<int>(t->translation().y());
+		}
 
 		SDL_SetRenderDrawColor(event.renderer, 200, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(event.renderer, &rect);
@@ -168,17 +163,17 @@ public:
 		return data;
 	}
 
-    void deserialize(Data data, EntityMap& entityMap) {
+	void deserialize(Data data, EntityMap& entityMap) {
 		xSpeed = data["xSpeed"];
 		ySpeed = data["ySpeed"];
 	}
 
 	void update(const UpdateEvent& event) {
-        auto t = entity.components.get<Transform2f>();
-        if (t != nullptr) {
+		auto t = entity.components.get<Transform2f>();
+		if (t != nullptr) {
 			t->translation().x() += xSpeed;
-            t->translation().y() += ySpeed;
-        }
+			t->translation().y() += ySpeed;
+		}
 	}
 };
 
@@ -196,20 +191,20 @@ public:
 	static const string Identifier;
 
 	string value;
-    bool isTrue;
+	bool isTrue;
 
 	using Component::Component;
 
 	const Data serialize() const {
 		Data data;
 		data["value"] = value;
-        data["isTrue"] = isTrue;
+		data["isTrue"] = isTrue;
 		return data;
 	}
 
-    void deserialize(Data data, EntityMap& entityMap) {
+	void deserialize(Data data, EntityMap& entityMap) {
 		value = data["value"];
-        isTrue = data["isTrue"];
+		isTrue = data["isTrue"];
 	}
 
 	void handleEvent(const TestEvent& event) {
@@ -218,9 +213,9 @@ public:
 
 	void update(const UpdateEvent& event) {
 
-        auto v = entity.components.get<Velocity>();
-        auto sprite = entity.components.get<Sprite>();
-        if (v != nullptr && sprite != nullptr) {
+		auto v = entity.components.get<Velocity>();
+		auto sprite = entity.components.get<Sprite>();
+		if (v != nullptr && sprite != nullptr) {
 			v->xSpeed = 0;
 			v->ySpeed = 0;
 			const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -234,28 +229,28 @@ public:
 			}
 			if (state[SDL_SCANCODE_UP]) {
 				v->ySpeed = -1;
-                sprite->setAnimation("bounce");
+				sprite->setAnimation("bounce");
 			}
 			if (state[SDL_SCANCODE_DOWN]) {
 				v->ySpeed = 1;
 				sprite->setAnimation("bounce");
 			}
-            if (state[SDL_SCANCODE_SPACE]) {
-                cout << "sp" << endl;
-                try {
-                    std::ifstream file;
-                    file.open("assets/scenes/default.json");
-                    json j;
-                    file >> j;
-                    scene.deserialize(j);
-                } catch (exception& e) {
-                    cout << e.what() << endl;
-                }
-            }
-        }
+			if (state[SDL_SCANCODE_SPACE]) {
+				cout << "sp" << endl;
+				try {
+					std::ifstream file;
+					file.open("assets/scenes/default.json");
+					json j;
+					file >> j;
+					scene.deserialize(j);
+				} catch (exception& e) {
+					cout << e.what() << endl;
+				}
+			}
+		}
 	}
 
-    void collision(const CollisionEvent& event) {}
+	void collision(const CollisionEvent& event) {}
 };
 
 const string TestComponent::Identifier = "Test";
@@ -266,7 +261,7 @@ public:
 	RenderSystem(Strife::Core::Scene& scene, Dispatcher& dispatcher)
 	    : ISystem(scene)
 	    , dispatcher_(dispatcher) {
-	    	
+
 		dispatcher_.on<BeginRenderEvent>([this](const BeginRenderEvent& event) { beginRender(event); });
 		dispatcher_.on<FinishRenderEvent>([this](const FinishRenderEvent& event) { finishRender(event); });
 	}
@@ -278,13 +273,10 @@ public:
 	void beginRender(const BeginRenderEvent& event) {
 		SDL_SetRenderDrawColor(event.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(event.renderer);
-
-        scene_.systems.get<ImguiSystem>()->beginRender();
 	}
 
-    void finishRender(const FinishRenderEvent& event) {
-        scene_.systems.get<ImguiSystem>()->finishRender();
-        SDL_RenderPresent(event.renderer);
+	void finishRender(const FinishRenderEvent& event) {
+		SDL_RenderPresent(event.renderer);
 	}
 
 private:
@@ -376,6 +368,7 @@ int main() {
 	// m.emit(updater);
 	// m.emit(updater);
 
+<<<<<<< HEAD
 	// Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
 	// s->initialize<TestComponent>();
 	// s->initialize<Transform2f>();
@@ -418,76 +411,121 @@ int main() {
  //   }
 
  //   // s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
+=======
+	Strife::Core::Scene* s = new Strife::Core::Scene(Engine::Instance()->dispatcher);
+	s->initialize<TestComponent>();
+	s->initialize<Transform2f>();
+	s->initialize<DrawSquare>();
+	s->initialize<Velocity>();
+	s->initialize<Sprite>();
+	s->initialize<Hierarchy>();
+	s->systems.initialize<RenderSystem>();
+	s->systems.initialize<PhysicsSystem>();
+	s->systems.initialize<SpriteAnimation>();
+	ImguiSystem& imguiSystem = s->systems.initialize<ImguiSystem>();
+	s->systems.initialize<EntityList>();
+	s->systems.initialize<ComponentList>();
+	s->systems.initialize<HierarchySystem>();
 
-	// json data = s->serialize();
-	// cout << data << endl;
+	//	Entity e0(*s);
+	//	TestComponent* t0 = e0.components.add<TestComponent>();
+	//	Transform2f* tr0 = e0.components.add<Transform2f>();
+	//	Sprite* sp0 = e0.components.add<Sprite>();
+	//    EntityMap entityMap(*s);
+	//    sp0->deserialize("{\"dataFile\": \"assets/images/ball.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"bounce\"}"_json, entityMap);
+	//	e0.components.add<Velocity>();
+	//	tr0->translation().x() = 60;
+	//	cout << t0->entity.id << " t0id " << tr0->translation().x() << endl;
+	//	t0->value = "0";
 
- //   SDL_Init(SDL_INIT_VIDEO);
+	//	Entity e1(*s);
+	//	Transform2f* tr1 = e1.components.add<Transform2f>();
+	//	auto v1 = e1.components.add<Velocity>();
+	//	e1.components.add<DrawSquare>();
+	//	Sprite* sp1 = e1.components.add<Sprite>();
+	//    sp1->deserialize("{\"dataFile\": \"assets/images/numbers.json\", \"currentFrame\": 0, \"frameTime\": 0, \"currentAnimation\": \"count\"}"_json, entityMap);
+	//	v1->ySpeed = 0.25f;
 
- //   SDL_Window* window = SDL_CreateWindow("SDL2Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+	try {
+		std::ifstream file;
+		file.open("assets/scenes/default.json");
+		json j;
+		file >> j;
+		s->deserialize(j);
+	} catch (exception& e) {
+		cout << e.what() << endl;
+	}
 
- //   SDL_GLContext glContext = SDL_GL_CreateContext(window);
+	// s->deserialize("{\"components\":{\"Test\":{\"60a7adcb-8f76-438c-b95b-150f00507f41\":{\"value\":\"0\",\"x\":0},\"e3140528-624b-4529-991a-423b03ed69a2\":{\"value\":\"1\",\"x\":60}}}}"_json);
+	SDL_Init(SDL_INIT_VIDEO);
 
- //   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	SDL_Window* window = SDL_CreateWindow("Strife", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
 
- //   IMGUI_CHECKVERSION();
- //   imguiSystem.init(renderer);
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
- //   ImGui_ImplSDL2_InitForOpenGL(window);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
- //   SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
- //   {
- //       SDL_SetRenderTarget(renderer, texture);
- //       SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
- //       SDL_RenderClear(renderer);
- //       SDL_SetRenderTarget(renderer, nullptr);
- //   }
+	IMGUI_CHECKVERSION();
+	imguiSystem.init(renderer);
 
- //   ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplSDL2_InitForOpenGL(window);
 
- //   // Setup style
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
+	{
+		SDL_SetRenderTarget(renderer, texture);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+		SDL_RenderClear(renderer);
+		SDL_SetRenderTarget(renderer, nullptr);
+	}
 
- //   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImGuiIO& io = ImGui::GetIO();
 
- //   //Main loop flag
- //   bool quit = false;
- //   //Event handler
- //   SDL_Event e;
+	// Setup style
 
- //   Uint32 startTime = SDL_GetTicks();
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
- //   while (!quit) {
- //       while (SDL_PollEvent(&e) != 0) {
- //           ImGui_ImplSDL2_ProcessEvent(&e);  //TODO: Move to system
- //           if (e.type == SDL_QUIT) {
- //               quit = true;
- //           }
- //       }
- //       imguiSystem.handleMouse(window);
+	//Main loop flag
+	bool quit = false;
+	//Event handler
+	SDL_Event e;
 
- //       // Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
+	Uint32 startTime = SDL_GetTicks();
 
- //       io.DeltaTime = 1.0f / 60.0f;
+	while (!quit) {
+		while (SDL_PollEvent(&e) != 0) {
+			ImGui_ImplSDL2_ProcessEvent(&e);  //TODO: Move to system
+			if (e.type == SDL_QUIT) {
+				quit = true;
+			}
+		}
+		imguiSystem.handleMouse(window);
 
- //       Engine::Instance()->dispatcher.emit<UpdateEvent>();
- //       Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
- //       Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
- //       Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
- //       Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
- //       Engine::Instance()->dispatcher.dispatch();
+		// Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
 
- //       Uint32 runTime = SDL_GetTicks() - startTime;
+		io.DeltaTime = 1.0f / 60.0f;
 
- //       if (runTime < 16) {
- //           Uint32 delayTime = 16 - runTime;
- //           SDL_Delay(delayTime);
- //       }
- //       startTime = SDL_GetTicks();
- //   }
+		Engine::Instance()->dispatcher.emit<UpdateEvent>(16);
+		Engine::Instance()->dispatcher.emit<FindCollisionsEvent>();
+		Engine::Instance()->dispatcher.emit<BeginRenderEvent>(renderer);
+		Engine::Instance()->dispatcher.emit<RenderEvent>(renderer, 16);
+		Engine::Instance()->dispatcher.emit<BeginGui>();
+		Engine::Instance()->dispatcher.emit<OnGui>();
+		Engine::Instance()->dispatcher.emit<FinishGui>();
+		Engine::Instance()->dispatcher.emit<FinishRenderEvent>(window, renderer);
+		Engine::Instance()->dispatcher.dispatch();
 
- //   SDL_DestroyRenderer(renderer);
- //   SDL_DestroyWindow(window);
- //   SDL_Quit();
+		Uint32 runTime = SDL_GetTicks() - startTime;
+
+		if (runTime < 16) {
+			Uint32 delayTime = 16 - runTime;
+			SDL_Delay(delayTime);
+		}
+		startTime = SDL_GetTicks();
+	}
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
 	// delete s;
 

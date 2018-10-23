@@ -6,21 +6,21 @@
 #include <optional>
 
 namespace Strife {
-	namespace Core {
+    namespace Core {
 
-		class Event : public Message {
+	    class Event : public Message {
 
 		public:
 
 			template <class E>
 			static void AssertBase();
 
-			const std::optional<Entity> entity;
+			const std::optional<Entity> target;
 
 			Event();
-			Event(const Entity entity);
+			Event(const Entity target);
 			virtual ~Event() = default;
-			
+
 		};
 
 		template <class E>
