@@ -19,19 +19,6 @@ namespace Strife {
 namespace nlohmann {
 	
 	template <>
-	struct adl_serializer<Strife::Core::Data> {
-
-        static void to_json(json& j, const Strife::Core::Data& data) {
-	        j = nlohmann::json(data);
-		}
-
-        static void from_json(const json& j, Strife::Core::Data& data) {
-	        data = Strife::Core::Data(j);
-		}
-		
-	};
-	
-	template <>
 	struct adl_serializer<boost::uuids::uuid> {
 
         static void to_json(json& j, const boost::uuids::uuid& id) {
