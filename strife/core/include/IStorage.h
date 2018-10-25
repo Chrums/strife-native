@@ -9,7 +9,6 @@
 #include "Context.h"
 #include "Data.h"
 #include "Entity.h"
-#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -54,8 +53,7 @@ namespace Strife {
         	class Entities {
         		public:
         			Entities(Scene& scene);
-        			const Entity add(boost::uuids::uuid id, Data& data);
-        			void remove(const Entity entity);
+        			const Entity get(boost::uuids::uuid id, Context& context);
         		private:
         			Scene& scene_;
         	};

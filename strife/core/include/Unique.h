@@ -2,7 +2,6 @@
 #define UNIQUE_H
 
 #include <functional>
-
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/nil_generator.hpp>

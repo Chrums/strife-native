@@ -1,10 +1,13 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <map>
+#include <boost/uuid/uuid.hpp>
 #include "Data.h"
+#include "Entity.h"
 
-using namespace Strife {
-    using namespace Core {
+namespace Strife {
+    namespace Core {
 
         class Scene;
 
@@ -13,16 +16,18 @@ using namespace Strife {
         public:
         
         	const Data data;
+        	Scene& scene;
         
         	Context(Scene& scene);
-        	Context& bind(const Data data);
+        	void destroy();
+        	Entity at(const boost::uuids::uuid id);
+        	Context bind(const Data data);
         	
         private:
         
-        	Context(Scene& scene, const Data data);
+        	Context(Scene& scene, std::map<boost::uuids::uuid, Entity>* context, const Data data);
         	
-        	Scene& scene_;
-        	std::map<boost::uuids::uuid, boost::uuids::uuid> context_;
+        	std::map<boost::uuids::uuid, Entity>* context_;
         	
         };
 

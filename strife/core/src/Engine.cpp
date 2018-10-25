@@ -22,7 +22,7 @@ void Engine::Scenes::load(const std::string identifier, const std::string path) 
     file.open(path);
     Data data;
     file >> data;
-    auto& [ignore, scene] = *scenes_.try_emplace(identifier, engine_.dispatcher).first;
+    auto& [ignore, scene] = *scenes_.try_emplace(identifier).first;
     engine_.initialize(scene);
     scene.deserialize(data);
 }
@@ -38,11 +38,11 @@ void Engine::Scenes::swap(const std::string identifier) {
 
 Engine* Engine::instance_ = nullptr;
 
-Engine* Engine::Instance() {
+Engine& Engine::Instance() {
 	if (Engine::instance_ == nullptr) {
 		Engine::instance_ = new Engine();
 	}
-	return Engine::instance_;
+	return *Engine::instance_;
 }
 
 Engine::Engine()

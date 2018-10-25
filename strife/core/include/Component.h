@@ -6,7 +6,6 @@
 #include "Data.h"
 #include "Entity.h"
 #include "Unique.h"
-#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {

@@ -14,7 +14,6 @@
 #include "Event.h"
 #include "Storage.h"
 #include "System.h"
-#include "EntityMap.h"
 
 namespace Strife {
 	namespace Core {
@@ -46,14 +45,12 @@ namespace Strife {
 				Entities(Scene& scene, Dispatcher& dispatcher);
 
                 const Entity add();
-                const Entity add(const boost::uuids::uuid id, Data& data);
                 void remove(const Entity& entity);
-                const std::set<Entity>& get() const;
+                const Entity get(const boost::uuids::uuid id, Context& context);
 
             private:
                 Scene& scene_;
 				Dispatcher& dispatcher_;
-                std::set<Entity> entities_;
 			};
 
 			class Components {
@@ -177,11 +174,12 @@ namespace Strife {
         	
         public:
         	
+			Dispatcher dispatcher;
             Entities entities;
 			Components components;
 			Systems systems;
 
-			Scene(Dispatcher& dispatcher);
+			Scene();
 			~Scene() = default;
 
 			template <class C>
@@ -192,9 +190,7 @@ namespace Strife {
 
 			const Data serialize() const;
             void deserialize(Data data);
-
-		private:
-			Dispatcher& dispatcher_;
+            
 		};
 
 	}  // namespace Core

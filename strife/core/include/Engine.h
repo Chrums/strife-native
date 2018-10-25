@@ -46,7 +46,7 @@ namespace Strife {
 			};
 
 		public:
-			static Engine* Instance();
+			static Engine& Instance();
 
 			Scenes scenes;
 			Dispatcher dispatcher;

@@ -14,7 +14,6 @@
 #include "Entity.h"
 #include "IIterator.h"
 #include "IStorage.h"
-#include "EntityMap.h"
 
 namespace Strife {
     namespace Core {
@@ -74,7 +73,7 @@ namespace Strife {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = entities_.add(entityId, data);
+                    const Entity entity = entities_.get(entityId, context);
 					C* const component = add(entity);
                     component->deserialize(context.bind(componentData));
 				}
@@ -93,7 +92,7 @@ namespace Strife {
             }
 
             C* const get(const Entity entity) const {
-                auto& iteratorEntityToComponent = components_.find(entity);
+                auto iteratorEntityToComponent = components_.find(entity);
                 if (iteratorEntityToComponent != components_.end()) {
                     return const_cast<C* const>(&iteratorEntityToComponent->second);
                 }

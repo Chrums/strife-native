@@ -14,9 +14,6 @@ find_program(CONAN_CMD conan)
 if(NOT CONAN_CMD AND CONAN_REQUIRED)
     message(FATAL_ERROR "Conan executable not found!")
 endif()
-execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/sdl2_ttf currentproject/stable)
-execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/metastuff currentproject/stable)
-execute_process(COMMAND ${CONAN_CMD} export ${CMAKE_CURRENT_SOURCE_DIR}/conan/imgui currentproject/stable)
 
 conan_cmake_run(CONANFILE conanfile.py
                 BASIC_SETUP CMAKE_TARGETS
@@ -25,13 +22,9 @@ conan_cmake_run(CONANFILE conanfile.py
 include(build/conanbuildinfo.cmake)
 conan_basic_setup()
 
-#set(CMAKE_CXX_COMPILER clang++)
-#set(CMAKE_CXX_FLAGS "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/project")
-
 find_package(Threads REQUIRED)
 
 add_subdirectory(core)
-add_subdirectory(project)
 
 add_executable(main main.cpp)
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
@@ -42,7 +35,5 @@ include_directories(AFTER SYSTEM
 
 target_link_libraries(main LINK_PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
-    ${CONAN_LIBS_SDL2}
     core
-    project
 )

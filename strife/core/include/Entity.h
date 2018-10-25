@@ -3,7 +3,9 @@
 
 #include <typeindex>
 #include <functional>
+#include <optional>
 #include <boost/uuid/uuid.hpp>
+#include "Data.h"
 #include "Unique.h"
 
 namespace Strife {
@@ -17,7 +19,7 @@ namespace Strife {
 			class Components {
 
 			public:
-				Components(Entity& entity);
+				Components(Entity* entity);
 
 				Component* const add(const std::type_index type);
 				Component* const add(const std::type_index type, const boost::uuids::uuid id);
@@ -52,7 +54,7 @@ namespace Strife {
 				};
 
 			private:
-				Entity& entity_;
+				Entity* entity_;
 			};
 
 		public:
@@ -63,8 +65,8 @@ namespace Strife {
 			Entity(Scene& scene);
 			Entity(const boost::uuids::uuid id, Scene& scene);
 
-			bool operator==(const Entity& rhs) const;
-			bool operator!=(const Entity& rhs) const;
+			bool operator==(const Entity& entity) const;
+			bool operator!=(const Entity& entity) const;
 
 			void destroy();
 		};
@@ -73,12 +75,14 @@ namespace Strife {
 }  // namespace Strife
 
 namespace std {
+	
     template <>
     struct hash<Strife::Core::Entity> {
 		size_t operator()(const Strife::Core::Entity& entity) const {
 			return hash<Strife::Core::Unique>{}(entity);
 		}
 	};
+	
 }  // namespace std
 
 #endif

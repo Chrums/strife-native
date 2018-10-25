@@ -1,5 +1,4 @@
 #include "Component.h"
-#include "EntityMap.h"
 
 using namespace Strife::Core;
 using boost::uuids::uuid;

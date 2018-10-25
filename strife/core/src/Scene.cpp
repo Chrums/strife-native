@@ -1,5 +1,4 @@
 #include "Scene.h"
-#include "EntityMap.h"
 
 #include <string>
 #include <boost/lexical_cast.hpp>
@@ -17,15 +16,8 @@ Scene::Entities::Entities(Scene& scene, Dispatcher& dispatcher)
     , dispatcher_(dispatcher) {}
 
 const Entity Scene::Entities::add() {
-    const Entity entity = *entities_.insert(Entity(scene_)).first;
+    const Entity entity(scene_);
 	dispatcher_.emit<EntityAdded>(entity);
-	return entity;
-}
-
-const Entity Scene::Entities::add(const uuid id, Data& data) {
- //   const Entity entity = *entities_.insert(entityMap.getEntity(id)).first;
-	// dispatcher_.emit<EntityAdded>(entity);
-    const Entity entity = *entities_.insert(Entity(scene_)).first;
 	return entity;
 }
 
@@ -34,8 +26,10 @@ void Scene::Entities::remove(const Entity& entity) {
 	dispatcher_.emit<EntityRemoved>(entity);
 }
 
-const std::set<Entity>& Scene::Entities::get() const {
-    return entities_;
+const Entity Scene::Entities::get(const uuid id, Context& context) {
+	const Entity entity = context.at(id);
+	dispatcher_.emit<EntityAdded>(entity);
+	return entity;
 }
 
 Scene::Components::Components(Scene& scene)
@@ -117,11 +111,10 @@ Scene::Systems::~Systems() {
 	}
 }
 
-Scene::Scene(Dispatcher& dispatcher)
+Scene::Scene()
     : entities(*this, dispatcher)
     , components(*this)
-    , systems(*this, dispatcher)
-    , dispatcher_(dispatcher) {}
+    , systems(*this, dispatcher) {}
 
 const Data Scene::serialize() const {
 	Data data;
@@ -133,4 +126,5 @@ void Scene::deserialize(Data data) {
 	Context context(*this);
 	Data componentsData = data["components"];
     components.deserialize(context.bind(componentsData));
+    context.destroy();
 }
