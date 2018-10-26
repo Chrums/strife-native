@@ -34,12 +34,5 @@ bool IStorage::Iterator::operator!=(const IStorage::Iterator& iterator) const {
 	return !((*iterator_) == iterator.iterator_);
 }
 
-IStorage::Entities::Entities(Scene& scene) 
-	: scene_(scene) {}
-	
-const Entity IStorage::Entities::get(uuid id, Context& context) {
-    return scene_.entities.get(id, context);
-}
-
 IStorage::IStorage(Scene& scene)
-    : entities_(scene) {}
+    : scene_(scene) {}

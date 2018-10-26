@@ -126,5 +126,4 @@ void Scene::deserialize(Data data) {
 	Context context(*this);
 	Data componentsData = data["components"];
     components.deserialize(context.bind(componentsData));
-    context.destroy();
 }

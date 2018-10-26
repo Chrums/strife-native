@@ -48,17 +48,10 @@ namespace Strife {
 
 			virtual Iterator begin() = 0;
 			virtual Iterator end() = 0;
+			
+		protected:
+			Scene& scene_;
 
-        protected:
-        	class Entities {
-        		public:
-        			Entities(Scene& scene);
-        			const Entity get(boost::uuids::uuid id, Context& context);
-        		private:
-        			Scene& scene_;
-        	};
-        	
-        	Entities entities_;
 		};
 
 		template <class S>
