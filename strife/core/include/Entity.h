@@ -5,7 +5,6 @@
 #include <functional>
 #include <optional>
 #include <boost/uuid/uuid.hpp>
-#include "Data.h"
 #include "Unique.h"
 
 namespace Strife {

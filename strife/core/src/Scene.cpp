@@ -27,7 +27,7 @@ void Scene::Entities::remove(const Entity& entity) {
 }
 
 const Entity Scene::Entities::get(const uuid id, Context& context) {
-	const Entity entity = context.at(id);
+	const Entity entity = context.get(id);
 	dispatcher_.emit<EntityAdded>(entity);
 	return entity;
 }
@@ -123,7 +123,7 @@ const Data Scene::serialize() const {
 }
 
 void Scene::deserialize(Data data) {
-	Context context(*this);
+	Context context(this);
 	Data componentsData = data["components"];
     components.deserialize(context.bind(componentsData));
 }
