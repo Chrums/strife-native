@@ -2,6 +2,7 @@
 #define CONTEXT_H
 
 #include <map>
+#include <optional>
 #include <boost/uuid/uuid.hpp>
 #include "Data.h"
 #include "Entity.h"
@@ -21,6 +22,7 @@ namespace Strife {
         	Context(Scene& scene);
         	void destroy();
         	Entity at(const boost::uuids::uuid id);
+        	std::optional<Entity> operator[](const std::string field);
         	Context bind(const Data data);
         	
         private:

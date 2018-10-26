@@ -2,6 +2,7 @@
 #define DATA_H
 
 #include <map>
+#include <optional>
 #include <string>
 #include <boost/uuid/uuid.hpp>
 #include <boost/lexical_cast.hpp>
@@ -17,6 +18,27 @@ namespace Strife {
 }  // namespace Strife
 
 namespace nlohmann {
+	
+	template <typename T>
+	struct adl_serializer<std::optional<T>> {
+
+        void to_json(Strife::Core::Data& data, const std::optional<T>& optional) {
+			if (optional) {
+				data = optional.value();
+			} else {
+				data = nullptr;
+			}
+	    }
+	    
+	    void from_json(const Strife::Core::Data& data, std::optional<T>& optional) {
+	        if (!data.is_null()) {
+	        	optional = data.get<T>();
+	        } else {
+	        	optional = std::nullopt;
+	        }
+	    }
+		
+	};
 	
 	template <>
 	struct adl_serializer<boost::uuids::uuid> {

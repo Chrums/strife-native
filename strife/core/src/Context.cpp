@@ -1,5 +1,7 @@
 #include "Context.h"
 
+#include "Scene.h"
+
 using namespace Strife::Core;
 using namespace std;
 using boost::uuids::uuid;
@@ -13,14 +15,25 @@ void Context::destroy() {
 }
 
 Entity Context::at(const uuid id) {
-	auto iteratorIdToEntity = context_->find(id);
+    auto iteratorIdToEntity = context_->find(id);
 	if (iteratorIdToEntity == context_->end()) {
-	    auto [ignore, entity] = *context_->try_emplace(id, scene).first;
+	    Entity entity = scene.entities.add();
+	    context_->insert({ id, entity });
 	    return entity;
 	} else {
 	    auto& [ignore, entity] = *iteratorIdToEntity;
 	    return entity;
 	}
+}
+
+optional<Entity> Context::operator[](const string field) {
+    const Data identifier = data[field];
+    if (!identifier.is_null()) {
+        const uuid id = identifier.get<uuid>();
+    	return at(id);
+    } else {
+        return nullopt;
+    }
 }
 
 Context Context::bind(const Data data) {
