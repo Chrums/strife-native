@@ -16,4 +16,4 @@ const Data Component::serialize() const {
 	return Data();
 }
 
-void Component::deserialize(Context context) {}
+void Component::deserialize(Data data) {}

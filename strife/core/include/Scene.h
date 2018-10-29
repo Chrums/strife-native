@@ -8,7 +8,6 @@
 #include <typeindex>
 #include <boost/uuid/uuid.hpp>
 #include "Component.h"
-#include "Context.h"
 #include "Data.h"
 #include "Entity.h"
 #include "Event.h"
@@ -46,7 +45,7 @@ namespace Strife {
 
                 const Entity add();
                 void remove(const Entity& entity);
-                const Entity get(const boost::uuids::uuid id, Context& context);
+                const Entity get(const boost::uuids::uuid id, Data& data);
 
             private:
                 Scene& scene_;
@@ -60,7 +59,7 @@ namespace Strife {
 				~Components();
 
 				const Data serialize() const;
-                void deserialize(Context context);
+                void deserialize(Data data);
 
 				Component* const add(const std::type_index type, const Entity& entity);
 				Component* const add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);

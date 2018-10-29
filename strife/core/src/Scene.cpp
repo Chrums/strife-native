@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include <iostream>
+
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -26,8 +28,8 @@ void Scene::Entities::remove(const Entity& entity) {
 	dispatcher_.emit<EntityRemoved>(entity);
 }
 
-const Entity Scene::Entities::get(const uuid id, Context& context) {
-	const Entity entity = context.get(id);
+const Entity Scene::Entities::get(const uuid id, Data& data) {
+	const Entity entity = data.get(id);
 	dispatcher_.emit<EntityAdded>(entity);
 	return entity;
 }
@@ -51,13 +53,13 @@ const Data Scene::Components::serialize() const {
 	return data;
 }
 
-void Scene::Components::deserialize(Context context) {
-    for (auto& iteratorStorageIdentifierToStorageData : context.data.items()) {
+void Scene::Components::deserialize(Data data) {
+    for (auto& iteratorStorageIdentifierToStorageData : data.items()) {
 		const string storageIdentifier = iteratorStorageIdentifierToStorageData.key();
 		Data storageData = iteratorStorageIdentifierToStorageData.value();
 		const type_index type = identifierToType_.at(storageIdentifier);
         IStorage* const storage = components_.at(type);
-        storage->deserialize(context.bind(storageData));
+        storage->deserialize(data.bind(storageData));
 	}
 }
 
@@ -123,7 +125,8 @@ const Data Scene::serialize() const {
 }
 
 void Scene::deserialize(Data data) {
-	Context context(this);
+	Data context(this);
 	Data componentsData = data["components"];
+	context.bind(componentsData);
     components.deserialize(context.bind(componentsData));
 }

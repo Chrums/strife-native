@@ -2,7 +2,6 @@
 #include <optional>
 #include <boost/uuid/uuid.hpp>
 #include "Component.h"
-#include "Context.h"
 #include "Data.h"
 #include "Entity.h"
 #include "Scene.h"
@@ -26,7 +25,7 @@ public:
 	    return Data();
 	}
 	
-    void deserialize(Context data) {}
+    void deserialize(Data data) {}
     
 };
 
@@ -50,10 +49,9 @@ public:
 	    return data;
 	}
 	
-    void deserialize(Context data) {
+    void deserialize(Data data) {
         parent = data["parent"].get<optional<Entity>>();
         children = data["children"].get<vector<Entity>>();
-        data["test"] = "Hello, world!";
     }
     
 };

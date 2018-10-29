@@ -6,7 +6,7 @@
 
 #include "IIterator.h"
 #include "Component.h"
-#include "Context.h"
+#include "Data.h"
 #include "Data.h"
 #include "Entity.h"
 
@@ -39,7 +39,7 @@ namespace Strife {
 			virtual ~IStorage() = default;
 
 			virtual const Data serialize() const = 0;
-            virtual void deserialize(Context context) = 0;
+            virtual void deserialize(Data data) = 0;
 
 			virtual Component* const add(const Entity entity) = 0;
 			virtual Component* const add(const boost::uuids::uuid id, const Entity entity) = 0;

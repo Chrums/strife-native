@@ -9,7 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include "Component.h"
-#include "Context.h"
+#include "Data.h"
 #include "Data.h"
 #include "Entity.h"
 #include "IIterator.h"
@@ -68,14 +68,14 @@ namespace Strife {
 				return data;
 			}
 
-            void deserialize(Context context) {
-				for (auto& iteratorEntityIdentifierToComponentData : context.data.items()) {
+            void deserialize(Data data) {
+				for (auto& iteratorEntityIdentifierToComponentData : data.items()) {
 					const std::string entityIdentifier = iteratorEntityIdentifierToComponentData.key();
 					Data componentData = iteratorEntityIdentifierToComponentData.value();
 					const boost::uuids::uuid entityId = boost::lexical_cast<boost::uuids::uuid>(entityIdentifier);
-                    const Entity entity = context.get(entityId);
+                    const Entity entity = data.get(entityId);
 					C* const component = add(entity);
-                    component->deserialize(context.bind(componentData));
+                    component->deserialize(data.bind(componentData));
 				}
 			}
 
