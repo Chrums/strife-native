@@ -5,9 +5,9 @@
 #include "Dispatcher.h"
 
 class Scene;
-class SDL_Window;
-class SDL_Texture;
-class SDL_Renderer;
+struct SDL_Window;
+struct SDL_Texture;
+struct SDL_Renderer;
 class FinishGui;
 class BeginGui;
 

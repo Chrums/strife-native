@@ -4,7 +4,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <nlohmann/json.hpp>
 #include <SDL.h>
-#include <SDL_ttf.h>
+//#include <SDL_ttf.h>
 #include <imgui.h>
 #include "Component.h"
 #include "Dispatcher.h"
@@ -328,7 +328,7 @@ private:
 
 // };
 
-int main() {
+int main(int argc, char *args[]) {
 
 	// Messenger m;
 
