@@ -24,7 +24,7 @@ namespace Strife {
                 ~Entities() = default;
                 
                 const Entity add();
-                void remove(const Entity& entity);
+                void remove(const Entity entity);
                 
             private:
             
@@ -39,13 +39,13 @@ namespace Strife {
                 Components(Scene& scene);
                 ~Components();
                 
-                Component& add(const std::type_index type, const Entity& entity);
-                Component& add(const std::type_index type, const boost::uuids::uuid id, const Entity& entity);
-                void remove(const std::type_index type, const Entity& entity);
-                void remove(const Entity& entity);
-                Component& get(const std::type_index type, const Entity& entity) const;
+                Component& add(const std::type_index type, const Entity entity);
+                Component& add(const std::type_index type, const boost::uuids::uuid id, const Entity entity);
+                void remove(const std::type_index type, const Entity entity);
+                void remove(const Entity entity);
+                Component& get(const std::type_index type, const Entity entity) const;
                 IStorage& get(const std::type_index type) const;
-                Component* const find(const std::type_index type, const Entity& entity) const;
+                Component* const find(const std::type_index type, const Entity entity) const;
                 
                 template <class C>
 				Storage<C>& initialize() {
@@ -67,27 +67,27 @@ namespace Strife {
 				}
 				
 				template <class C>
-				C& add(const Entity& entity) {
+				C& add(const Entity entity) {
 					std::type_index type(typeid(C));
 					Component& component = add(type, entity);
 					return static_cast<C&>(component);
 				}
 				
 				template <class C>
-				C& add(const boost::uuids::uuid id, const Entity& entity) {
+				C& add(const boost::uuids::uuid id, const Entity entity) {
 					std::type_index type(typeid(C));
 					Component& component = add(type, id, entity);
 					return static_cast<C&>(component);
 				}
 				
 				template <class C>
-				void remove(const Entity& entity) {
+				void remove(const Entity entity) {
 					std::type_index type(typeid(C));
 					remove(type, entity);
 				}
 				
 				template <class C>
-				C& get(const Entity& entity) const {
+				C& get(const Entity entity) const {
 					std::type_index type(typeid(C));
 					Component& component = get(type, entity);
 					return static_cast<C&>(component);
@@ -100,7 +100,7 @@ namespace Strife {
 				} 
 				
 				template <class C>
-				C* const find(const Entity& entity) const {
+				C* const find(const Entity entity) const {
 					std::type_index type(typeid(C));
 					Component* component = find(type, entity);
 					return static_cast<C*>(component);

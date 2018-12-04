@@ -26,16 +26,26 @@ namespace Strife {
                     : iterator_(iterator) {}
                 ~Iterator() = default;
                 
-                void operator++() {
+                Iterator& operator++() {
                     iterator_++;
+                    return *this;
+                }
+                
+                Iterator& operator++(int) {
+                    ++iterator_;
+                    return *this;
                 }
                 
                 bool operator==(const IIterator<IStorage::Iterator::Type>& iterator) const {
                     return iterator_ == static_cast<const Iterator&>(iterator).iterator_;
                 }
                 
+                bool operator!=(const IIterator<IStorage::Iterator::Type>& iterator) const {
+                    return iterator_ != static_cast<const Iterator&>(iterator).iterator_;
+                }
+                
                 IStorage::Iterator::Type operator*() {
-                    return { iterator_->first, iterator_->second };
+                    return {iterator_->first, iterator_->second};
                 }
                 
             private:

@@ -50,8 +50,8 @@ namespace Strife {
             virtual Component& get(const Entity entity) = 0;
             virtual Component* const find(const Entity entity) = 0;
             
-            // virtual Iterator begin() = 0;
-            // virtual Iterator end() = 0;
+            virtual Iterator begin() = 0;
+            virtual Iterator end() = 0;
             
         protected:
         

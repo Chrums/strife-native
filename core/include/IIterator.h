@@ -12,8 +12,10 @@ namespace Strife {
             IIterator() = default;
             virtual ~IIterator() = default;
             
-            virtual void operator++() = 0;
+            virtual IIterator& operator++() = 0;
+            virtual IIterator& operator++(int) = 0;
             virtual bool operator==(const IIterator& iterator) const = 0;
+            virtual bool operator!=(const IIterator& iterator) const = 0;
             virtual T operator*() = 0;
             
         };

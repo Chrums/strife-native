@@ -1,5 +1,4 @@
 #include "IStorage.h"
-
 using namespace Strife::Core;
 
 IStorage::Iterator::Iterator(IIterator<Type>* const iterator)
@@ -10,7 +9,7 @@ IStorage::Iterator::~Iterator() {
 }
 
 IStorage::Iterator& IStorage::Iterator::operator++() {
-    ++(*iterator_);
+    (*iterator_)++;
     return *this;
 }
 
