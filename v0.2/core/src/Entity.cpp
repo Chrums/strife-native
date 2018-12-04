@@ -58,7 +58,7 @@ Component& Entity::Components::get(const type_index type) const {
 //     return entity_.scene.components.find(type, entity_);
 // }
 
-Entity::Entity(const Entity& entity)
+Entity::Entity(const Entity* entity)
     : Unique(entity)
     , scene(entity.scene)
     , components(*this) {}
@@ -73,16 +73,16 @@ Entity::Entity(const uuid id, Scene& scene)
     , components(*this) {}
     
 Entity& Entity::operator=(const Entity& entity) {
-    scene = entity.scene;
+    scene = entity->scene;
     return *this;
 }
     
 bool Entity::operator==(const Entity& entity) const {
-	return id == entity.id;
+	return id == entity->id;
 }
 
 bool Entity::operator!=(const Entity& entity) const {
-	return !(id == entity.id);
+	return !(id == entity->id);
 }
 
 void Entity::destroy() {

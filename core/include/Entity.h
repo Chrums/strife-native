@@ -20,7 +20,7 @@ namespace Strife {
                 
             public:
             
-                Components(Entity& entity);
+                Components(Entity* entity);
                 ~Components() = default;
                 
                 Component& add(const std::type_index type);
@@ -65,13 +65,13 @@ namespace Strife {
                 
             private:
             
-                Entity& entity_;
+                Entity* entity_;
                 
             };
             
         public:
         
-            Scene* const scene;
+            Scene* scene;
             Components components;
         
             Entity(const Entity& entity);
