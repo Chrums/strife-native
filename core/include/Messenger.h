@@ -44,14 +44,6 @@ namespace Strife {
             ~Messenger() = default;
         
             void emit(const Message& message);
-            void emit(std::type_index type, const Message& message);
-            
-            template <class M>
-            void emit(const Message& message) {
-                Message::AssertBase<M>();
-                const std::type_index type = std::type_index(typeid(M));;
-                emit(type, message);
-            }
             
             template <class M>
             void on(Callback<M> callback) {
@@ -65,6 +57,8 @@ namespace Strife {
 		private:
 		
 			std::map<const std::type_index, std::vector<Callback<Message>>> callbacks_;
+			
+            void emit(std::type_index type, const Message& message);
             
         };
         

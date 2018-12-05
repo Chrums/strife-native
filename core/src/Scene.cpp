@@ -55,6 +55,16 @@ Component* const Scene::Components::find(const type_index type, const Entity ent
     return components_.at(type)->find(entity);
 }
 
+Scene::Systems::Systems(Scene& scene)
+    : scene_(scene) {}
+    
+Scene::Systems::~Systems() {
+	for (auto [type, system] : systems_) {
+		delete system;
+	}
+}
+
 Scene::Scene()
     : entities(*this)
-    , components(*this) {}
+    , components(*this)
+    , systems(*this) {}

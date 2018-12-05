@@ -1,10 +1,12 @@
 #ifndef ISYSTEM_H
 #define ISYSTEM_H
 
-#include "Dispatcher.h"
+#include <typeindex>
 
 namespace Strife {
     namespace Core {
+        
+        class Scene;
         
         class ISystem {
             
@@ -13,13 +15,12 @@ namespace Strife {
             template <class S>
             static void AssertBase();
             
-            ISystem(Scene& scene, Dispatcher& dispatcher);
+            ISystem(Scene& scene);
             virtual ~ISystem() = default;
             
         protected:
         
             Scene& scene_;
-            Dispatcher& dispatcher_;
             
         };
         

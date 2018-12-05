@@ -4,7 +4,9 @@
 #include <map>
 #include <functional>
 #include "Dispatcher.h"
-#include "Storage.h"
+#include "Entity.h"
+#include "Event.h"
+#include "IStorage.h"
 
 namespace Strife {
     namespace Core {
@@ -40,9 +42,11 @@ namespace Strife {
             
         public:
         
-            System(Scene& scene, Dispatcher& dispatcher)
-                : ISystem(scene, dispatcher) {
-                //C::Initialize(dispatcher);
+            System(Scene& scene, Dispatcher& dispatcher, IStorage& storage)
+                : ISystem(scene)
+                , dispatcher_(dispatcher)
+                , storage_(storage) {
+                C::Initialize(*this);
             }
             ~System() = default;
             
@@ -59,20 +63,21 @@ namespace Strife {
 				const std::type_index type = std::type_index(typeid(E));
 				Callback<Event> callback = callbacks_[type];
 				if (event.target.has_value()) {
-				    // IIterator iterator = event.target.value().components.find<C>();
-				    // if (iterator != storage_.end()) {
-				    //     C& component = static_cast<Storage<C>::Iterator>(iterator)->second;
-				    //     callback(component, event);
-				    // }
+				    C* component = event.target.value().components.find<C>();
+				    if (component != nullptr) {
+				        callback(component, event);
+				    }
 				} else {
-				    // for (auto [entity, component] : storage_) {
-				    //     callback(static_cast<C&>(component), event));
-				    // }
+				    for (auto [entity, component] : storage_) {
+				        callback(static_cast<C*>(&component), event);
+				    }
 				}
             }
                 
         private:
             
+            Dispatcher& dispatcher_;
+            IStorage& storage_;
 			std::map<const std::type_index, Callback<Event>> callbacks_;
             
         };
