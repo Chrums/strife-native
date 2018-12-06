@@ -6,6 +6,7 @@
 #include <boost/uuid/uuid.hpp>
 #include "Component.h"
 #include "Entity.h"
+#include "Event.h"
 #include "IStorage.h"
 #include "ISystem.h"
 #include "Storage.h"
@@ -16,9 +17,31 @@ namespace Strife {
         
         class Scene {
             
-        private:
+        public:
         
             class Entities {
+                
+            public:
+            
+                class AddEvent : public Event {
+                    
+                    using Event::Event;
+            		
+            	public:
+            	
+            		static const unsigned int Priority;
+                    
+                };
+                
+                class RemoveEvent : public Event {
+                    
+                    using Event::Event;
+            		
+            	public:
+            	
+            		static const unsigned int Priority;
+                    
+                };
                 
             public:
             

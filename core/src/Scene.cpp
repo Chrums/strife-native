@@ -4,15 +4,20 @@ using namespace Strife::Core;
 using namespace std;
 using boost::uuids::uuid;
 
+const Dispatcher::Priority Scene::Entities::AddEvent::Priority = Dispatcher::Synchronous;
+const Dispatcher::Priority Scene::Entities::RemoveEvent::Priority = Dispatcher::Synchronous;
+
 Scene::Entities::Entities(Scene& scene)
     : scene_(scene) {}
 
 const Entity Scene::Entities::add() {
     const Entity entity(scene_);
+    scene_.dispatcher.emit<AddEvent>(entity);
 	return entity;
 }
 
 void Scene::Entities::remove(const Entity entity) {
+    scene_.dispatcher.emit<RemoveEvent>(entity);
 	scene_.components.remove(entity);
 }
 

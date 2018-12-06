@@ -19,7 +19,7 @@ namespace Strife {
         
         class Scene {
             
-        private:
+        public:
         
             class Entities {
             	

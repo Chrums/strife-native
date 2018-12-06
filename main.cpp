@@ -91,6 +91,16 @@ public:
 int main(int argc, char const *argv[]) {
     Scene s;
     s.initialize<TestComponent>();
+    s.dispatcher.on<Scene::Entities::AddEvent>(
+        [](const Scene::Entities::AddEvent& ae) {
+            cout << ae.target.value().id << endl;
+        }
+    );
+    s.dispatcher.on<Scene::Entities::RemoveEvent>(
+        [](const Scene::Entities::RemoveEvent& re) {
+            cout << re.target.value().id << endl;
+        }
+    );
     Entity e = s.entities.add();
     e.components.add<TestComponent>();
     s.dispatcher.emit<FooEvent>();

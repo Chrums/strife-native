@@ -18,6 +18,8 @@ namespace Strife {
         public:
         
             using Priority = unsigned int;
+            
+        public:
         
             static const Priority Synchronous;
             static const Priority Final;
@@ -43,12 +45,6 @@ namespace Strife {
                     priorities_[priority].insert(type);
                     messages_[type].push(message);
                 }
-            }
-            
-            template <class M>
-            void dispatch() {
-                const std::type_index type = std::type_index(typeid(M));
-                dispatch(type);
             }
             
         private:
